@@ -252,13 +252,16 @@ class ArxivClient:
             digest = sha256_file(dest)
             if paper.sha256 in (None, digest):
                 return digest, False
-        if self._http is None:
-            self._http = httpx.AsyncClient(
-                headers={"User-Agent": USER_AGENT}, timeout=60, follow_redirects=True
-            )
         await self.limiter.wait()
         self.requests += 1
-        resp = await self._http.get(f"https://arxiv.org/pdf/{paper.arxiv_id}v{paper.version}")
+        url = f"https://arxiv.org/pdf/{paper.arxiv_id}v{paper.version}"
+        if self._http is not None:
+            resp = await self._http.get(url)
+        else:  # short-lived client: nothing left open when a workflow run ends
+            async with httpx.AsyncClient(
+                headers={"User-Agent": USER_AGENT}, timeout=60, follow_redirects=True
+            ) as http:
+                resp = await http.get(url)
         resp.raise_for_status()
         if not resp.content.startswith(b"%PDF"):  # arXiv sometimes answers with an HTML page
             raise ValueError(f"{paper.arxiv_id}: response is not a PDF ({resp.headers.get('content-type')})")

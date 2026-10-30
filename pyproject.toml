@@ -10,6 +10,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "anthropic==1.17.0",
     "arxiv==4.0.2",
+    "fastembed==0.9.1",
     "httpx==0.28.1",
     "llama-agents-dbos==0.7.0",
     "llama-agents-server==0.8.0",
@@ -53,6 +54,10 @@ asyncio_default_fixture_loop_scope = "function"
 # --disable-socket: an accidental live call (Anthropic, arXiv, HF) fails loudly instead of costing money.
 # --allow-unix-socket: asyncio's event loop needs a unix socketpair internally.
 addopts = "-q --disable-socket --allow-unix-socket"
+filterwarnings = [
+    # Raised inside llama-index-readers-file (it imports `fitz`), not by our code.
+    "ignore:The `fitz` API is deprecated:FutureWarning",
+]
 
 [tool.pyright]
 include = ["src"]

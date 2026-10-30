@@ -1,0 +1,131 @@
+{
+  "query": "(ti:\"multi-agent\" OR ti:multiagent OR ti:agents) AND (abs:LLM OR abs:\"large language model\") AND (ti:orchestration OR ti:coordination OR ti:collaboration OR ti:communication OR ti:topology OR ti:survey OR ti:framework) AND (cat:cs.MA OR cat:cs.AI OR cat:cs.CL)",
+  "created": "2026-10-30T05:22:05+00:00",
+  "papers": [
+    {
+      "arxiv_id": "2505.19591",
+      "version": 2,
+      "sha256": "244c86ebd95a9fa7ca06539854186ea3dcdbf794ceb6e7827fff6e642e647bf6"
+    },
+    {
+      "arxiv_id": "2406.08979",
+      "version": 2,
+      "sha256": "e326ea37cfe7ca44366ee7908850ff555662f55e6c804ff10c6dac2069b17163"
+    },
+    {
+      "arxiv_id": "2605.25746",
+      "version": 1,
+      "sha256": "330488b12eb1dbf73df48babba7dddfbf191981b610d5ea9fe8cfc03aecc874e"
+    },
+    {
+      "arxiv_id": "2511.18413",
+      "version": 3,
+      "sha256": "1f4858aecef15332798e62cf6d03b3251791580b68224fcae268c1a8aa049a4b"
+    },
+    {
+      "arxiv_id": "2308.00352",
+      "version": 7,
+      "sha256": "17582e47647fac8eaa3681feade41c8408310c4133acc5c6823565fbe880e1ac"
+    },
+    {
+      "arxiv_id": "2501.06322",
+      "version": 1,
+      "sha256": "badaf8bb47535df96252be38c5a5b81d979478b860ed67c2c4ac0ebaa4483ae5"
+    },
+    {
+      "arxiv_id": "2410.21784",
+      "version": 1,
+      "sha256": "fdf2769b72897406bc2c69d406a0f7454505d5c159ce2ab9dd4cf5628c8f1a5d"
+    },
+    {
+      "arxiv_id": "2507.08616",
+      "version": 1,
+      "sha256": "4024d22822ab51ebd6c524f4ba7dfeef5ab6fbca8fe127343165e27faaf813d7"
+    },
+    {
+      "arxiv_id": "2508.00032",
+      "version": 2,
+      "sha256": "e5c9d2463aef52861bc1c7f907ffabac6e62a10a05381b407c5f7f246db80fb7"
+    },
+    {
+      "arxiv_id": "2310.08067",
+      "version": 2,
+      "sha256": "805e62fad8e6683dabb30588857d24519f849228b7006f75185532b4c34d3015"
+    },
+    {
+      "arxiv_id": "2604.00249",
+      "version": 1,
+      "sha256": "215ba0bf314ad5fdfb0fb2f1137a46b5f8e6a1f7c4bbcdf8c14da0df62ae26ff"
+    },
+    {
+      "arxiv_id": "2502.14743",
+      "version": 2,
+      "sha256": "de8fbdff90b586fdd478ef5009e7584a5a1e7d37fd3c15eeab5d66fd495aab8e"
+    },
+    {
+      "arxiv_id": "2406.20041",
+      "version": 3,
+      "sha256": "29f71c031c287a032a28a5a718796758462ba22fd559bacfcdad2d10b939b70f"
+    },
+    {
+      "arxiv_id": "2606.13598",
+      "version": 1,
+      "sha256": "18b7455f2d190967187c8c5034c54f9f6fe07ceb3cbf79b9caea1660515936ad"
+    },
+    {
+      "arxiv_id": "2605.13110",
+      "version": 1,
+      "sha256": "fd53310493d0ae62df2cdd5cb10d5272368f3db56561227cc3f7b40d070cb462"
+    },
+    {
+      "arxiv_id": "2509.11079",
+      "version": 5,
+      "sha256": "d1cff1690f131145d3ab475587af8ca8c68cf4cd62b5368cf159a33bc07425a7"
+    },
+    {
+      "arxiv_id": "2509.05882",
+      "version": 2,
+      "sha256": "111614bbf3586f776bec892a0d2a7e67483580d22b18df32d1e3997f35634c50"
+    },
+    {
+      "arxiv_id": "2608.08605",
+      "version": 2,
+      "sha256": "5c1b5caed5865f9ff34587d6c2ccea8d2e3b240bdbbe2511bd9cab00496e7e2f"
+    },
+    {
+      "arxiv_id": "2405.14314",
+      "version": 4,
+      "sha256": "1f78e9d20e636017bc2b26c332c820bca9996808359ef0d2dddc995e60761db1"
+    },
+    {
+      "arxiv_id": "2511.20639",
+      "version": 4,
+      "sha256": "6ad933628641500c914f9fc88ddddaae592c8ca67dc56c96c38f966b27fd1402"
+    },
+    {
+      "arxiv_id": "2508.15876",
+      "version": 1,
+      "sha256": "56a8efc9de4c9aed9cca03b7216ceda4637e7aa292ec7367cd5dd872be65dbca"
+    },
+    {
+      "arxiv_id": "2306.03314",
+      "version": 1,
+      "sha256": "a5a3acfa89208dafcac204e828b8081f391afd322c3af6806a89ae6de301e4a4"
+    },
+    {
+      "arxiv_id": "2505.12467",
+      "version": 1,
+      "sha256": "820edc9e7df417eb792e1e6a3e7d06aa3b21ee958c0425487256e2d791aa5940"
+    },
+    {
+      "arxiv_id": "2505.11765",
+      "version": 5,
+      "sha256": "bddc432b6a6dabfd2f0e83a6b2528ced1c0f6e598e3b4a6ff2aff74641b91d3c"
+    },
+    {
+      "arxiv_id": "2404.01663",
+      "version": 6,
+      "sha256": "21df2f3e2458b80506f5755a4901cb6ca11a5a9a8a6560b6873d722aa452b1a8"
+    }
+  ]
+}

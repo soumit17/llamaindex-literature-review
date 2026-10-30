@@ -1,4 +1,4 @@
-"""`litreview` command line. M0 commands: hello, tiny, smoke, draw, cost."""
+"""`litreview` command line. M0: hello, tiny, smoke, draw, cost. M2: ingest."""
 
 from __future__ import annotations
 
@@ -92,7 +92,7 @@ def smoke(prompt: str = typer.Option(None, help="Override the question sent to H
 
 @app.command()
 def draw(out_dir: Path = typer.Option(PROJECT_ROOT / "docs")) -> None:
-    """Write 'all possible flows' diagrams (interactive HTML + Mermaid) for the M0 workflows."""
+    """Write 'all possible flows' diagrams (interactive HTML + Mermaid) for every workflow so far."""
     from llama_index.utils.workflow import draw_all_possible_flows, draw_all_possible_flows_mermaid
 
     from litreview.workflows.hello import HelloWorkflow
@@ -100,7 +100,9 @@ def draw(out_dir: Path = typer.Option(PROJECT_ROOT / "docs")) -> None:
 
     out_dir = out_dir.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
-    for name, wf in [("hello", HelloWorkflow), ("tiny", TinyWorkflow)]:
+    from litreview.workflows.ingestion import IngestionWorkflow
+
+    for name, wf in [("hello", HelloWorkflow), ("tiny", TinyWorkflow), ("ingest", IngestionWorkflow)]:
         html = out_dir / f"{name}_flow.html"
         # pyvis copies its JS helpers into ./lib and the HTML references them relatively,
         # so render from inside out_dir to keep lib/ next to the HTML.
@@ -112,6 +114,73 @@ def draw(out_dir: Path = typer.Option(PROJECT_ROOT / "docs")) -> None:
         )
         (out_dir / f"{name}_flow.mermaid").unlink(missing_ok=True)
         console.print(f"wrote {html} and {name}_flow.md")
+
+
+@app.command()
+def ingest(
+    limit: int = typer.Option(None, help="Only the first N papers in the lock file."),
+    rebuild: bool = typer.Option(False, help="Re-parse and re-index (summaries and embeddings stay cached)."),
+    fail: list[str] = typer.Option(
+        [], "--fail", help="Demo: make fetch_pdf fail for this arxiv id (watch retries + catch_error)."
+    ),
+    debug_steps: bool = typer.Option(False, "--debug-steps", help="Show StepStateChanged events."),
+) -> None:
+    """Run the ingestion workflow: fetch -> parse -> index -> summarize. Summaries cost ~$0.001/paper."""
+    from llama_index.utils.workflow import draw_most_recent_execution_mermaid
+    from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskID, TextColumn, TimeElapsedColumn
+
+    from litreview.corpus import CorpusLock, CorpusPaths
+    from litreview.events import IngestProgress, IngestReport, IngestRequest
+    from litreview.resources import get_cost_tracker
+    from litreview.workflows.ingestion import IngestionWorkflow
+
+    s = get_settings()
+    paths = CorpusPaths(s.p2_data_dir)
+    lock = CorpusLock.load(paths.lock)
+    if lock is None:
+        raise typer.BadParameter(f"{paths.lock} not found; run scripts/fetch_corpus.py first")
+    todo = [p for p in lock.papers[:limit] if not (paths.root / "summaries" / f"{p.arxiv_id}.json").exists()]
+    if todo and not s.anthropic_api_key:
+        raise typer.BadParameter(f"{len(todo)} papers need a summary but ANTHROPIC_API_KEY is not set")
+    spent_before = get_cost_tracker().spent_usd
+    marks = {"retry": "[yellow]retry[/]", "failed": "[red]FAILED[/]"}
+
+    async def go() -> IngestReport:
+        handler = IngestionWorkflow(timeout=3600).run(
+            start_event=IngestRequest(limit=limit, rebuild=rebuild, fail_ids=fail)
+        )
+        columns = (TextColumn("{task.description:<10}"), BarColumn(), MofNCompleteColumn())
+        with Progress(*columns, TimeElapsedColumn(), console=console) as progress:
+            bars: dict[str, TaskID] = {}
+            async for ev in handler.stream_events(expose_internal=debug_steps):
+                if isinstance(ev, IngestProgress):
+                    if ev.stage == "start":
+                        for stage in ("fetch", "parse", "index", "summarize"):
+                            bars[stage] = progress.add_task(stage, total=ev.total)
+                    elif ev.status in marks:
+                        progress.console.print(f"  {marks[ev.status]} {ev.arxiv_id}: {ev.message}")
+                    else:
+                        progress.update(bars[ev.stage], completed=ev.done)
+                elif isinstance(ev, StepStateChanged):
+                    progress.console.print(
+                        f"  [dim]{ev.name:<16} {ev.step_state.value:<12} worker={ev.worker_id}[/dim]"
+                    )
+            report = await handler
+        out = s.p2_runs_dir / "ingest_execution.mermaid"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        draw_most_recent_execution_mermaid(handler, filename=str(out))
+        return report
+
+    report = asyncio.run(go())
+    spent = get_cost_tracker().spent_usd
+    console.print(
+        f"\n[green]ingested[/] {report.papers} papers   [green]chunks[/] {report.nodes} "
+        f"(+{report.new_nodes} new)   [green]summaries generated[/] {report.summaries_generated}"
+        f"   [yellow]cost[/] ${spent - spent_before:.4f} (P2 total ${spent:.4f})"
+    )
+    if report.failed:
+        console.print(f"[red]failed:[/] {', '.join(report.failed)}  (re-run to retry them)")
+    console.print(f"[dim]execution diagram: {s.p2_runs_dir / 'ingest_execution.mermaid'}[/]")
 
 
 @app.command()

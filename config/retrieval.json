@@ -1,0 +1,5 @@
+{
+  "_note": "splitter: 'sentence' (SentenceSplitter) or 'semantic' (SemanticSplitterNodeParser). The M2 splitter experiment compares variants; M3 picks the winner by hit-rate@5.",
+  "splitter": {"kind": "sentence", "chunk_size": 512, "chunk_overlap": 64},
+  "query": {"top_k": 12, "rerank_top_n": 5, "router": true}
+}

@@ -88,3 +88,46 @@ Verified that it fails on 2.3.0 (`uv run --with anthropic==2.3.0 pytest tests/te
   the ingestion workflow, where `retry_policy` + `@catch_error` handle it (spec rule 4: don't hand-roll).
 - **Async client** because M2 calls it from `num_workers=2` workflow steps; the blocking `arxiv`
   library call runs in `asyncio.to_thread`.
+
+## D7. M2 ingestion workflow
+
+Verified against the LlamaIndex docs MCP (concurrent_execution, retry_steps) and the installed source.
+
+- **Fan-in when a paper fails (§6.2's open question).** In Workflows 2.x a `list[E]` parameter joins the
+  *stream* opened by the step that returned a list; the runtime tracks every branch, so no count is
+  needed. A `@catch_error` handler can **not** feed a different event type into that join: the
+  validator rejects it ("no returned-list producer creates a stream for those event types"); it only
+  counts the fan-out path, not recovery handlers. Options tried in a probe: (a) return the normal
+  event type with a failure flag (works), (b) return `None` so the branch is dropped (works; the join
+  fires with the survivors, even with `[]`). **Chosen: (b).** `persist` only ever sees real
+  `PaperSummarized` events; failures live in `IngestState.failed` and on the stream.
+- **`index_paper` has `num_workers=1`** (spec: 2). The docstore, vector store and index are shared
+  in-memory objects that aren't safe for concurrent writers, and fastembed's ONNX session already uses
+  every core. Embedding runs in `asyncio.to_thread` so fetches and LLM calls continue meanwhile.
+- **Pipeline → index.** `UPSERTS` needs a vector store attached to the pipeline, but `SimpleVectorStore`
+  doesn't store text. So the pipeline only dedupes + splits + embeds (`DUPLICATES_ONLY`, set
+  explicitly), and its new nodes go into a `VectorStoreIndex` via `insert_nodes` (no re-embedding:
+  nodes already carry embeddings). Changed parse output is handled by `--rebuild`, not upserts.
+- **Embedding cache outside storage.** `data/cache/ingestion/` survives `--rebuild`: a rebuild re-splits
+  but does not re-embed. Note: the cache key includes the embed model's serialized fields, so changing
+  any embed setting re-embeds everything.
+- **Retries belong to the workflow.** `Anthropic(max_retries=0)` (the SDK default is 10, invisible), and
+  the arXiv client has no retry loop. `FETCH_RETRY` / `LLM_RETRY` in `retry.py`; anthropic 1.17's
+  `RetryableError` is a middleware marker, so transient types are listed explicitly.
+  `Scaled` (a custom `RetryPolicy`) multiplies delays by `P2_RETRY_TIME_SCALE` (tests: 0).
+- **NLTK data.** nltk 3.10 refuses data dirs writable by group/other; with umask 0002 the copy bundled in
+  `.venv` is rejected and `SentenceSplitter` fails. `ensure_nltk_data` copies it to `.cache/nltk_data`
+  without group/other write and sets `NLTK_DATA`. No network.
+- **New dependency: `fastembed==0.9.1`.** `llama-index-embeddings-fastembed` doesn't install the engine it
+  wraps. Pulls `onnxruntime`, not torch. The model (`Qdrant/bge-small-en-v1.5-onnx-Q`, 65 MB) downloads
+  once into `.cache/fastembed`.
+- **Parsing.** PyMuPDF splits a heading's number and title into two lines; they're rejoined before
+  heading detection. Guards against false headings: captions/numeric titles, numbering style
+  (roman vs arabic), section sequence, and "Introduction" always resets the count (affiliation
+  superscripts like "1 University of X"). On the 25-paper corpus: references cut 25/25,
+  introduction 25/25, conclusion 22/25, method 20/25.
+- **Measured on the real corpus** (fake LLM, real embeddings): 25 papers -> 803 chunks; first ingest
+  ~290 s, CPU-bound on embedding (~0.2 s per chunk; batch size and thread count made no difference);
+  no-op re-run 5.4 s.
+- **Splitter experiment** builds one index per variant for M3. Segments (page x section) cap chunk
+  size, so "512" gives a median ~190 tokens and 1024 changes little; semantic is ~10x slower to build.

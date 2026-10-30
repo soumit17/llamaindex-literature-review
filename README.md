@@ -84,3 +84,46 @@ What happens, in order:
 | Lock + metadata files | `CorpusLock`, `PaperMeta` in [corpus.py](src/litreview/corpus.py) |
 | Resource that M2 will inject | `get_arxiv_client` in [resources.py](src/litreview/resources.py) |
 | Interactive pick | [scripts/fetch_corpus.py](scripts/fetch_corpus.py) |
+
+## M2: ingestion workflow
+
+```bash
+uv run litreview ingest --limit 2         # try 2 papers first (~1 min, ~$0.002)
+uv run litreview ingest                   # all 25: ~5 min (CPU embedding), ~$0.02 of Haiku
+uv run litreview ingest                   # again: ~5 s, 0 new chunks, $0
+uv run litreview ingest --fail 2308.00352 # watch retries, then catch_error recovery (~30 s of backoff)
+uv run litreview ingest --debug-steps     # see every step start/finish and its worker id
+uv run litreview draw                     # docs/ingest_flow.md (+ .html): the graph from the types
+uv run python scripts/splitter_experiment.py --only sentence-1024   # optional, $0, feeds M3
+```
+
+The first run downloads the embedding model (65 MB) into `.cache/fastembed`.
+
+How events flow (no graph is written anywhere; it comes from the step signatures):
+
+```
+IngestRequest ─load_lock─▶ list[PaperToFetch]       fan-out: one branch per paper
+  PaperToFetch ─fetch_pdf (2 workers, retried)─▶ PaperFetched        ─┐ failure after 4 attempts:
+  PaperFetched ─parse_pdf (4 workers)─▶ PaperParsed                   │ on_fetch_failure records it,
+  PaperParsed ─index_paper (1 worker)─▶ PaperIndexed                  │ the branch ends
+  PaperIndexed ─summarize_paper (3 workers, retried)─▶ PaperSummarized
+list[PaperSummarized] ─persist─▶ IngestReport       fan-in: fires once every branch has finished
+```
+
+| Concept | Where |
+|---|---|
+| Fan-out by returning a list | `load_lock` in [ingestion.py](src/litreview/workflows/ingestion.py) |
+| List fan-in (stream join, no counting) | `persist` |
+| `num_workers` and why each value | decorator comments on each step |
+| Composable `retry_policy`, `ctx.retry_info()` | [retry.py](src/litreview/retry.py), `fetch_pdf` |
+| Custom `RetryPolicy` (`Scaled`) | [retry.py](src/litreview/retry.py) |
+| `@catch_error(for_steps=...)` returning `None` | `on_fetch_failure` |
+| Typed state + `edit_state` under parallel workers | [state.py](src/litreview/state.py), every step |
+| Resources: cached, chained, `ResourceConfig` with `path_selector` | `get_storage` in [resources.py](src/litreview/resources.py) |
+| IngestionPipeline (docstore dedupe, cache) -> VectorStoreIndex | [pipeline.py](src/litreview/retrieval/pipeline.py) |
+| PDF clean-up and section tagging | [parsing.py](src/litreview/retrieval/parsing.py) |
+| Capped summary input (abstract + intro + conclusion) | [summaries.py](src/litreview/retrieval/summaries.py) |
+| Execution drawing of the last run | `runs/ingest_execution.mermaid` |
+
+On disk: `data/parsed/<id>.jsonl` (segments), `data/storage/` (index), `data/summaries/<id>.json`,
+`data/cache/ingestion/` (embedding cache, survives `--rebuild`).

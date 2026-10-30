@@ -15,6 +15,7 @@ import pytest
 os.environ["ANTHROPIC_API_KEY"] = "sk-test-dummy"
 os.environ.pop("P2_RUNS_DIR", None)
 os.environ.pop("P2_DATA_DIR", None)
+os.environ["P2_RETRY_TIME_SCALE"] = "0"
 
 from llama_index.core import Settings  # noqa: E402
 from llama_index.core.embeddings import MockEmbedding  # noqa: E402

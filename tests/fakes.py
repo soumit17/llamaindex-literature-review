@@ -73,9 +73,17 @@ class FakeArxivApi:
 class FakePdfServer:
     """httpx transport serving fake PDFs; `fail` maps arxiv_id -> HTTP status to return instead."""
 
-    def __init__(self, fail: dict[str, int] | None = None, body: bytes | None = None) -> None:
-        self.fail = fail or {}
+    def __init__(
+        self,
+        fail: dict[str, int] | None = None,
+        body: bytes | None = None,
+        bodies: dict[str, bytes] | None = None,
+        fail_times: dict[str, int] | None = None,
+    ) -> None:
+        self.fail = fail or {}  # always answer with this status
+        self.fail_times = dict(fail_times or {})  # answer 503 this many times, then succeed
         self.body = body
+        self.bodies = bodies or {}
         self.hits: list[str] = []
 
     def handler(self, request: Any) -> Any:
@@ -86,7 +94,11 @@ class FakePdfServer:
         arxiv_id = versioned.rpartition("v")[0]
         if arxiv_id in self.fail:
             return httpx.Response(self.fail[arxiv_id])
-        return httpx.Response(200, content=self.body or f"%PDF-1.7 fake {versioned}".encode())
+        if self.fail_times.get(arxiv_id, 0) > 0:
+            self.fail_times[arxiv_id] -= 1
+            return httpx.Response(503)
+        body = self.bodies.get(arxiv_id) or self.body or f"%PDF-1.7 fake {versioned}".encode()
+        return httpx.Response(200, content=body)
 
     def client(self) -> Any:
         import httpx
@@ -107,3 +119,75 @@ class InstantClock:
     async def sleep(self, seconds: float) -> None:
         self.sleeps.append(seconds)
         self.now += seconds
+
+
+# ---------- ingestion ----------
+def make_paper_pdf(title: str, topic_word: str) -> bytes:
+    """A 3-page PDF shaped like an arXiv paper, exercising every parse clean-up rule: running header,
+    page numbers, a split "1" / "Introduction" heading, a hyphenated line break, a table caption,
+    and a References section that must be cut."""
+    import pymupdf
+
+    pages = [
+        [
+            title,
+            "Ada Lovelace and Alan Turing",
+            "Abstract",
+            f"We study {topic_word} coordination among language model agents in detail.",
+            "1",
+            "Introduction",
+            "Multi-agent systems need orches-",
+            f"tration. This paper studies {topic_word} patterns for agent teams at scale.",
+        ],
+        [
+            "2",
+            "Method",
+            f"Our {topic_word} orchestrator assigns roles and routes messages between worker agents.",
+            "Table 1: Accuracy by topology",
+            "3",
+            "GPT-4 85.2 90.1",
+            "3",
+            "Conclusion",
+            f"The {topic_word} design improves task accuracy by twelve points over a single agent.",
+        ],
+        ["References", "[1] A. Author. Some cited paper about unrelated things. 2023."],
+    ]
+    doc = pymupdf.open()
+    for i, lines in enumerate(pages, start=1):
+        page = doc.new_page()
+        page.insert_text((72, 40), "Preprint. Under review.", fontsize=8)
+        page.insert_text((72, 90), "\n".join(lines), fontsize=10)
+        page.insert_text((300, 800), str(i), fontsize=8)
+    data = doc.tobytes()
+    doc.close()
+    return data
+
+
+class CountingEmbedding:
+    """Factory for a MockEmbedding that counts how many texts it embedded.
+
+    The counter is a private attribute on purpose: IngestionCache keys include the embed model's
+    fields (`to_dict()`), so a public counter would change the key and defeat the cache.
+    """
+
+    @staticmethod
+    def make(dim: int = 8) -> Any:
+        from llama_index.core.embeddings import MockEmbedding
+        from pydantic import PrivateAttr
+
+        class _Counting(MockEmbedding):
+            _texts: int = PrivateAttr(default=0)
+
+            @property
+            def texts_embedded(self) -> int:
+                return self._texts
+
+            def _get_text_embeddings(self, texts: list[str]) -> list[list[float]]:
+                self._texts += len(texts)
+                return super()._get_text_embeddings(texts)
+
+            def _get_text_embedding(self, text: str) -> list[float]:
+                self._texts += 1
+                return super()._get_text_embedding(text)
+
+        return _Counting(embed_dim=dim)

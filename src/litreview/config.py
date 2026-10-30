@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     # Tests point these at a tmp dir so the real cost ledger and corpus never see fake data.
     p2_runs_dir: Path = PROJECT_ROOT / "runs"
     p2_data_dir: Path = PROJECT_ROOT / "data"
+    p2_cache_dir: Path = PROJECT_ROOT / ".cache"  # downloaded models, NLTK data
+    # Multiplies every retry delay; tests set 0 so retry paths run instantly.
+    p2_retry_time_scale: float = 1.0
 
 
 @lru_cache
