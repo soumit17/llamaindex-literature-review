@@ -14,6 +14,7 @@ import pytest
 # Set before any litreview import so Settings never sees the developer's real key or ledger.
 os.environ["ANTHROPIC_API_KEY"] = "sk-test-dummy"
 os.environ.pop("P2_RUNS_DIR", None)
+os.environ.pop("P2_DATA_DIR", None)
 
 from llama_index.core import Settings  # noqa: E402
 from llama_index.core.embeddings import MockEmbedding  # noqa: E402
@@ -26,6 +27,7 @@ from litreview.config import get_settings  # noqa: E402
 @pytest.fixture(autouse=True)
 def _isolated(tmp_path, monkeypatch):
     monkeypatch.setenv("P2_RUNS_DIR", str(tmp_path / "runs"))
+    monkeypatch.setenv("P2_DATA_DIR", str(tmp_path / "data"))
     get_settings.cache_clear()
     Settings.llm = MockLLM(max_tokens=64)
     Settings.embed_model = MockEmbedding(embed_dim=384)

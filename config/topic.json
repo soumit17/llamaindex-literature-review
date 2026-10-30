@@ -1,0 +1,9 @@
+{
+  "topic": "Orchestration patterns for LLM-based multi-agent systems",
+  "_query_note": "arXiv API query syntax (ti: title, abs: abstract, cat: category). Title terms keep it on orchestration itself rather than applications that merely use agents.",
+  "query": "(ti:\"multi-agent\" OR ti:multiagent OR ti:agents) AND (abs:LLM OR abs:\"large language model\") AND (ti:orchestration OR ti:coordination OR ti:collaboration OR ti:communication OR ti:topology OR ti:survey OR ti:framework) AND (cat:cs.MA OR cat:cs.AI OR cat:cs.CL)",
+  "max_results": 40,
+  "target_papers": 25,
+  "_suggested_note": "Widely cited papers the query misses (AutoGen, CAMEL, ChatDev, LLM multi-agent survey). Shown with a star in the checklist; you still decide.",
+  "suggested_ids": ["2308.08155", "2303.17760", "2307.07924", "2402.01680"]
+}

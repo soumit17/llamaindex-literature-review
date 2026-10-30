@@ -21,6 +21,7 @@ from workflows.resource import Resource, ResourceConfig
 
 from litreview import cost
 from litreview.config import CONFIG_DIR, get_settings
+from litreview.corpus import ArxivClient, CorpusPaths
 
 
 class LLMConfig(BaseModel):
@@ -78,3 +79,9 @@ def get_llm(
         max_tokens=config.max_tokens,
         api_key=get_settings().anthropic_api_key or None,
     )
+
+
+# cache=True (the default) on purpose: every step that asks for the client gets the same instance,
+# so its single RateLimiter spaces *all* arXiv requests 3 s apart, even across parallel workers.
+def get_arxiv_client() -> ArxivClient:
+    return ArxivClient(CorpusPaths(get_settings().p2_data_dir).cache)

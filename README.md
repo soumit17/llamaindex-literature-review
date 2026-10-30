@@ -56,3 +56,31 @@ parameter annotation) and what it can emit (its return annotation). At run time:
 | Caller side: `stream_events(expose_internal=...)` | `_run_streaming` in [src/litreview/cli.py](src/litreview/cli.py) |
 | `WorkflowTestRunner`, overriding Resources with fakes | [tests/](tests/), `override_resources` in [tests/conftest.py](tests/conftest.py) |
 | Drawing | `draw` in [src/litreview/cli.py](src/litreview/cli.py), output in [docs/](docs/) |
+
+## M1: build the corpus
+
+```bash
+uv run python scripts/fetch_corpus.py                 # search, pick ~25 from the list, download
+uv run python scripts/fetch_corpus.py                 # again: expect "network requests: 0"
+uv run python scripts/fetch_corpus.py --repick        # change your pick (search is cached: 0 requests)
+```
+
+What happens, in order:
+
+1. **Search** (`config/topic.json` query, 40 hits) plus the ★ suggestions, one request each.
+   Both are cached in `data/cache/arxiv/`, so later runs never search again.
+2. **You pick** with ranges like `1-20,23,41-44`.
+3. **Lock**: `data/corpus.lock.json` records each paper's id, version and (after download) sha256.
+   Commit it: it is the reproducible definition of the corpus. `data/papers.json` (metadata for
+   BibTeX) is git-ignored and rebuilt from the lock with one request on a fresh clone.
+4. **Download** `https://arxiv.org/pdf/<id>v<version>` into `data/pdfs/`, one request every 3 s.
+   A file whose hash matches the lock is kept, a damaged one is fetched again, an HTML
+   "PDF being generated" page is rejected. Ctrl-C is safe: files are written to a temp name and renamed.
+
+| Piece | Where |
+|---|---|
+| Rate limiter shared by every request | `RateLimiter` in [corpus.py](src/litreview/corpus.py) |
+| Disk cache, idempotent hashed download | `ArxivClient` in [corpus.py](src/litreview/corpus.py) |
+| Lock + metadata files | `CorpusLock`, `PaperMeta` in [corpus.py](src/litreview/corpus.py) |
+| Resource that M2 will inject | `get_arxiv_client` in [resources.py](src/litreview/resources.py) |
+| Interactive pick | [scripts/fetch_corpus.py](scripts/fetch_corpus.py) |

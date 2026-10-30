@@ -17,6 +17,7 @@ Exact pins live in `pyproject.toml` (`uv add --bounds exact`); `uv.lock` pins th
 | llama-index-readers-file / pymupdf | 0.7.0 / 2.0 | M2 |
 | llama-index-observability-otel / opentelemetry-sdk | 0.7.0 / 1.45.2 | M8 |
 | arxiv | 4.0.2 | M1 |
+| anthropic (SDK) | 1.17.0 | M0, see D5 |
 
 **Deferred:** `sentence-transformers` (reranker). On Linux it pulls CUDA PyTorch (several GB).
 Decide in M3: CPU-only torch index, or fastembed's ONNX cross-encoder for the same model.
@@ -55,3 +56,35 @@ ResourceConfig resource): one throwaway script, results recorded here.
 
 `claude-haiku-5-5` (dev) and `claude-sonnet-5-5` (final). Both are known to
 llama-index-llms-anthropic 0.12.3 (context window lookup works).
+
+## D5. `anthropic` SDK pinned to 1.17.0 (not 2.x)
+
+`llama-index-llms-anthropic==0.12.3` requires `anthropic>=0.75.0` with no upper bound, so uv
+resolved `anthropic==2.3.0`. In 2.x `anthropic.types.MessageParam` became a `Union` of user /
+assistant / system params, and the integration still calls `MessageParam(role=..., content=...)`,
+so every chat fails with `TypeError: Cannot instantiate typing.Union` before any request is sent.
+
+Fix: pin `anthropic==1.17.0` (last 1.x, `MessageParam` is still a TypedDict) as a direct dependency.
+Revisit when a `llama-index-llms-anthropic` release supports 2.x.
+
+Guard: `tests/test_anthropic_integration.py` runs the real integration code with only
+`messages.create` faked. Mock LLMs skip request building, which is why the original tests missed this.
+Verified that it fails on 2.3.0 (`uv run --with anthropic==2.3.0 pytest tests/test_anthropic_integration.py`).
+
+## D6. M1 corpus acquisition
+
+- **Query** (`config/topic.json`): title terms + categories cs.MA/cs.AI/cs.CL. A first, abstract-only
+  query returned mostly applications (trading, medical, network slicing); the title-anchored one returns
+  surveys and orchestration papers. Tried both live on 2026-10-30, one request each.
+- **Suggested ids**: AutoGen 2308.08155, CAMEL 2303.17760, ChatDev 2307.07924, survey 2402.01680. The
+  query misses them; they appear starred in the checklist and the developer decides.
+- **arxiv 4.0.2 has no `Result.download_pdf`**, and its own 3 s throttle covers only its API calls on
+  one `arxiv.Client`. So `ArxivClient` puts one async `RateLimiter` in front of every request
+  (search, id lookup, PDF) and downloads PDFs with `httpx` (declared directly; it was already installed,
+  and §19.2 lists it). `page_size` = results wanted, so a search is exactly one HTTP request.
+- **Versioned downloads** (`/pdf/<id>v<n>`) and a sha256 per paper in the lock make the corpus
+  reproducible; a hash mismatch on re-download is an error rather than a silent change.
+- **No retries in M1.** A failed download is reported and the next run retries it. M2 moves fetching into
+  the ingestion workflow, where `retry_policy` + `@catch_error` handle it (spec rule 4: don't hand-roll).
+- **Async client** because M2 calls it from `num_workers=2` workflow steps; the blocking `arxiv`
+  library call runs in `asyncio.to_thread`.

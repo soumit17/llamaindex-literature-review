@@ -18,8 +18,9 @@ class Settings(BaseSettings):
     p2_spend_cap_usd: float = 10.0
     embed_model: str = "BAAI/bge-small-en-v1.5"
     rerank_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
-    # Tests point this at a tmp dir so the real cost ledger never sees fake calls.
+    # Tests point these at a tmp dir so the real cost ledger and corpus never see fake data.
     p2_runs_dir: Path = PROJECT_ROOT / "runs"
+    p2_data_dir: Path = PROJECT_ROOT / "data"
 
 
 @lru_cache
