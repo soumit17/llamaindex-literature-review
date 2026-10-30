@@ -1,0 +1,58 @@
+# LitReview (P2): LlamaIndex Workflows
+
+Turns a research question into a cited mini literature review over ~25 arXiv papers.
+Full spec: [p2-llamaindex-workflows-literature-review.md](p2-llamaindex-workflows-literature-review.md).
+Version pins and every deviation from the spec: [docs/decisions.md](docs/decisions.md).
+
+**Status:** M0 (scaffold and Workflows fundamentals) done.
+
+## Setup
+
+```bash
+uv sync                      # creates .venv (Python 3.12) from uv.lock
+cp .env.example .env         # then put your ANTHROPIC_API_KEY in .env
+uv run pytest                # $0: network is blocked, no model calls
+```
+
+## M0: run it yourself
+
+| Command | Cost | What to look at |
+|---|---|---|
+| `uv run litreview hello Ada` | $0 | The `Progress` events streamed by the loop, then the custom stop event |
+| `uv run litreview hello Ada --debug-steps` | $0 | Internal `StepStateChanged` events: each step going `running` → `not_running`, and which event it consumed and produced |
+| `uv run litreview hello ""` | $0 | The branch: `start` returns `Greeted` directly and `tick` never runs |
+| `uv run litreview tiny` | $0 | The same engine with steps written as plain functions |
+| `uv run litreview draw` | $0 | Writes `docs/hello_flow.html` (open it in a browser) and `docs/hello_flow.md` |
+| `uv run litreview smoke` | ~$0.0001 | One live Haiku call through the injected LLM Resource |
+| `uv run litreview cost` | $0 | Spend so far from `runs/costs.jsonl` |
+
+## How a Workflows run flows
+
+There is no graph definition anywhere. Each `@step` declares the event type it accepts (its
+parameter annotation) and what it can emit (its return annotation). At run time:
+
+1. `wf.run(start_event=Greet(...))` puts the start event on the queue.
+2. The runtime finds the step whose input type matches **exactly** (`start` takes `Greet`) and runs it.
+3. Whatever it returns becomes the next event. `Tick` routes to `tick`; `Greeted` is a `StopEvent`, so the run ends.
+4. **Branch:** return a different event type (`start -> Tick | Greeted`).
+   **Loop:** a step returns the type it consumes (`tick: Tick -> Tick | Done`).
+   **Parallelism:** return a `list[Event]` (from M2 on).
+5. Side-channel progress goes to `ctx.write_event_to_stream(...)`; the caller reads `handler.stream_events()`.
+6. Shared run data lives in typed state (`Context[HelloState]`), changed atomically under `async with ctx.store.edit_state()`.
+7. Heavy objects (LLM clients, indexes) are **Resources**: declared as `Annotated[T, Resource(factory)]` on a
+   step parameter and injected by the framework, never stored on events or in state.
+
+`litreview draw` turns those type annotations into the diagram, which is the easiest way to see it.
+
+## Where each M0 concept lives
+
+| Concept | Code |
+|---|---|
+| Custom StartEvent / StopEvent, branch, loop, streaming, typed state, `edit_state` | [src/litreview/workflows/hello.py](src/litreview/workflows/hello.py) |
+| Unbound-function workflow | [src/litreview/workflows/tiny_unbound.py](src/litreview/workflows/tiny_unbound.py) |
+| Resource injection into a step | [src/litreview/workflows/smoke.py](src/litreview/workflows/smoke.py) |
+| Chained Resource + `ResourceConfig` (JSON → Pydantic) | `get_llm` in [src/litreview/resources.py](src/litreview/resources.py) |
+| Cost ledger (instrumentation handler) and budget guard | [src/litreview/cost.py](src/litreview/cost.py) |
+| Caller side: `stream_events(expose_internal=...)` | `_run_streaming` in [src/litreview/cli.py](src/litreview/cli.py) |
+| `WorkflowTestRunner`, overriding Resources with fakes | [tests/](tests/), `override_resources` in [tests/conftest.py](tests/conftest.py) |
+| Drawing | `draw` in [src/litreview/cli.py](src/litreview/cli.py), output in [docs/](docs/) |

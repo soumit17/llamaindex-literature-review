@@ -1,0 +1,4 @@
+{
+  "dev":   {"model": "claude-haiku-5-5",  "temperature": 0.1, "max_tokens": 1500},
+  "final": {"model": "claude-sonnet-5-5", "temperature": 0.2, "max_tokens": 3000}
+}
