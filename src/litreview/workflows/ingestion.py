@@ -21,6 +21,7 @@ import shutil
 from pathlib import Path
 from typing import Annotated
 
+from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.core.llms import LLM
 from workflows import Context, Workflow, catch_error, step
 from workflows.events import StepFailedEvent
@@ -38,10 +39,25 @@ from litreview.events import (
     PaperSummarized,
     PaperToFetch,
 )
-from litreview.resources import get_arxiv_client, get_llm, get_papers, get_storage, get_topic
+from litreview.resources import (
+    get_arxiv_client,
+    get_embed_model,
+    get_llm,
+    get_papers,
+    get_storage,
+    get_topic,
+)
+from litreview.retrieval.engines import ensure_summary_index
 from litreview.retrieval.parsing import parse_pdf, read_jsonl, write_jsonl
 from litreview.retrieval.pipeline import Storage, documents_from_segments
-from litreview.retrieval.summaries import build_messages, load_summary, save_summary, summarize, summary_input
+from litreview.retrieval.summaries import (
+    build_messages,
+    load_all_summaries,
+    load_summary,
+    save_summary,
+    summarize,
+    summary_input,
+)
 from litreview.retry import FETCH_RETRY, LLM_RETRY
 from litreview.state import IngestState
 
@@ -229,8 +245,15 @@ class IngestionWorkflow(Workflow):
         ctx: Context[IngestState],
         done: list[PaperSummarized],  # fan-in: fires once, after every surviving branch arrives
         storage: Annotated[Storage, Resource(get_storage)],
+        embed_model: Annotated[BaseEmbedding, Resource(get_embed_model)],  # same cached instance
     ) -> IngestReport:
         await asyncio.to_thread(storage.persist)
+        # The DocumentSummaryIndex reuses the saved summaries (no LLM); rebuilt only on change.
+        root = _paths().root
+        summaries = load_all_summaries(root / "summaries")
+        await asyncio.to_thread(
+            ensure_summary_index, storage.index, summaries, embed_model, root / "storage" / "summary"
+        )
         state = await ctx.store.get_state()
         return IngestReport(
             papers=len(done),

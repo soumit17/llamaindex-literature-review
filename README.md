@@ -127,3 +127,35 @@ list[PaperSummarized] ─persist─▶ IngestReport       fan-in: fires once eve
 
 On disk: `data/parsed/<id>.jsonl` (segments), `data/storage/` (index), `data/summaries/<id>.json`,
 `data/cache/ingestion/` (embedding cache, survives `--rebuild`).
+
+## M3: retrieval layer and the labeled question set
+
+```bash
+uv run litreview ingest                                  # once: builds the summary index ($0, ~10 s)
+uv run python scripts/splitter_experiment.py --only sentence-1024   # optional ($0, ~4 min; semantic ~20 min)
+uv run python scripts/bootstrap_qa.py                    # Haiku drafts ~40 questions (~$0.003)
+uv run python scripts/curate_qa.py                       # YOU keep/edit/drop until 25 are kept
+uv run python -m evals.retrieval --apply                 # eval matrix (~$0.01), writes the winner to config
+uv run python scripts/compare_subquestion.py             # SubQuestionQueryEngine on 3 questions (~$0.01)
+```
+
+If `--apply` changes the splitter, re-index with `uv run litreview ingest --rebuild` (no re-embedding of
+unchanged chunks, no new summaries).
+
+How a question is answered with retrieval:
+
+```
+question ─▶ router (Haiku picks one) ─┬─▶ vector retriever:  top-12 chunks by embedding
+                                      └─▶ summary retriever: all chunks of the 2 best-matching papers
+         ─▶ reranker (cross-encoder, local) ─▶ top-5 chunks   ← what M4's research step gets
+```
+
+| Piece | Where |
+|---|---|
+| Reranker (`BaseNodePostprocessor` on fastembed ONNX) | `FastEmbedRerank` in [engines.py](src/litreview/retrieval/engines.py) |
+| DocumentSummaryIndex reusing saved summaries | `StoredSummarySynthesizer`, `ensure_summary_index` |
+| Router (`RouterRetriever` + `LLMSingleSelector`) | `make_retriever` |
+| Retriever + reranker as one engine (`RetrieverQueryEngine.retrieve`) | `make_query_engine` |
+| The Resource M4 injects | `get_query_engine` in [resources.py](src/litreview/resources.py) |
+| Question drafting (structured LLM output) and curation | [qa.py](src/litreview/qa.py), [scripts/](scripts/) |
+| Eval matrix, hit-rate@5 and MRR | [evals/retrieval.py](evals/retrieval.py) -> `evals/reports/retrieval.md` |

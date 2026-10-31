@@ -60,7 +60,7 @@ filterwarnings = [
 ]
 
 [tool.pyright]
-include = ["src"]
+include = ["src", "scripts", "evals"]
 typeCheckingMode = "standard"
 pythonVersion = "3.12"
 venvPath = "."

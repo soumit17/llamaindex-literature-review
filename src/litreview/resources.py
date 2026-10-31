@@ -16,13 +16,22 @@ from __future__ import annotations
 from typing import Annotated, Any
 
 from llama_index.core.base.embeddings.base import BaseEmbedding
+from llama_index.core.indices.document_summary import DocumentSummaryIndex
+from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.llms.anthropic import Anthropic
 from pydantic import BaseModel, PrivateAttr
-from workflows.resource import Resource, ResourceConfig
+from workflows.resource import Resource, ResourceConfig, ResourceManager
 
 from litreview import cost
 from litreview.config import CONFIG_DIR, get_settings
 from litreview.corpus import ArxivClient, CorpusPaths, PaperMeta, Topic, load_papers
+from litreview.retrieval.engines import (
+    FastEmbedRerank,
+    QueryConfig,
+    load_summary_index,
+    make_query_engine,
+    make_retriever,
+)
 from litreview.retrieval.pipeline import SplitterConfig, Storage, ensure_nltk_data, make_splitter
 
 
@@ -127,3 +136,41 @@ def get_storage(
         splitter=make_splitter(splitter_config, embed_model),
         embed_model=embed_model,
     )
+
+
+def get_reranker() -> FastEmbedRerank:
+    """Cross-encoder ms-marco-MiniLM-L-6-v2 on ONNX (80 MB, downloaded on first use)."""
+    return FastEmbedRerank(cache_dir=str(get_settings().p2_cache_dir / "fastembed"))
+
+
+def get_summary_index(
+    embed_model: Annotated[BaseEmbedding, Resource(get_embed_model)],
+) -> DocumentSummaryIndex:
+    path = get_settings().p2_data_dir / "storage" / "summary"
+    if not (path / "manifest.json").exists():
+        raise FileNotFoundError(
+            f"{path} missing; run `uv run litreview ingest` (it builds the summary index)"
+        )
+    return load_summary_index(path, embed_model)
+
+
+# The retrieval stack M4's `research` step will use: storage -> vector index; + summary index,
+# router LLM and reranker, all chosen by the "query" block of config/retrieval.json.
+def get_query_engine(
+    config: Annotated[
+        QueryConfig, ResourceConfig(config_file=str(CONFIG_DIR / "retrieval.json"), path_selector="query")
+    ],
+    storage: Annotated[Storage, Resource(get_storage)],
+    embed_model: Annotated[BaseEmbedding, Resource(get_embed_model)],
+    llm: Annotated[BudgetedAnthropic, Resource(get_llm)],
+    reranker: Annotated[FastEmbedRerank, Resource(get_reranker)],
+) -> RetrieverQueryEngine:
+    summary_index = get_summary_index(embed_model) if config.router else None
+    retriever = make_retriever(storage.index, summary_index, config, llm, embed_model)
+    return make_query_engine(retriever, config, reranker, llm)
+
+
+async def resolve(factory: Any) -> Any:
+    """Build a resource outside a workflow (scripts, evals) through the same factory and chaining
+    a step would get, e.g. `llm = await resolve(get_llm)`."""
+    return await ResourceManager().get(Resource(factory))

@@ -182,10 +182,7 @@ class CountingEmbedding:
             def texts_embedded(self) -> int:
                 return self._texts
 
-            def _get_text_embeddings(self, texts: list[str]) -> list[list[float]]:
-                self._texts += len(texts)
-                return super()._get_text_embeddings(texts)
-
+            # Count only here: BaseEmbedding's batch method loops over this one.
             def _get_text_embedding(self, text: str) -> list[float]:
                 self._texts += 1
                 return super()._get_text_embedding(text)

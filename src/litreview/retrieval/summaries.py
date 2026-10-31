@@ -86,6 +86,11 @@ def load_summary(path: Path) -> PaperSummary | None:
     return PaperSummary.model_validate_json(path.read_text()) if path.exists() else None
 
 
+def load_all_summaries(directory: Path) -> dict[str, str]:
+    """arxiv_id -> summary text, for every saved summary."""
+    return {s.arxiv_id: s.summary for p in sorted(directory.glob("*.json")) if (s := load_summary(p))}
+
+
 def save_summary(path: Path, summary: PaperSummary) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".json.tmp")

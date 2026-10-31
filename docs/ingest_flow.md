@@ -45,6 +45,7 @@ flowchart TD
     step_persist --> event_IngestReport
     event_PaperSummarized --> step_persist
     step_persist -->|"storage"| resource_resource_290055995b5b
+    step_persist -->|"embed_model"| resource_resource_7786a419079b
     step_summarize_paper --> event_PaperSummarized
     event_PaperIndexed --> step_summarize_paper
     step_summarize_paper -->|"llm"| resource_resource_a0556b5da244

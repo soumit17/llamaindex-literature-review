@@ -131,3 +131,34 @@ Verified against the LlamaIndex docs MCP (concurrent_execution, retry_steps) and
   no-op re-run 5.4 s.
 - **Splitter experiment** builds one index per variant for M3. Segments (page x section) cap chunk
   size, so "512" gives a median ~190 tokens and 1024 changes little; semantic is ~10x slower to build.
+
+## D8. M3 retrieval layer
+
+- **Reranker: fastembed ONNX** (developer's choice over sentence-transformers + CPU torch).
+  `FastEmbedRerank` is a ~30-line `BaseNodePostprocessor` around fastembed's `TextCrossEncoder` with
+  `Xenova/ms-marco-MiniLM-L-6-v2`, the spec's model as ONNX (80 MB). No official LlamaIndex
+  integration exists. ~1.8 s per question (12 pairs) on CPU once warm.
+- **DocumentSummaryIndex without regenerating summaries.** The index asks its `response_synthesizer`
+  for each document's summary; `StoredSummarySynthesizer` returns the saved text, so building costs $0
+  and takes ~5 s. It groups chunks by `ref_doc_id`, but ingestion's chunks point at page segments, so
+  the summary index holds copies regrouped by paper, in its own persist dir (`data/storage/summary/`,
+  not the shared StorageContext the spec suggests: a shared docstore would overwrite the vector index
+  nodes' source). Node ids are identical in both, so a cited `node_id` means the same chunk.
+  Built at the end of every ingest; a manifest skips the rebuild when papers and chunk count match.
+- **Router at retriever level.** `RouterRetriever` + `LLMSingleSelector` (one Haiku call per question)
+  rather than `RouterQueryEngine`, which would also synthesize an answer: spec §9.3 says `research` takes
+  nodes and makes its own constrained LLM call. Everything is wrapped in a `RetrieverQueryEngine`
+  because its `.retrieve()` applies node postprocessors (the reranker) without synthesis.
+- **No `Settings` defaults.** LlamaIndex falls back to `Settings.llm` / `Settings.embed_model` (OpenAI)
+  whenever one is omitted, including inside `BaseSynthesizer`, `DocumentSummaryIndex` and its
+  retriever. Every object gets them explicitly; synthesizers that never call an LLM get `MockLLM()`.
+  Same family: `SubQuestionQueryEngine.from_defaults` raises ImportError unless given a
+  `question_gen`, so the comparison script passes `LLMQuestionGenerator` (provider-neutral).
+- **Metrics.** Paper level over the 5 chunks `research` will receive: LlamaIndex `HitRate` and `MRR`
+  with arXiv ids as the ids (papers deduplicated in chunk order). Not `RetrieverEvaluator`, which
+  compares node ids, while the labels are papers.
+- **Question drafting** uses `llm.astructured_predict(QABatch, ...)` (Anthropic tool calling), 5 batches
+  of 5 papers, 5 specific + 3 cross-paper questions per batch; the prompt forbids naming systems or
+  authors (otherwise retrieval is trivial); ids not in the batch are dropped.
+- **`resolve(factory)`** builds a Resource outside a workflow through the same factories and chaining,
+  so scripts and evals construct the LLM, index and reranker exactly as steps do.

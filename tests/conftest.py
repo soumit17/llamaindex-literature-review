@@ -46,3 +46,11 @@ async def override_resources(overrides: dict[Callable[..., Any], Any]) -> Resour
     for factory, fake in overrides.items():
         await manager.set(factory.__qualname__, fake)
     return manager
+
+
+@pytest.fixture
+def corpus():
+    """Three fixture papers with lock file and papers.json in the tmp data dir (see tests/ingest_env.py)."""
+    from tests.ingest_env import make_corpus
+
+    return make_corpus()
