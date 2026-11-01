@@ -159,3 +159,44 @@ question ─▶ router (Haiku picks one) ─┬─▶ vector retriever:  top-12 
 | The Resource M4 injects | `get_query_engine` in [resources.py](src/litreview/resources.py) |
 | Question drafting (structured LLM output) and curation | [qa.py](src/litreview/qa.py), [scripts/](scripts/) |
 | Eval matrix, hit-rate@5 and MRR | [evals/retrieval.py](evals/retrieval.py) -> `evals/reports/retrieval.md` |
+
+## M4: the review workflow
+
+```bash
+uv run litreview review                               # default question from config/topic.json (~$0.01)
+uv run litreview review "How do agents share memory?" --max-subquestions 3
+uv run litreview review --debug-steps                 # watch research run 4 at a time
+uv run litreview review --final                       # sections written by Sonnet (~$0.10)
+uv run litreview review --json | head                 # every streamed event as NDJSON
+```
+
+Output in `out/<slug>/`: `review.md`, `refs.bib`, `citations.json` (each [n] -> claims -> chunk ids and
+quotes), `log.txt` (every Progress event), `execution.md` (what actually ran, as Mermaid).
+In M4 the outline is approved automatically (and a vague question clarified with the first suggestion);
+M5 asks you.
+
+```
+ReviewRequest ─scope─▶ QuestionScoped | NeedsClarification ··you··▶ Clarified       branch + HITL
+   ─plan─▶ SubQuestion ×N (ctx.send_event)                                           fan-out
+   ─research ×4 workers─▶ Finding ×N   (failure: on_research_failed -> Finding(error))
+   ─gather_findings (ctx.collect_events)─▶ FindingsReady                             fan-in
+   ─draft_outline─▶ OutlineApprovalRequired ··you··▶ OutlineDecision                 HITL
+   ─on_outline_decision─▶ list[WriteSection]  (reject: ReplanRequested -> plan)      fan-out / loop
+   ─write_section ×3 workers (tokens streamed)─▶ SectionDraft
+   ─assemble (list[SectionDraft])─▶ DraftAssembled ─finalize─▶ ReviewReady           fan-in
+```
+
+| Concept | Where (all in [review.py](src/litreview/workflows/review.py) unless noted) |
+|---|---|
+| Branch by union return; custom StartEvent / StopEvent | `scope`, `ReviewRequest`, `ReviewReady` |
+| `ctx.send_event` fan-out, declared in the return annotation | `plan` |
+| `ctx.collect_events` fan-in (vs list fan-in in `assemble`) | `gather_findings` |
+| `num_workers`, Resources shared by parallel workers | `research`, `write_section` |
+| Scoped and wildcard `@catch_error` | `on_research_failed`, `on_any_failure` |
+| Custom `RetryAfterPolicy`, structured-output re-prompt | [retry.py](src/litreview/retry.py) |
+| HITL events + the caller that answers them | `draft_outline`, [hitl.py](src/litreview/hitl.py) |
+| Loop bounded by a state counter | `on_outline_decision` -> `plan` |
+| `accept_event_subclasses` | `log_progress` |
+| Token streaming (`SectionToken`) and the live view | `write_section`, [review_view.py](src/litreview/review_view.py) |
+| Typed state with `edit_state` | [state.py](src/litreview/state.py) `ReviewState` |
+| Deterministic citations and BibTeX | [bib.py](src/litreview/bib.py) |

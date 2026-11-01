@@ -1,4 +1,4 @@
-"""`litreview` command line. M0: hello, tiny, smoke, draw, cost. M2: ingest."""
+"""`litreview` command line. M0: hello, tiny, smoke, draw, cost. M2: ingest. M4: review."""
 
 from __future__ import annotations
 
@@ -101,8 +101,15 @@ def draw(out_dir: Path = typer.Option(PROJECT_ROOT / "docs")) -> None:
     out_dir = out_dir.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     from litreview.workflows.ingestion import IngestionWorkflow
+    from litreview.workflows.review import ReviewWorkflow
 
-    for name, wf in [("hello", HelloWorkflow), ("tiny", TinyWorkflow), ("ingest", IngestionWorkflow)]:
+    flows = [
+        ("hello", HelloWorkflow),
+        ("tiny", TinyWorkflow),
+        ("ingest", IngestionWorkflow),
+        ("review", ReviewWorkflow),
+    ]
+    for name, wf in flows:
         html = out_dir / f"{name}_flow.html"
         # pyvis copies its JS helpers into ./lib and the HTML references them relatively,
         # so render from inside out_dir to keep lib/ next to the HTML.
@@ -181,6 +188,88 @@ def ingest(
     if report.failed:
         console.print(f"[red]failed:[/] {', '.join(report.failed)}  (re-run to retry them)")
     console.print(f"[dim]execution diagram: {s.p2_runs_dir / 'ingest_execution.mermaid'}[/]")
+
+
+@app.command()
+def review(
+    question: str = typer.Argument(None, help="Research question (default: topic.json default_question)."),
+    max_subquestions: int = typer.Option(5, "--max-subquestions", help="3-6; fewer is cheaper."),
+    target_words: int = typer.Option(1500, "--target-words"),
+    final: bool = typer.Option(False, "--final", help="Write sections with Sonnet instead of Haiku (~10x)."),
+    debug_steps: bool = typer.Option(
+        False, "--debug-steps", help="Show StepStateChanged (watch num_workers)."
+    ),
+    as_json: bool = typer.Option(False, "--json", help="Print every streamed event as NDJSON."),
+    quiet: bool = typer.Option(False, "--quiet", help="Print only the output paths."),
+) -> None:
+    """Write a cited literature review: plan -> research -> outline -> write. ~$0.01 on Haiku."""
+    import os
+
+    from llama_index.utils.workflow import draw_most_recent_execution_mermaid
+    from rich.live import Live
+
+    from litreview.config import CONFIG_DIR
+    from litreview.corpus import Topic
+    from litreview.events import ReviewReady, ReviewRequest
+    from litreview.hitl import auto_responder, drive
+    from litreview.review_view import ReviewView
+    from litreview.workflows.review import ReviewWorkflow
+
+    if final:  # read by get_writer_llm when the Resource is first resolved
+        os.environ["P2_LLM_PROFILE"] = "final"
+        get_settings.cache_clear()
+    s = get_settings()
+    if not s.anthropic_api_key:
+        raise typer.BadParameter("ANTHROPIC_API_KEY is not set; put it in .env")
+    if not (s.p2_data_dir / "storage" / "docstore.json").exists():
+        raise typer.BadParameter("no index yet; run `uv run litreview ingest` first")
+    question = question or Topic.load(CONFIG_DIR / "topic.json").default_question
+    request = ReviewRequest(question=question, max_subquestions=max_subquestions, target_words=target_words)
+    view = ReviewView(s.p2_runs_dir / "costs.jsonl")
+
+    def on_event(ev) -> None:
+        if as_json:
+            print(json.dumps({"type": type(ev).__name__, **ev.model_dump(mode="json")}), flush=True)
+            return
+        view.update(ev)
+        if isinstance(ev, StepStateChanged) and not quiet:
+            out = f" -> {_short(ev.output_event_name)}" if ev.output_event_name else ""
+            console.print(
+                f"  [dim]{ev.name:<20} {ev.step_state.value:<12} worker={ev.worker_id}"
+                f" in={_short(ev.input_event_name)}{out}[/dim]"
+            )
+
+    async def go() -> ReviewReady:
+        handler = ReviewWorkflow(timeout=1800).run(start_event=request)
+        # M4: the outline is approved (and a vague question clarified) automatically; M5 asks you.
+        if as_json or quiet:
+            result = await drive(handler, auto_responder, on_event, expose_internal=debug_steps)
+        else:
+            with Live(view, console=console, refresh_per_second=8, transient=False):
+                result = await drive(handler, auto_responder, on_event, expose_internal=debug_steps)
+        folder = Path(result.markdown_path).parent
+        mermaid = draw_most_recent_execution_mermaid(handler, filename=str(folder / "execution.mermaid"))
+        (folder / "execution.md").write_text(f"# Execution of this run\n\n```mermaid\n{mermaid}\n```\n")
+        (folder / "execution.mermaid").unlink(missing_ok=True)
+        return result
+
+    result = asyncio.run(go())
+    if as_json:
+        return
+    if quiet:
+        print(result.markdown_path)
+        print(result.bib_path)
+        return
+    if result.error:
+        console.print(f"[red]run failed, partial output written:[/] {result.error}")
+    console.print(
+        f"\n[green]review[/] {result.markdown_path}\n[green]bibtex[/] {result.bib_path}\n"
+        f"[green]citations[/] {result.n_citations}   [yellow]quotes not found in chunk[/] "
+        f"{result.unsupported_claims}   [yellow]invented markers removed[/] {result.unknown_markers}\n"
+        f"[yellow]cost[/] ${result.cost_usd:.4f}"
+    )
+    if result.failed_subquestions:
+        console.print(f"[red]research failed for:[/] {'; '.join(result.failed_subquestions)}")
 
 
 @app.command()

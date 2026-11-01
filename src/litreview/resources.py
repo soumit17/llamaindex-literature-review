@@ -65,13 +65,36 @@ class BudgetedAnthropic(Anthropic):
         self._tracker.check()
         return await super().achat(messages, **kwargs)
 
+    # Streaming: the integration's last chunk carries usage in additional_kwargs, but its `raw` is the
+    # final stream event, which has no model or id, so CostEventHandler can't price it. Record here.
     def stream_chat(self, messages, **kwargs):  # type: ignore[override]
         self._tracker.check()
-        return super().stream_chat(messages, **kwargs)
+        stream = super().stream_chat(messages, **kwargs)
+
+        def gen():
+            last = None
+            for last in stream:
+                yield last
+            self._record_stream(last)
+
+        return gen()
 
     async def astream_chat(self, messages, **kwargs):  # type: ignore[override]
         self._tracker.check()
-        return await super().astream_chat(messages, **kwargs)
+        stream = await super().astream_chat(messages, **kwargs)
+
+        async def gen():
+            last = None
+            async for last in stream:
+                yield last
+            self._record_stream(last)
+
+        return gen()
+
+    def _record_stream(self, last: Any) -> None:
+        usage = last.message.additional_kwargs.get("usage") if last is not None else None
+        if usage:
+            self._tracker.record(self.model, usage, response_id=None)  # stream events carry no id
 
 
 # Chained resource: the framework resolves `config` (JSON -> LLMConfig via ResourceConfig) and
@@ -91,6 +114,29 @@ def get_llm(
         api_key=get_settings().anthropic_api_key or None,
         # The SDK would otherwise retry up to 10 times on its own, invisibly. Retries belong to the
         # step's retry_policy (litreview.retry.LLM_RETRY), where ctx.retry_info() can see them.
+        max_retries=0,
+    )
+
+
+class LLMProfiles(BaseModel):
+    dev: LLMConfig
+    final: LLMConfig
+
+
+# The section writer: Haiku normally, Sonnet with `litreview review --final` (P2_LLM_PROFILE=final).
+# ResourceConfig's path_selector is fixed when the step is declared, so this loads the whole file
+# and picks the profile at resolve time.
+def get_writer_llm(
+    profiles: Annotated[LLMProfiles, ResourceConfig(config_file=str(CONFIG_DIR / "llm.json"))],
+    tracker: Annotated[cost.CostTracker, Resource(get_cost_tracker)],
+) -> BudgetedAnthropic:
+    config = profiles.final if get_settings().p2_llm_profile == "final" else profiles.dev
+    return BudgetedAnthropic(
+        tracker,
+        model=config.model,
+        temperature=config.temperature,
+        max_tokens=config.max_tokens,
+        api_key=get_settings().anthropic_api_key or None,
         max_retries=0,
     )
 

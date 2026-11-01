@@ -19,7 +19,7 @@ from litreview.retrieval.engines import (
 from litreview.retrieval.summaries import load_all_summaries
 from tests.conftest import override_resources
 from tests.fakes import CountingEmbedding, ScriptedLLM
-from tests.ingest_env import IDS, Env
+from tests.ingest_env import IDS
 
 
 class WordOverlapEncoder:
@@ -34,16 +34,6 @@ def fake_reranker(top_n: int = 5) -> FastEmbedRerank:
     reranker = FastEmbedRerank(top_n=top_n)
     reranker._encoder = WordOverlapEncoder()
     return reranker
-
-
-@pytest.fixture
-async def ingested(corpus):
-    """Run the M2 ingestion on the fixture corpus; distinct summaries make the summary index testable."""
-    llm = ScriptedLLM(
-        script={"Paper 1": "Hub-and-spoke orchestration.", "Paper 2": "Ring topology.", "Paper 3": "Tree."}
-    )
-    await Env(llm=llm).run()
-    return corpus
 
 
 async def test_ingest_builds_summary_index_from_saved_summaries(ingested):
@@ -101,18 +91,33 @@ async def test_retrieval_only_engine_returns_top5_and_refuses_query(ingested):
 
 
 async def test_router_sends_overview_question_to_summaries(ingested):
+    # Built directly with router=True: config/retrieval.json may have it off (M3's eval decides).
+    from llama_index.core import StorageContext, load_index_from_storage
+
+    embed = CountingEmbedding.make()
+    vector = load_index_from_storage(
+        StorageContext.from_defaults(persist_dir=str(ingested.root / "storage")), embed_model=embed
+    )
+    summary = load_summary_index(ingested.root / "storage" / "summary", embed)
     # LLMSingleSelector expects a JSON list of {choice (1-based), reason}; choice 2 = summary tool.
     selector_llm = ScriptedLLM(default='[{"choice": 2, "reason": "overview question"}]')
-    manager = await override_resources(
-        {get_embed_model: CountingEmbedding.make(), get_llm: selector_llm, get_reranker: fake_reranker()}
-    )
-    engine = await manager.get(Resource(get_query_engine))
+    config = QueryConfig(router=True, rerank=True)
+    retriever = make_retriever(vector, summary, config, selector_llm, embed)
+    engine = make_query_engine(retriever, config, fake_reranker(), selector_llm)
     nodes = engine.retrieve(QueryBundle("Which papers discuss ring topologies?"))
 
     assert len(selector_llm.calls) == 1  # one routing decision per question
     assert 0 < len(nodes) <= 5
     # The summary retriever expands its top papers into their chunks; all come from real papers.
     assert {n.node.metadata["arxiv_id"] for n in nodes} <= set(IDS)
+
+
+async def test_query_engine_resource_follows_config(ingested):
+    manager = await override_resources(
+        {get_embed_model: CountingEmbedding.make(), get_llm: ScriptedLLM(), get_reranker: fake_reranker()}
+    )
+    engine = await manager.get(Resource(get_query_engine))
+    assert 0 < len(engine.retrieve(QueryBundle("ring topology"))) <= 5
 
 
 def test_query_config_comes_from_retrieval_json():

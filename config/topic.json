@@ -5,5 +5,11 @@
   "max_results": 40,
   "target_papers": 25,
   "_suggested_note": "Widely cited papers the query misses (AutoGen, CAMEL, ChatDev, LLM multi-agent survey). Shown with a star in the checklist; you still decide.",
-  "suggested_ids": ["2308.08155", "2303.17760", "2307.07924", "2402.01680"]
+  "suggested_ids": [
+    "2308.08155",
+    "2303.17760",
+    "2307.07924",
+    "2402.01680"
+  ],
+  "default_question": "What orchestration patterns do LLM-based multi-agent systems use, and how do they trade off control, cost and robustness?"
 }

@@ -1,4 +1,4 @@
-"""Workflow events (spec §5.1). Ingestion events now; review events arrive in M4.
+"""Workflow events (spec §5.1): ingestion (Workflow 1) and review (Workflow 2).
 
 Events carry ids and small numbers, never PDFs, text or clients: everything on an event must be
 JSON-serializable so a run's Context can be snapshotted (M5 durability). Bulky data goes to files
@@ -9,7 +9,9 @@ from __future__ import annotations
 
 from typing import Literal
 
-from workflows.events import Event, StartEvent, StopEvent
+from workflows.events import Event, HumanResponseEvent, InputRequiredEvent, StartEvent, StopEvent
+
+from litreview.models import FindingRecord, Outline
 
 
 # ---------- ingestion ----------
@@ -67,3 +69,112 @@ class IngestReport(StopEvent):
     new_nodes: int
     summaries_generated: int
     failed: list[str]
+
+
+# ---------- review (Workflow 2) ----------
+class ReviewRequest(StartEvent):
+    question: str
+    max_subquestions: int = 5
+    target_words: int = 1500
+    audience: str = "ML engineers"
+
+
+class NeedsClarification(InputRequiredEvent):  # branch: the question is too vague to plan
+    question: str
+    reason: str
+    suggestions: list[str]
+
+
+class Clarified(HumanResponseEvent):
+    refined_question: str
+
+
+class QuestionScoped(Event):  # the other branch: the question is fine as asked
+    question: str
+
+
+class SubQuestion(Event):
+    idx: int
+    text: str
+    rationale: str
+
+
+class Finding(Event):
+    """One per sub-question, success or failure: `collect_events` counts exact types, so a separate
+    FindingFailed type would make the expected mix unknowable (see docs/decisions.md D9)."""
+
+    record: FindingRecord
+
+
+class FindingsReady(Event):
+    n_ok: int
+    n_failed: int
+
+
+class OutlineApprovalRequired(InputRequiredEvent):
+    outline: Outline
+    attempt: int
+
+
+class OutlineDecision(HumanResponseEvent):
+    action: Literal["approve", "edit", "reject"]
+    edited_outline: Outline | None = None
+    feedback: str | None = None
+
+
+class ReplanRequested(Event):  # outline rejected: loop back to `plan` with the feedback
+    feedback: str
+
+
+class WriteSection(Event):
+    section_idx: int
+    heading: str
+    points: list[str]
+    finding_ids: list[int]
+
+
+class SectionToken(Event):  # streamed only: live LLM tokens for the section being written
+    section_idx: int
+    delta: str
+    restart: bool = False  # True on a retry: the UI should clear what it showed so far
+
+
+class SectionDraft(Event):
+    section_idx: int
+    heading: str
+    markdown: str  # with claim markers like [2.3]
+    unknown_markers: int  # markers the writer invented; removed from `markdown`
+
+
+class DraftAssembled(Event):
+    title: str
+    sections: list[SectionDraft]
+
+
+class Progress(Event):
+    """Base progress event. Steps `ctx.send_event` subclasses; `log_progress` takes them all because it
+    sets accept_event_subclasses=True (routing is by exact type otherwise)."""
+
+    stage: str
+    message: str
+
+
+class ResearchProgress(Progress):
+    idx: int
+    status: Literal["researching", "done", "failed", "retry"]
+
+
+class WriteProgress(Progress):
+    section_idx: int
+    status: Literal["writing", "done", "retry"]
+
+
+class ReviewReady(StopEvent):
+    markdown_path: str
+    bib_path: str
+    n_citations: int
+    unsupported_claims: int  # citations whose quote wasn't found in the chunk (checked properly in M5)
+    unknown_markers: int  # writer markers that matched no claim (removed)
+    failed_subquestions: list[str]
+    cost_usd: float
+    error: str | None = None  # set by the wildcard @catch_error: partial output

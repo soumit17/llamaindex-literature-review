@@ -29,6 +29,8 @@ from litreview.config import get_settings  # noqa: E402
 def _isolated(tmp_path, monkeypatch):
     monkeypatch.setenv("P2_RUNS_DIR", str(tmp_path / "runs"))
     monkeypatch.setenv("P2_DATA_DIR", str(tmp_path / "data"))
+    monkeypatch.setenv("P2_OUT_DIR", str(tmp_path / "out"))
+    monkeypatch.delenv("P2_LLM_PROFILE", raising=False)
     get_settings.cache_clear()
     Settings.llm = MockLLM(max_tokens=64)
     Settings.embed_model = MockEmbedding(embed_dim=384)
@@ -54,3 +56,16 @@ def corpus():
     from tests.ingest_env import make_corpus
 
     return make_corpus()
+
+
+@pytest.fixture
+async def ingested(corpus):
+    """The fixture corpus after an M2 ingest: index, summaries and summary index on disk."""
+    from tests.fakes import ScriptedLLM
+    from tests.ingest_env import Env
+
+    llm = ScriptedLLM(
+        script={"Paper 1": "Hub-and-spoke orchestration.", "Paper 2": "Ring topology.", "Paper 3": "Tree."}
+    )
+    await Env(llm=llm).run()
+    return corpus

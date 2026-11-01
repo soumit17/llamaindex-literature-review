@@ -18,6 +18,9 @@ class ScriptedLLM(CustomLLM):
     script: dict[str, str] = {}
     default: str = "ok"
     calls: list[str] = []
+    # Failure injection, keyed by a substring of the prompt:
+    fail_always: dict[str, str] = {}  # -> RuntimeError(message) every time (not retryable)
+    fail_times: dict[str, int] = {}  # -> a retryable structured-output error this many times
 
     @property
     def metadata(self) -> LLMMetadata:
@@ -25,6 +28,13 @@ class ScriptedLLM(CustomLLM):
 
     def _reply(self, prompt: str) -> str:
         self.calls.append(prompt)
+        for needle, message in self.fail_always.items():
+            if needle in prompt:
+                raise RuntimeError(message)
+        for needle, left in self.fail_times.items():
+            if needle in prompt and left > 0:
+                self.fail_times[needle] = left - 1
+                raise ValueError("Structured output extraction failed: scripted failure")
         return next((reply for tag, reply in self.script.items() if tag in prompt), self.default)
 
     @llm_completion_callback()
@@ -34,7 +44,8 @@ class ScriptedLLM(CustomLLM):
     @llm_completion_callback()
     def stream_complete(self, prompt: str, formatted: bool = False, **kwargs: Any) -> CompletionResponseGen:
         text = self._reply(prompt)
-        yield CompletionResponse(text=text, delta=text)
+        for word in text.split(" "):  # several deltas, like a real stream
+            yield CompletionResponse(text=word, delta=word + " ")
 
 
 # ---------- arXiv ----------

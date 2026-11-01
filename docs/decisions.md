@@ -162,3 +162,46 @@ Verified against the LlamaIndex docs MCP (concurrent_execution, retry_steps) and
   authors (otherwise retrieval is trivial); ids not in the batch are dropped.
 - **`resolve(factory)`** builds a Resource outside a workflow through the same factories and chaining,
   so scripts and evals construct the LLM, index and reranker exactly as steps do.
+
+## D9. M4 review workflow
+
+Verified against the docs MCP (concurrent_execution: dynamic API) and the installed source.
+
+- **One `Finding` type for success and failure.** `ctx.collect_events(ev, [T]*n)` counts *exact* types
+  (`Counter(type(e))`); with separate `Finding` / `FindingFailed` the expected mix is unknown in
+  advance, so the buffer could never complete. `Finding.record.error` marks a failure; the scoped
+  `@catch_error(for_steps=["research"])` returns a `Finding` too. Same lesson as D7 from the other
+  fan-in API.
+- **Events sent with `ctx.send_event` are declared in the return annotation** (`plan -> SubQuestion |
+  Progress | None`), per the docs: otherwise validation fails ("consumed but never produced") and
+  drawings miss the edge.
+- **`plan` takes `QuestionScoped | Clarified | ReplanRequested`.** The spec's separate `on_clarified`
+  step and `plan(OutlineDecision)` would put two consumers on one event type; a union input on `plan`
+  is the same graph with fewer steps. Reject -> `ReplanRequested` (bounded by `outline_attempts <= 3`;
+  the 3rd rejection is overruled and logged).
+- **HITL in M4 = the real mechanism with an automatic caller.** `draft_outline` returns
+  `OutlineApprovalRequired`, `scope` may return `NeedsClarification`; `hitl.auto_responder` answers.
+  M5 only changes the caller. `on_outline_decision` already handles approve / edit / reject.
+- **Citations are claims, not free text.** `research` gets 5 excerpts and must return claims, each tied
+  to one excerpt number + a verbatim quote; out-of-range excerpts are dropped, quotes are fuzzy-checked
+  (rapidfuzz partial_ratio >= 85 -> `quote_verified`). The writer only sees claim ids (`[2.3]`) for its
+  own section; invented ids are stripped and counted. `finalize` numbers `[n]` per (paper, page) by
+  first appearance and fails loudly if any cited node isn't in the index. `citations.json` keeps the
+  full trail: n -> claims -> node_id + quote.
+- **Streaming cost gap (fixed).** On a streamed Anthropic call the last chunk's `raw` is the final stream
+  event, with usage but no model or id, so the instrumentation handler skipped it: streamed tokens were
+  unbilled and invisible to the budget guard. `BudgetedAnthropic.(a)stream_chat` now records usage when
+  the stream ends. Test fakes Anthropic's own stream events through the real integration.
+- **Retries.** `LLM_RETRY = Scaled(RetryAfterPolicy(retry_policy(...)))`: transient Anthropic errors plus
+  structured-output failures (matched by LlamaIndex's error messages, not every `ValueError`). On a
+  structured failure the step re-prompts with the error (`fix_note`, from `ctx.retry_info()`).
+  `RetryAfterPolicy` is the §11 custom policy: honours `retry-after(-ms)`, capped at 60 s, and lets the
+  composed fallback decide *whether* to retry.
+- **Writer model.** `get_writer_llm` loads all of `llm.json` and picks `final` (Sonnet) when
+  `P2_LLM_PROFILE=final` (`--final`): `ResourceConfig.path_selector` is fixed at decoration time.
+- **`accept_event_subclasses`** on `log_progress`: steps send `ResearchProgress` / `WriteProgress`
+  (subclasses of `Progress`); one step records all of them in `state.log` and re-streams them.
+- **Drawing snapshot compares line sets**: the drawer emits subclass-routing edges in set order, so the
+  review diagram's line order differs between processes; the edges don't.
+- **Dry run on the real index** (scripted LLM, real embeddings + reranker, 4 sub-questions): 25.6 s,
+  research peaked at exactly 4 concurrent workers, citations resolved to real papers/pages.

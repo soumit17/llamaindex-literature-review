@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     p2_runs_dir: Path = PROJECT_ROOT / "runs"
     p2_data_dir: Path = PROJECT_ROOT / "data"
     p2_cache_dir: Path = PROJECT_ROOT / ".cache"  # downloaded models, NLTK data
+    p2_out_dir: Path = PROJECT_ROOT / "out"  # generated reviews
+    p2_llm_profile: str = "dev"  # "final" makes the section writer use the Sonnet block of llm.json
     # Multiplies every retry delay; tests set 0 so retry paths run instantly.
     p2_retry_time_scale: float = 1.0
 

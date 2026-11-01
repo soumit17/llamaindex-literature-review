@@ -7,8 +7,12 @@ max_retries=0 and the arXiv client has no retry loop, so every retry is visible 
 
 from __future__ import annotations
 
+from typing import Any
+
 import anthropic
 import httpx
+from pydantic import ValidationError
+from workflows import Context
 from workflows.retry_policy import (
     RetryPolicy,
     retry_if_exception_message,
@@ -25,7 +29,7 @@ from litreview.config import get_settings
 class Scaled:
     """Multiplies another policy's delays by P2_RETRY_TIME_SCALE (1.0 normally; tests use 0).
 
-    This is a custom RetryPolicy: anything with this `next(...)` method works. M4 adds a second one.
+    A custom RetryPolicy: anything with this `next(...)` method works (see also RetryAfterPolicy).
     """
 
     def __init__(self, inner: RetryPolicy) -> None:
@@ -49,19 +53,74 @@ FETCH_RETRY = Scaled(
     )
 )
 
-# Anthropic: only transient errors. BudgetExceeded, auth and bad-request errors fail immediately.
+
+class RetryAfterPolicy:
+    """Waits as long as the server asked (the `retry-after` header on a 429/529), capped at
+    `max_wait`. Whether to retry at all, and the wait when there is no header, come from `fallback`.
+
+    Compare with the composable built-ins: they decide from the exception type/message and elapsed
+    time only, so they can't read a value the server sent along with the error.
+    """
+
+    def __init__(self, fallback: RetryPolicy, max_wait: float = 60.0) -> None:
+        self.fallback = fallback
+        self.max_wait = max_wait
+
+    def next(
+        self, elapsed_time: float, attempts: int, error: Exception, *, seed: int | None = None
+    ) -> float | None:
+        delay = self.fallback.next(elapsed_time, attempts, error, seed=seed)
+        if delay is None:
+            return None
+        asked = retry_after_seconds(error)
+        return min(asked, self.max_wait) if asked is not None else delay
+
+
+def retry_after_seconds(error: Exception) -> float | None:
+    headers: Any = getattr(getattr(error, "response", None), "headers", None) or {}
+    for name, scale in (("retry-after-ms", 0.001), ("retry-after", 1.0)):
+        value = headers.get(name)
+        if value is None:
+            continue
+        try:
+            return float(value) * scale
+        except ValueError:  # an HTTP date instead of seconds: let the fallback decide
+            return None
+    return None
+
+
+TRANSIENT_ANTHROPIC = (
+    anthropic.RateLimitError,
+    anthropic.OverloadedError,
+    anthropic.InternalServerError,
+    anthropic.ServiceUnavailableError,
+    anthropic.APIConnectionError,  # includes APITimeoutError
+)
+# How LlamaIndex reports a structured output that didn't validate (function calling or text parsing).
+STRUCTURED_FAILURE = (
+    r"Structured output extraction failed|did not return any tool calls|Expected at least one tool call"
+)
+
+# Anthropic: transient errors, plus structured outputs that didn't validate (the step re-prompts
+# with the error, see `fix_note`). BudgetExceeded, auth and bad-request errors fail immediately.
 LLM_RETRY = Scaled(
-    retry_policy(
-        retry=retry_if_exception_type(
-            (
-                anthropic.RateLimitError,
-                anthropic.OverloadedError,
-                anthropic.InternalServerError,
-                anthropic.ServiceUnavailableError,
-                anthropic.APIConnectionError,  # includes APITimeoutError
-            )
-        ),
-        wait=wait_exponential_jitter(initial=2, max=30),
-        stop=stop_after_attempt(4),
+    RetryAfterPolicy(
+        retry_policy(
+            retry=retry_if_exception_type((*TRANSIENT_ANTHROPIC, ValidationError))
+            | retry_if_exception_message(match=STRUCTURED_FAILURE),
+            wait=wait_exponential_jitter(initial=2, max=30),
+            stop=stop_after_attempt(4),
+        )
     )
 )
+
+
+def fix_note(ctx: Context[Any]) -> str:
+    """Text to append to a prompt when the previous attempt's structured output was rejected."""
+    error = ctx.retry_info().last_exception
+    if error is None or isinstance(error, TRANSIENT_ANTHROPIC):
+        return ""
+    return (
+        f"\n\nYour previous answer was rejected: {str(error)[:500]}\n"
+        "Return output that matches the required schema exactly."
+    )

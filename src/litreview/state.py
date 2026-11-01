@@ -6,6 +6,8 @@ the block, so parallel workers never lose each other's appends. Never call an LL
 
 from pydantic import BaseModel
 
+from litreview.models import FindingRecord, Outline
+
 
 class IngestState(BaseModel):
     total: int = 0
@@ -17,3 +19,20 @@ class IngestState(BaseModel):
     new_nodes: int = 0
     summaries_generated: int = 0
     failed: dict[str, str] = {}  # arxiv_id -> error, filled by the catch_error handler
+
+
+class ReviewState(BaseModel):
+    question: str = ""
+    audience: str = "ML engineers"
+    target_words: int = 1500
+    max_subquestions: int = 5
+    sub_questions: list[str] = []
+    expected_findings: int = 0  # how many Finding events gather_findings waits for
+    findings: dict[int, FindingRecord] = {}  # by idx
+    replan_feedback: list[str] = []  # from rejected outlines, fed back into `plan`
+    outline: Outline | None = None
+    outline_attempts: int = 0
+    expected_sections: int = 0
+    citation_rounds: int = 0  # M5: revise loop counter
+    cost_at_start: float = 0.0  # ledger total when the run began; cost = now - this
+    log: list[str] = []  # every Progress event, appended by log_progress

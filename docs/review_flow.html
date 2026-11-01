@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#ADD8E6", "id": "assemble", "label": "assemble", "shape": "box", "title": null}, {"color": "#90EE90", "id": "SectionDraft", "label": "SectionDraft", "shape": "ellipse", "title": null}, {"color": "#90EE90", "id": "DraftAssembled", "label": "DraftAssembled", "shape": "ellipse", "title": null}, {"color": "#ADD8E6", "id": "draft_outline", "label": "draft_outline", "shape": "box", "title": null}, {"color": "#90EE90", "id": "FindingsReady", "label": "FindingsReady", "shape": "ellipse", "title": null}, {"color": "#90EE90", "id": "OutlineApprovalRequired", "label": "OutlineApprovalRequired", "shape": "ellipse", "title": null}, {"color": "#BEDAE4", "id": "external_step", "label": "external_step", "shape": "box", "title": null}, {"color": "#90EE90", "id": "Progress", "label": "Progress", "shape": "ellipse", "title": null}, {"color": "#DDA0DD", "id": "resource_a0556b5da244", "label": "LLM", "shape": "hexagon", "title": "Type: LLM\nGetter: get_llm\nSource: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/src/litreview/resources.py:103"}, {"color": "#B2DFDB", "id": "resource_config_a4ea6a5fa368", "label": "LLMConfig", "shape": "box", "title": "Type: LLMConfig\nFile: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/config/llm.json\nPath: dev"}, {"color": "#DDA0DD", "id": "resource_563010e4364d", "label": "CostTracker", "shape": "hexagon", "title": "Type: CostTracker\nGetter: get_cost_tracker\nSource: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/src/litreview/resources.py:44"}, {"color": "#ADD8E6", "id": "finalize", "label": "finalize", "shape": "box", "title": null}, {"color": "#FFA07A", "id": "ReviewReady", "label": "ReviewReady", "shape": "ellipse", "title": null}, {"color": "#DDA0DD", "id": "resource_59578000a7cc", "label": "dict", "shape": "hexagon", "title": "Type: dict\nGetter: get_papers\nSource: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/src/litreview/resources.py:154\nDoc: papers.json by arxiv_id: titles, years and abstracts for parsing metadata and summaries...."}, {"color": "#DDA0DD", "id": "resource_290055995b5b", "label": "Storage", "shape": "hexagon", "title": "Type: Storage\nGetter: get_storage\nSource: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/src/litreview/resources.py:170"}, {"color": "#B2DFDB", "id": "resource_config_1157c4ad72c1", "label": "SplitterConfig", "shape": "box", "title": "Type: SplitterConfig\nFile: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/config/retrieval.json\nPath: splitter"}, {"color": "#DDA0DD", "id": "resource_7786a419079b", "label": "BaseEmbedding", "shape": "hexagon", "title": "Type: BaseEmbedding\nGetter: get_embed_model\nSource: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/src/litreview/resources.py:159\nDoc: Local embeddings (Anthropic has no embeddings API). First use downloads the ONNX model\n(~130 MB) int..."}, {"color": "#ADD8E6", "id": "gather_findings", "label": "gather_findings", "shape": "box", "title": null}, {"color": "#90EE90", "id": "Finding", "label": "Finding", "shape": "ellipse", "title": null}, {"color": "#ADD8E6", "id": "log_progress", "label": "log_progress", "shape": "box", "title": null}, {"color": "#ADD8E6", "id": "on_any_failure", "label": "on_any_failure", "shape": "box", "title": null}, {"color": "#90EE90", "id": "StepFailedEvent", "label": "StepFailedEvent", "shape": "ellipse", "title": null}, {"color": "#ADD8E6", "id": "on_outline_decision", "label": "on_outline_decision", "shape": "box", "title": null}, {"color": "#90EE90", "id": "OutlineDecision", "label": "OutlineDecision", "shape": "ellipse", "title": null}, {"color": "#90EE90", "id": "WriteSection", "label": "WriteSection", "shape": "ellipse", "title": null}, {"color": "#90EE90", "id": "ReplanRequested", "label": "ReplanRequested", "shape": "ellipse", "title": null}, {"color": "#ADD8E6", "id": "on_research_failed", "label": "on_research_failed", "shape": "box", "title": null}, {"color": "#90EE90", "id": "ResearchProgress", "label": "ResearchProgress", "shape": "ellipse", "title": null}, {"color": "#ADD8E6", "id": "plan", "label": "plan", "shape": "box", "title": null}, {"color": "#90EE90", "id": "QuestionScoped", "label": "QuestionScoped", "shape": "ellipse", "title": null}, {"color": "#90EE90", "id": "Clarified", "label": "Clarified", "shape": "ellipse", "title": null}, {"color": "#90EE90", "id": "SubQuestion", "label": "SubQuestion", "shape": "ellipse", "title": null}, {"color": "#DDA0DD", "id": "resource_3012ae4981ab", "label": "Topic", "shape": "hexagon", "title": "Type: Topic\nGetter: get_topic\nSource: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/src/litreview/resources.py:150"}, {"color": "#ADD8E6", "id": "research", "label": "research", "shape": "box", "title": null}, {"color": "#DDA0DD", "id": "resource_fbbaac654c8d", "label": "RetrieverQueryEngine", "shape": "hexagon", "title": "Type: RetrieverQueryEngine\nGetter: get_query_engine\nSource: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/src/litreview/resources.py:205"}, {"color": "#B2DFDB", "id": "resource_config_f747bb284fb2", "label": "QueryConfig", "shape": "box", "title": "Type: QueryConfig\nFile: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/config/retrieval.json\nPath: query"}, {"color": "#DDA0DD", "id": "resource_b58f6508e641", "label": "FastEmbedRerank", "shape": "hexagon", "title": "Type: FastEmbedRerank\nGetter: get_reranker\nSource: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/src/litreview/resources.py:187\nDoc: Cross-encoder ms-marco-MiniLM-L-6-v2 on ONNX (80 MB, downloaded on first use)...."}, {"color": "#ADD8E6", "id": "scope", "label": "scope", "shape": "box", "title": null}, {"color": "#E27AFF", "id": "ReviewRequest", "label": "ReviewRequest", "shape": "ellipse", "title": null}, {"color": "#90EE90", "id": "NeedsClarification", "label": "NeedsClarification", "shape": "ellipse", "title": null}, {"color": "#ADD8E6", "id": "write_section", "label": "write_section", "shape": "box", "title": null}, {"color": "#90EE90", "id": "WriteProgress", "label": "WriteProgress", "shape": "ellipse", "title": null}, {"color": "#DDA0DD", "id": "resource_85e6af5c9861", "label": "LLM", "shape": "hexagon", "title": "Type: LLM\nGetter: get_writer_llm\nSource: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/src/litreview/resources.py:129"}, {"color": "#B2DFDB", "id": "resource_config_1e0e47d4b8cf", "label": "LLMProfiles", "shape": "box", "title": "Type: LLMProfiles\nFile: /home/soumit/workspace/agentic/p2_llamaindex_literature_review/config/llm.json"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "resource_a0556b5da244", "label": "config", "to": "resource_config_a4ea6a5fa368"}, {"arrows": "to", "from": "resource_a0556b5da244", "label": "tracker", "to": "resource_563010e4364d"}, {"arrows": "to", "from": "resource_290055995b5b", "label": "splitter_config", "to": "resource_config_1157c4ad72c1"}, {"arrows": "to", "from": "resource_290055995b5b", "label": "embed_model", "to": "resource_7786a419079b"}, {"arrows": "to", "from": "resource_fbbaac654c8d", "label": "config", "to": "resource_config_f747bb284fb2"}, {"arrows": "to", "from": "resource_fbbaac654c8d", "label": "storage", "to": "resource_290055995b5b"}, {"arrows": "to", "from": "resource_fbbaac654c8d", "label": "embed_model", "to": "resource_7786a419079b"}, {"arrows": "to", "from": "resource_fbbaac654c8d", "label": "llm", "to": "resource_a0556b5da244"}, {"arrows": "to", "from": "resource_fbbaac654c8d", "label": "reranker", "to": "resource_b58f6508e641"}, {"arrows": "to", "from": "resource_85e6af5c9861", "label": "profiles", "to": "resource_config_1e0e47d4b8cf"}, {"arrows": "to", "from": "resource_85e6af5c9861", "label": "tracker", "to": "resource_563010e4364d"}, {"arrows": "to", "from": "assemble", "to": "DraftAssembled"}, {"arrows": "to", "from": "SectionDraft", "to": "assemble"}, {"arrows": "to", "from": "draft_outline", "to": "OutlineApprovalRequired"}, {"arrows": "to", "from": "OutlineApprovalRequired", "to": "external_step"}, {"arrows": "to", "from": "draft_outline", "to": "Progress"}, {"arrows": "to", "from": "FindingsReady", "to": "draft_outline"}, {"arrows": "to", "from": "draft_outline", "label": "llm", "to": "resource_a0556b5da244"}, {"arrows": "to", "from": "finalize", "to": "ReviewReady"}, {"arrows": "to", "from": "DraftAssembled", "to": "finalize"}, {"arrows": "to", "from": "finalize", "label": "papers", "to": "resource_59578000a7cc"}, {"arrows": "to", "from": "finalize", "label": "storage", "to": "resource_290055995b5b"}, {"arrows": "to", "from": "finalize", "label": "tracker", "to": "resource_563010e4364d"}, {"arrows": "to", "from": "gather_findings", "to": "FindingsReady"}, {"arrows": "to", "from": "Finding", "to": "gather_findings"}, {"arrows": "to", "from": "Progress", "to": "log_progress"}, {"arrows": "to", "from": "ResearchProgress", "to": "log_progress"}, {"arrows": "to", "from": "WriteProgress", "to": "log_progress"}, {"arrows": "to", "from": "on_any_failure", "to": "ReviewReady"}, {"arrows": "to", "from": "StepFailedEvent", "to": "on_any_failure"}, {"arrows": "to", "from": "on_outline_decision", "to": "WriteSection"}, {"arrows": "to", "from": "on_outline_decision", "to": "ReplanRequested"}, {"arrows": "to", "from": "on_outline_decision", "to": "Progress"}, {"arrows": "to", "from": "OutlineDecision", "to": "on_outline_decision"}, {"arrows": "to", "from": "external_step", "to": "OutlineDecision"}, {"arrows": "to", "from": "on_research_failed", "to": "Finding"}, {"arrows": "to", "from": "on_research_failed", "to": "ResearchProgress"}, {"arrows": "to", "from": "StepFailedEvent", "to": "on_research_failed"}, {"arrows": "to", "from": "plan", "to": "SubQuestion"}, {"arrows": "to", "from": "plan", "to": "Progress"}, {"arrows": "to", "from": "QuestionScoped", "to": "plan"}, {"arrows": "to", "from": "Clarified", "to": "plan"}, {"arrows": "to", "from": "external_step", "to": "Clarified"}, {"arrows": "to", "from": "ReplanRequested", "to": "plan"}, {"arrows": "to", "from": "plan", "label": "llm", "to": "resource_a0556b5da244"}, {"arrows": "to", "from": "plan", "label": "topic", "to": "resource_3012ae4981ab"}, {"arrows": "to", "from": "research", "to": "Finding"}, {"arrows": "to", "from": "research", "to": "ResearchProgress"}, {"arrows": "to", "from": "SubQuestion", "to": "research"}, {"arrows": "to", "from": "research", "label": "engine", "to": "resource_fbbaac654c8d"}, {"arrows": "to", "from": "research", "label": "llm", "to": "resource_a0556b5da244"}, {"arrows": "to", "from": "research", "label": "papers", "to": "resource_59578000a7cc"}, {"arrows": "to", "from": "scope", "to": "QuestionScoped"}, {"arrows": "to", "from": "scope", "to": "NeedsClarification"}, {"arrows": "to", "from": "NeedsClarification", "to": "external_step"}, {"arrows": "to", "from": "ReviewRequest", "to": "scope"}, {"arrows": "to", "from": "scope", "label": "llm", "to": "resource_a0556b5da244"}, {"arrows": "to", "from": "scope", "label": "topic", "to": "resource_3012ae4981ab"}, {"arrows": "to", "from": "scope", "label": "tracker", "to": "resource_563010e4364d"}, {"arrows": "to", "from": "write_section", "to": "SectionDraft"}, {"arrows": "to", "from": "write_section", "to": "WriteProgress"}, {"arrows": "to", "from": "WriteSection", "to": "write_section"}, {"arrows": "to", "from": "write_section", "label": "llm", "to": "resource_85e6af5c9861"}, {"arrows": "to", "from": "write_section", "label": "papers", "to": "resource_59578000a7cc"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

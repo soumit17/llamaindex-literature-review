@@ -117,7 +117,8 @@ class CostEventHandler(BaseEventHandler):
             return
         raw = event.response.raw or {}
         usage, model = _get(raw, "usage"), _get(raw, "model")
-        if usage is None or model is None:  # not an Anthropic response (e.g. MockLLM)
+        # No model: a MockLLM, or the last chunk of a stream (BudgetedAnthropic records those itself).
+        if usage is None or model is None:
             return
         self.tracker.record(model, usage, _get(raw, "id"))
 

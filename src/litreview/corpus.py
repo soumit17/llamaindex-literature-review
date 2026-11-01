@@ -281,6 +281,7 @@ class Topic(BaseModel):
     max_results: int = 40
     target_papers: int = 25
     suggested_ids: list[str] = []
+    default_question: str = ""
 
     @classmethod
     def load(cls, path: Path) -> Topic:
