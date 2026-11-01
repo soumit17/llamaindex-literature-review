@@ -112,3 +112,14 @@ async def test_worker_limits_hold(corpus):
     r = await Env().run()
     assert max_concurrent(r, "fetch_pdf") <= 2
     assert max_concurrent(r, "index_paper") == 1
+
+
+async def test_fresh_clone_without_papers_json_rebuilds_it_from_the_lock(corpus):
+    """papers.json is git-ignored; a fresh clone has only the lock file. Ingest must still work."""
+    corpus.papers.unlink()
+    env = Env()
+    r = await env.run()
+
+    assert isinstance(r.result, IngestReport) and r.result.papers == len(IDS) and not r.result.failed
+    assert len(env.api.searches) == 1  # one metadata request for all locked papers
+    assert json.loads(corpus.papers.read_text())[0]["arxiv_id"] == IDS[0]

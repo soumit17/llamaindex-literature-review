@@ -38,6 +38,7 @@ flowchart TD
     step_index_paper -->|"storage"| resource_resource_290055995b5b
     step_load_lock --> event_PaperToFetch
     event_IngestRequest --> step_load_lock
+    step_load_lock -->|"arxiv"| resource_resource_3449204d69cc
     event_StepFailedEvent --> step_on_fetch_failure
     step_parse_pdf --> event_PaperParsed
     event_PaperFetched --> step_parse_pdf

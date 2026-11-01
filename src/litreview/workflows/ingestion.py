@@ -28,7 +28,15 @@ from workflows.events import StepFailedEvent
 from workflows.resource import Resource
 
 from litreview.config import get_settings
-from litreview.corpus import ArxivClient, CorpusLock, CorpusPaths, LockedPaper, PaperMeta, Topic
+from litreview.corpus import (
+    ArxivClient,
+    CorpusLock,
+    CorpusPaths,
+    LockedPaper,
+    PaperMeta,
+    Topic,
+    ensure_papers_json,
+)
 from litreview.events import (
     IngestProgress,
     IngestReport,
@@ -67,8 +75,13 @@ def _paths() -> CorpusPaths:
 
 
 class IngestionWorkflow(Workflow):
-    @step
-    async def load_lock(self, ctx: Context[IngestState], ev: IngestRequest) -> list[PaperToFetch]:
+    @step(retry_policy=FETCH_RETRY)  # may make one arXiv metadata request (see below)
+    async def load_lock(
+        self,
+        ctx: Context[IngestState],
+        ev: IngestRequest,
+        arxiv: Annotated[ArxivClient, Resource(get_arxiv_client)],
+    ) -> list[PaperToFetch]:
         # Returning a list is the fan-out: each element becomes its own event, and because the
         # framework opens a "stream" for the list, `persist` can later join exactly these branches.
         paths = _paths()
@@ -76,6 +89,9 @@ class IngestionWorkflow(Workflow):
         if lock is None:
             raise FileNotFoundError(f"{paths.lock} not found; run scripts/fetch_corpus.py first")
         papers = lock.papers[: ev.limit] if ev.limit else lock.papers
+        # papers.json is git-ignored: on a fresh clone only the lock exists. Rebuild it before any step
+        # reads it (get_papers is resolved later, by parse_pdf). One request, cached; a no-op otherwise.
+        await ensure_papers_json(arxiv, lock, paths)
         if ev.rebuild:  # before get_storage is first resolved (by index_paper), so it loads empty
             shutil.rmtree(paths.root / "storage", ignore_errors=True)
             shutil.rmtree(paths.root / "parsed", ignore_errors=True)

@@ -19,7 +19,15 @@ from litreview.corpus import (
 from litreview.events import IngestRequest
 from litreview.resources import get_arxiv_client, get_embed_model, get_llm, shared_resources
 from litreview.workflows.ingestion import IngestionWorkflow
-from tests.fakes import CountingEmbedding, FakePdfServer, InstantClock, ScriptedLLM, make_paper_pdf
+from tests.fakes import (
+    CountingEmbedding,
+    FakeArxivApi,
+    FakePdfServer,
+    InstantClock,
+    ScriptedLLM,
+    make_paper_pdf,
+    make_result,
+)
 
 IDS = ["2501.00001", "2501.00002", "2501.00003"]
 PDFS = {
@@ -35,6 +43,12 @@ class Env:
     server: FakePdfServer = field(default_factory=FakePdfServer)
     llm: Any = field(default_factory=lambda: ScriptedLLM(default="A short summary of the paper."))
     embed: Any = field(default_factory=CountingEmbedding.make)
+    # Metadata lookups (a fresh clone has no papers.json): the fixture papers as the arXiv API returns them.
+    api: Any = field(
+        default_factory=lambda: FakeArxivApi(
+            [make_result(f"{i}v1", title=f"Paper {n}") for n, i in enumerate(IDS, 1)]
+        )
+    )
 
     async def run(self, **request: Any):
         paths = CorpusPaths(get_settings().p2_data_dir)
@@ -42,6 +56,7 @@ class Env:
         self.server.bodies = PDFS
         client = ArxivClient(
             paths.cache,
+            api=self.api,
             http=self.server.client(),
             limiter=RateLimiter(3, clock=clock.clock, sleep=clock.sleep),
         )

@@ -1,5 +1,24 @@
 # Decisions log
 
+Every version pin, deviation from the spec, and bug found while building, with the reason. Newest last.
+
+| # | Topic | The one-line version |
+|---|---|---|
+| D1 | Pins | Exact versions; `dbos` 2.31.1 and `anthropic` 1.17.0 pinned below their latest (D5, D12) |
+| D2 | Workflows 2.x vs the 1.x spec | List fan-in is stream-based, `retry_info().retry_number`, custom StopEvents returned as-is |
+| D3 | Cost | Instrumentation handler writes the ledger; `BudgetedAnthropic` enforces the cap |
+| D4 | Model ids | `claude-haiku-5-5` (dev), `claude-sonnet-5-5` (final), prices in config/prices.json |
+| D5 | anthropic 2.x | Breaks llama-index-llms-anthropic request building; pinned to 1.17.0 |
+| D6 | Corpus | Title-anchored arXiv query; one 3 s limiter for every request; versioned, hashed PDFs |
+| D7 | Ingestion | Failed fetch ends its branch (`catch_error` -> None); `index_paper` single worker; NLTK data copy |
+| D8 | Retrieval | fastembed ONNX reranker; summary index reuses saved summaries; no `Settings` defaults (OpenAI) |
+| D9 | Review | One `Finding` type for `collect_events`; claims not free text; streamed-call cost gap fixed |
+| D10 | HITL + durability 1 | Deterministic chunk ids; persist before "done"; checkpoint loop; citation child; detach/restore |
+| D11 | Agents | Memory outside the snapshot; no postponed annotations; max_iterations 120 |
+| D12 | Serving + durability 2 | max_tokens truncation fix; DBOS run ids; policies pickle by name; restart behaviour measured |
+| D13 | Observability + evals | OTel file/OTLP; quote span; diversity cap (papers@5 1.7 -> 2.5); eval design |
+| D14 | Finishing (M9) | Fresh clone fixes; known limitations |
+
 ## D1. Pinned versions (M0, 2026-10-30)
 
 Python 3.12.15 (via `uv python pin`; the system Python 3.14 is too new for some ML wheels).
@@ -375,3 +394,32 @@ Verified against the docs MCP (agent human_in_the_loop, state) and the installed
   `sheet` / `agree` for blind human scoring.
 - **Regression gate** (`evals/compare.py`): metrics on a 0-100 scale from the reports; fails if any drops
   more than 3 points under `evals/baseline.json` (unknown-node % is stored negated).
+
+
+## D14. M9 finishing: what a fresh clone exposed, and known limitations
+
+- **Fresh clone could not ingest.** `data/papers.json` is git-ignored but ingestion's parse and summarize
+  steps read it; only `scripts/fetch_corpus.py` rebuilt it. `load_lock` now rebuilds it from the lock
+  file (one cached arXiv metadata request) before any step reads it. Test: ingest without papers.json.
+- **Diagram snapshots failed in any other checkout.** Resource node ids are hashes of the resource
+  definition, which includes absolute config paths. The test normalizes those hashes (labels and edges
+  still have to match). Verified by copying exactly the files git would commit into a new folder:
+  `uv sync` + 131 tests pass there; `litreview ingest` stops with a clear message without an API key.
+- **README results** are generated (`scripts/results.py`) from `evals/reports/*.json` and the ledger,
+  between `RESULTS` markers, so they can't drift from the measurements.
+
+### Known limitations
+
+- **Agent memory and serialization**: AgentWorkflow's memory can't go into a snapshot; we keep it in
+  SQLite and re-attach it on restore. On the server, a waiting agent run that is idle-released (after
+  1 h) or replayed by DBOS would resume without it, so `agent_review` is not served on DBOS.
+- **Retrieval breadth**: with 12 candidates, some questions only have 1-2 papers to choose from even with
+  the per-paper cap; raising `top_k` (and re-running the retrieval eval) is the next knob.
+- **LLM-as-judge**: the citation and quality evals use the same model family as the writer; the
+  FaithfulnessEvaluator sample and your blind scores are the cross-checks, not proof.
+- **Parsing heuristics**: section detection found a conclusion in 22/25 papers; tables and equations are
+  flattened to text (LiteParse comparison is a stretch goal).
+- **Internal APIs used**: `StepWorkerStateContextVar` for the ledger's step column (degrades to empty),
+  and `ResourceManager.set` for pre-seeding resources (tests, the child workflow).
+- **Test time**: ~35 s of the 40 s budget; three subprocess tests (restore in a new process, tracing) take
+  ~14 s together.

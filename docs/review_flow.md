@@ -94,9 +94,9 @@ flowchart TD
     step_finalize -->|"tracker"| resource_resource_563010e4364d
     step_gather_findings --> event_FindingsReady
     event_Finding --> step_gather_findings
+    event_WriteProgress --> step_log_progress
     event_Progress --> step_log_progress
     event_ResearchProgress --> step_log_progress
-    event_WriteProgress --> step_log_progress
     step_on_any_failure --> event_ReviewReady
     event_StepFailedEvent --> step_on_any_failure
     step_on_outline_decision --> event_WriteSection
