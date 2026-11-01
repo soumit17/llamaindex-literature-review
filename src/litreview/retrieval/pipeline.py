@@ -31,6 +31,7 @@ from llama_index.core import Document, StorageContext, VectorStoreIndex, load_in
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.core.ingestion import DocstoreStrategy, IngestionCache, IngestionPipeline
 from llama_index.core.node_parser import NodeParser, SemanticSplitterNodeParser, SentenceSplitter
+from llama_index.core.schema import BaseNode
 from llama_index.core.storage.docstore import SimpleDocumentStore
 from pydantic import BaseModel
 
@@ -74,9 +75,22 @@ def ensure_nltk_data(cache_dir: Path) -> None:
 def make_splitter(config: SplitterConfig, embed_model: BaseEmbedding) -> NodeParser:
     if config.kind == "semantic":
         return SemanticSplitterNodeParser(
-            embed_model=embed_model, breakpoint_percentile_threshold=config.breakpoint_percentile
+            embed_model=embed_model,
+            breakpoint_percentile_threshold=config.breakpoint_percentile,
+            id_func=chunk_id,
         )
-    return SentenceSplitter(chunk_size=config.chunk_size, chunk_overlap=config.chunk_overlap)
+    return SentenceSplitter(
+        chunk_size=config.chunk_size, chunk_overlap=config.chunk_overlap, id_func=chunk_id
+    )
+
+
+def chunk_id(i: int, doc: BaseNode) -> str:
+    """Deterministic chunk ids ("2308.00352#004/1": segment 4, chunk 1) instead of uuid4.
+
+    Re-indexing the same segment yields the same ids, so a resumed run (at-least-once) overwrites a
+    chunk instead of duplicating it, and a citation's node_id survives `ingest --rebuild`.
+    """
+    return f"{doc.node_id}/{i}"
 
 
 def documents_from_segments(rows: list[dict]) -> list[Document]:
@@ -133,6 +147,12 @@ class Storage:
         Blocking (CPU-bound embedding): steps call it through `asyncio.to_thread`.
         """
         nodes = self.pipeline.run(documents=documents)
+        stale = [n.node_id for n in nodes if "/" not in n.node_id]
+        if stale:  # a cache hit returns the *stored* nodes, ids included (see chunk_id)
+            raise RuntimeError(
+                f"the embedding cache predates deterministic chunk ids (e.g. {stale[0]}); run once: "
+                "rm -rf data/cache/ingestion && uv run litreview ingest --rebuild"
+            )
         if nodes:
             self.index.insert_nodes(nodes)
         return len(nodes)
@@ -142,7 +162,22 @@ class Storage:
         return len(self.index.docstore.docs)
 
     def persist(self) -> None:
-        self.index.storage_context.persist(persist_dir=str(self.storage_dir))
+        """Write everything to a temp dir, then move each file into place with an atomic rename, so
+        a kill -9 mid-write never leaves a truncated JSON file. The pipeline docstore (which says
+        "these documents are done") goes last: if we die before it, the documents are re-ingested,
+        and deterministic chunk ids make that an overwrite, not a duplicate."""
         assert self.pipeline.docstore is not None and self.pipeline.cache is not None
-        self.pipeline.docstore.persist(str(self.pipeline_docstore_path))
-        self.pipeline.cache.persist(str(self.cache_path))
+        tmp = self.storage_dir.with_name(self.storage_dir.name + ".tmp")
+        shutil.rmtree(tmp, ignore_errors=True)
+        self.index.storage_context.persist(persist_dir=str(tmp))
+        self.pipeline.cache.persist(str(tmp / "cache.json"))
+        self.pipeline.docstore.persist(str(tmp / "pipeline_docstore.json"))
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
+        for f in sorted(tmp.glob("*.json")):
+            if f.name not in ("cache.json", "pipeline_docstore.json"):
+                os.replace(f, self.storage_dir / f.name)
+        self.cache_path.parent.mkdir(parents=True, exist_ok=True)
+        os.replace(tmp / "cache.json", self.cache_path)
+        self.pipeline_docstore_path.parent.mkdir(parents=True, exist_ok=True)
+        os.replace(tmp / "pipeline_docstore.json", self.pipeline_docstore_path)
+        shutil.rmtree(tmp, ignore_errors=True)

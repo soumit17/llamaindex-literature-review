@@ -8,7 +8,7 @@ Workflow instance's ResourceManager, so it lives as long as that Workflow object
 runs of the same instance, not just one run.
 
 Tests replace a resource by pre-seeding a ResourceManager under the factory's name; see
-`tests/conftest.py::override_resources`.
+`shared_resources` at the end of this file.
 """
 
 from __future__ import annotations
@@ -220,3 +220,15 @@ async def resolve(factory: Any) -> Any:
     """Build a resource outside a workflow (scripts, evals) through the same factory and chaining
     a step would get, e.g. `llm = await resolve(get_llm)`."""
     return await ResourceManager().get(Resource(factory))
+
+
+async def shared_resources(values: dict[Any, Any]) -> ResourceManager:
+    """A ResourceManager pre-seeded with already-built resources, keyed by their factories.
+
+    A workflow given this manager finds those resources cached and never calls the factories: how
+    ReviewWorkflow hands its loaded index and LLM to the CitationCheckWorkflow child (and how tests
+    swap in fakes)."""
+    manager = ResourceManager()
+    for factory, value in values.items():
+        await manager.set(factory.__qualname__, value)
+    return manager

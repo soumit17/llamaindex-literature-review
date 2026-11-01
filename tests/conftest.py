@@ -6,8 +6,6 @@ Network is blocked by pytest-socket (see `addopts` in pyproject.toml).
 from __future__ import annotations
 
 import os
-from collections.abc import Callable
-from typing import Any
 
 import pytest
 
@@ -20,7 +18,6 @@ os.environ["P2_RETRY_TIME_SCALE"] = "0"
 from llama_index.core import Settings  # noqa: E402
 from llama_index.core.embeddings import MockEmbedding  # noqa: E402
 from llama_index.core.llms import MockLLM  # noqa: E402
-from workflows.resource import ResourceManager  # noqa: E402
 
 from litreview.config import get_settings  # noqa: E402
 
@@ -36,18 +33,6 @@ def _isolated(tmp_path, monkeypatch):
     Settings.embed_model = MockEmbedding(embed_dim=384)
     yield
     get_settings.cache_clear()
-
-
-async def override_resources(overrides: dict[Callable[..., Any], Any]) -> ResourceManager:
-    """Build a ResourceManager with fakes pre-seeded under each factory's name.
-
-    Pass it as `MyWorkflow(resource_manager=...)`. The framework looks a cached resource up by its
-    factory's `__qualname__` before calling the factory, so the real factory never runs.
-    """
-    manager = ResourceManager()
-    for factory, fake in overrides.items():
-        await manager.set(factory.__qualname__, fake)
-    return manager
 
 
 @pytest.fixture

@@ -1,4 +1,5 @@
-"""`litreview` command line. M0: hello, tiny, smoke, draw, cost. M2: ingest. M4: review."""
+"""`litreview` command line. M0: hello, tiny, smoke, draw, cost. M2: ingest. M4: review.
+M5: pending, approve."""
 
 from __future__ import annotations
 
@@ -131,12 +132,16 @@ def ingest(
         [], "--fail", help="Demo: make fetch_pdf fail for this arxiv id (watch retries + catch_error)."
     ),
     debug_steps: bool = typer.Option(False, "--debug-steps", help="Show StepStateChanged events."),
+    fresh: bool = typer.Option(False, "--fresh", help="Ignore a checkpoint left by an interrupted run."),
 ) -> None:
-    """Run the ingestion workflow: fetch -> parse -> index -> summarize. Summaries cost ~$0.001/paper."""
+    """Run the ingestion workflow: fetch -> parse -> index -> summarize. Summaries cost ~$0.001/paper.
+
+    Checkpointed: if a run is killed, the next `litreview ingest` resumes where it stopped."""
     from llama_index.utils.workflow import draw_most_recent_execution_mermaid
     from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskID, TextColumn, TimeElapsedColumn
 
     from litreview.corpus import CorpusLock, CorpusPaths
+    from litreview.durability import run_checkpointed
     from litreview.events import IngestProgress, IngestReport, IngestRequest
     from litreview.resources import get_cost_tracker
     from litreview.workflows.ingestion import IngestionWorkflow
@@ -152,30 +157,51 @@ def ingest(
     spent_before = get_cost_tracker().spent_usd
     marks = {"retry": "[yellow]retry[/]", "failed": "[red]FAILED[/]"}
 
+    checkpoint = s.p2_runs_dir / "checkpoints" / "ingest.json"
+    if (fresh or rebuild) and checkpoint.exists():
+        checkpoint.unlink()
+        console.print("[yellow]discarded the previous run's checkpoint[/]")
+
     async def go() -> IngestReport:
-        handler = IngestionWorkflow(timeout=3600).run(
-            start_event=IngestRequest(limit=limit, rebuild=rebuild, fail_ids=fail)
-        )
         columns = (TextColumn("{task.description:<10}"), BarColumn(), MofNCompleteColumn())
         with Progress(*columns, TimeElapsedColumn(), console=console) as progress:
-            bars: dict[str, TaskID] = {}
-            async for ev in handler.stream_events(expose_internal=debug_steps):
+            bars: dict[str, TaskID] = {
+                stage: progress.add_task(stage, total=None)
+                for stage in ("fetch", "parse", "index", "summarize")
+            }
+            handlers = []
+
+            def on_event(ev) -> None:
                 if isinstance(ev, IngestProgress):
-                    if ev.stage == "start":
-                        for stage in ("fetch", "parse", "index", "summarize"):
-                            bars[stage] = progress.add_task(stage, total=ev.total)
-                    elif ev.status in marks:
+                    if ev.status in marks:
                         progress.console.print(f"  {marks[ev.status]} {ev.arxiv_id}: {ev.message}")
+                    elif ev.stage == "start":
+                        for bar in bars.values():
+                            progress.update(bar, total=ev.total)
                     else:
-                        progress.update(bars[ev.stage], completed=ev.done)
+                        progress.update(bars[ev.stage], completed=ev.done, total=ev.total)
                 elif isinstance(ev, StepStateChanged):
                     progress.console.print(
                         f"  [dim]{ev.name:<16} {ev.step_state.value:<12} worker={ev.worker_id}[/dim]"
                     )
-            report = await handler
+
+            # The checkpoint loop (durability.py): snapshot after index/summarize steps, at most every
+            # 2 s; if a checkpoint exists, resume from it instead of starting over.
+            report = await run_checkpointed(
+                IngestionWorkflow(timeout=3600),
+                IngestRequest(limit=limit, rebuild=rebuild, fail_ids=fail),
+                checkpoint,
+                steps={"index_paper", "summarize_paper"},
+                on_event=on_event,
+                on_resume=lambda: progress.console.print(
+                    f"[yellow]resuming from checkpoint[/] {checkpoint} (flags of the new command are ignored)"
+                ),
+                on_start=handlers.append,
+                expose_internal=debug_steps,
+            )
         out = s.p2_runs_dir / "ingest_execution.mermaid"
         out.parent.mkdir(parents=True, exist_ok=True)
-        draw_most_recent_execution_mermaid(handler, filename=str(out))
+        draw_most_recent_execution_mermaid(handlers[0], filename=str(out))
         return report
 
     report = asyncio.run(go())
@@ -190,30 +216,102 @@ def ingest(
     console.print(f"[dim]execution diagram: {s.p2_runs_dir / 'ingest_execution.mermaid'}[/]")
 
 
-@app.command()
-def review(
-    question: str = typer.Argument(None, help="Research question (default: topic.json default_question)."),
-    max_subquestions: int = typer.Option(5, "--max-subquestions", help="3-6; fewer is cheaper."),
-    target_words: int = typer.Option(1500, "--target-words"),
-    final: bool = typer.Option(False, "--final", help="Write sections with Sonnet instead of Haiku (~10x)."),
-    debug_steps: bool = typer.Option(
-        False, "--debug-steps", help="Show StepStateChanged (watch num_workers)."
-    ),
-    as_json: bool = typer.Option(False, "--json", help="Print every streamed event as NDJSON."),
-    quiet: bool = typer.Option(False, "--quiet", help="Print only the output paths."),
-) -> None:
-    """Write a cited literature review: plan -> research -> outline -> write. ~$0.01 on Haiku."""
+class _ReviewUI:
+    """What `review` and `approve` share: the live view, event printing, and the responder (which
+    pauses the live view while a human answers)."""
+
+    def __init__(self, mode: str, as_json: bool, quiet: bool, debug_steps: bool) -> None:
+        from litreview.review_view import ReviewView
+
+        self.mode, self.as_json, self.quiet, self.debug_steps = mode, as_json, quiet, debug_steps
+        self.view = ReviewView(get_settings().p2_runs_dir / "costs.jsonl")
+        self.live = None
+        self.handlers: list = []
+
+    def on_event(self, ev) -> None:
+        if self.as_json:
+            print(json.dumps({"type": type(ev).__name__, **ev.model_dump(mode="json")}), flush=True)
+            return
+        self.view.update(ev)
+        if isinstance(ev, StepStateChanged) and not self.quiet:
+            out = f" -> {_short(ev.output_event_name)}" if ev.output_event_name else ""
+            console.print(
+                f"  [dim]{ev.name:<20} {ev.step_state.value:<12} worker={ev.worker_id}"
+                f" in={_short(ev.input_event_name)}{out}[/dim]"
+            )
+
+    def responder(self):
+        from litreview.hitl import auto_responder, detach_responder, interactive_responder
+
+        base = {"auto": auto_responder, "detach": detach_responder, "ask": interactive_responder(console)}[
+            self.mode
+        ]
+
+        async def respond(ev):
+            if self.live is not None:
+                self.live.stop()  # give the terminal to the prompt
+            try:
+                return await base(ev)
+            finally:
+                if self.live is not None:
+                    self.live.start()
+
+        return respond
+
+    async def run(self, start):
+        """`start(respond, on_event)` drives the run; wrapped in the live view unless --json/--quiet."""
+        from rich.live import Live
+
+        if self.as_json or self.quiet:
+            return await start(self.responder(), self.on_event)
+        with Live(self.view, console=console, refresh_per_second=8) as live:
+            self.live = live
+            return await start(self.responder(), self.on_event)
+
+    def finish(self, result) -> None:
+        from llama_index.utils.workflow import draw_most_recent_execution_mermaid
+
+        from litreview.events import OutlineApprovalRequired
+        from litreview.hitl import Detached, show_outline
+
+        if isinstance(result, Detached):
+            if isinstance(result.waiting_for, OutlineApprovalRequired):
+                show_outline(console, result.waiting_for)
+            console.print(
+                f"\n[yellow]detached[/] run [bold]{result.run_id}[/] is waiting for "
+                f"{type(result.waiting_for).__name__}; snapshot: {result.path}\n"
+                f"continue with: uv run litreview approve {result.run_id} "
+                "[--edit | --reject TEXT | --answer TEXT]"
+            )
+            return
+        folder = Path(result.markdown_path).parent
+        if self.handlers:
+            mermaid = draw_most_recent_execution_mermaid(
+                self.handlers[-1], filename=str(folder / "execution.mermaid")
+            )
+            (folder / "execution.md").write_text(f"# Execution of this run\n\n```mermaid\n{mermaid}\n```\n")
+            (folder / "execution.mermaid").unlink(missing_ok=True)
+        if self.as_json:
+            return
+        if self.quiet:
+            print(result.markdown_path)
+            print(result.bib_path)
+            return
+        if result.error:
+            console.print(f"[red]run failed, partial output written:[/] {result.error}")
+        console.print(
+            f"\n[green]review[/] {result.markdown_path}\n[green]bibtex[/] {result.bib_path}\n"
+            f"[green]citations[/] {result.n_citations}   [yellow]sentences still flagged[/] "
+            f"{result.unsupported_claims} after {result.citation_rounds} check(s)   "
+            f"[yellow]invented markers removed[/] {result.unknown_markers}\n"
+            f"[yellow]cost[/] ${result.cost_usd:.4f}"
+        )
+        if result.failed_subquestions:
+            console.print(f"[red]research failed for:[/] {'; '.join(result.failed_subquestions)}")
+
+
+def _preflight(final: bool):
     import os
-
-    from llama_index.utils.workflow import draw_most_recent_execution_mermaid
-    from rich.live import Live
-
-    from litreview.config import CONFIG_DIR
-    from litreview.corpus import Topic
-    from litreview.events import ReviewReady, ReviewRequest
-    from litreview.hitl import auto_responder, drive
-    from litreview.review_view import ReviewView
-    from litreview.workflows.review import ReviewWorkflow
 
     if final:  # read by get_writer_llm when the Resource is first resolved
         os.environ["P2_LLM_PROFILE"] = "final"
@@ -223,53 +321,139 @@ def review(
         raise typer.BadParameter("ANTHROPIC_API_KEY is not set; put it in .env")
     if not (s.p2_data_dir / "storage" / "docstore.json").exists():
         raise typer.BadParameter("no index yet; run `uv run litreview ingest` first")
+    return s
+
+
+def _pending_store():
+    from litreview.hitl import PendingStore
+
+    return PendingStore(get_settings().p2_runs_dir / "pending")
+
+
+@app.command()
+def review(
+    question: str = typer.Argument(None, help="Research question (default: topic.json default_question)."),
+    max_subquestions: int = typer.Option(5, "--max-subquestions", help="3-6; fewer is cheaper."),
+    target_words: int = typer.Option(1500, "--target-words"),
+    final: bool = typer.Option(False, "--final", help="Write sections with Sonnet instead of Haiku (~10x)."),
+    yes: bool = typer.Option(
+        False, "--yes", "-y", help="Approve the outline (and clarifications) automatically."
+    ),
+    detach: bool = typer.Option(
+        False, "--detach", help="Save the run at the outline and exit; see `approve`."
+    ),
+    debug_steps: bool = typer.Option(
+        False, "--debug-steps", help="Show StepStateChanged (watch num_workers)."
+    ),
+    as_json: bool = typer.Option(
+        False, "--json", help="Print every streamed event as NDJSON (implies --yes)."
+    ),
+    quiet: bool = typer.Option(False, "--quiet", help="Print only the output paths (implies --yes)."),
+) -> None:
+    """Write a cited literature review: plan -> research -> outline (you approve) -> write -> check."""
+    from litreview.config import CONFIG_DIR
+    from litreview.corpus import Topic
+    from litreview.events import ReviewRequest
+    from litreview.hitl import drive, new_run_id
+    from litreview.workflows.review import ReviewWorkflow
+
+    _preflight(final)
     question = question or Topic.load(CONFIG_DIR / "topic.json").default_question
     request = ReviewRequest(question=question, max_subquestions=max_subquestions, target_words=target_words)
-    view = ReviewView(s.p2_runs_dir / "costs.jsonl")
+    mode = "detach" if detach else "auto" if (yes or as_json or quiet) else "ask"
+    ui = _ReviewUI(mode, as_json, quiet, debug_steps)
+    run_id = new_run_id()
 
-    def on_event(ev) -> None:
-        if as_json:
-            print(json.dumps({"type": type(ev).__name__, **ev.model_dump(mode="json")}), flush=True)
-            return
-        view.update(ev)
-        if isinstance(ev, StepStateChanged) and not quiet:
-            out = f" -> {_short(ev.output_event_name)}" if ev.output_event_name else ""
-            console.print(
-                f"  [dim]{ev.name:<20} {ev.step_state.value:<12} worker={ev.worker_id}"
-                f" in={_short(ev.input_event_name)}{out}[/dim]"
-            )
+    async def start(respond, on_event):
+        handler = ReviewWorkflow(timeout=3600).run(start_event=request)
+        ui.handlers.append(handler)
+        return await drive(handler, respond, on_event, debug_steps, (_pending_store(), run_id, question))
 
-    async def go() -> ReviewReady:
-        handler = ReviewWorkflow(timeout=1800).run(start_event=request)
-        # M4: the outline is approved (and a vague question clarified) automatically; M5 asks you.
-        if as_json or quiet:
-            result = await drive(handler, auto_responder, on_event, expose_internal=debug_steps)
+    ui.finish(asyncio.run(ui.run(start)))
+
+
+@app.command()
+def pending() -> None:
+    """List detached review runs waiting for an answer."""
+    from rich.table import Table
+
+    from litreview.events import OutlineApprovalRequired
+
+    runs = _pending_store().list()
+    if not runs:
+        console.print("no pending runs")
+        return
+    table = Table()
+    for col in ("run id", "created", "waiting for", "question"):
+        table.add_column(col)
+    for r in runs:
+        what = (
+            f"outline approval (attempt {r.waiting_for.attempt})"
+            if isinstance(r.waiting_for, OutlineApprovalRequired)
+            else "clarification"
+        )
+        table.add_row(r.run_id, r.created, what, r.question)
+    console.print(table)
+
+
+@app.command()
+def approve(
+    run_id: str = typer.Argument(..., help="From `litreview pending`."),
+    edit: bool = typer.Option(False, "--edit", help="Edit the outline in $EDITOR before approving."),
+    reject: str = typer.Option(None, "--reject", help="Reject the outline with this feedback (re-plans)."),
+    answer: str = typer.Option(None, "--answer", help="For a clarification: the refined question."),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Answer any later prompt automatically."),
+    interactive: bool = typer.Option(False, "--interactive", help="Answer later prompts here, not detached."),
+    final: bool = typer.Option(False, "--final", help="Write sections with Sonnet."),
+    debug_steps: bool = typer.Option(False, "--debug-steps"),
+) -> None:
+    """Continue a detached run in this process: restore its snapshot and send your decision."""
+    import yaml
+    from pydantic import ValidationError
+
+    from litreview.events import Clarified, OutlineApprovalRequired, OutlineDecision
+    from litreview.hitl import edit_in_editor, outline_to_yaml, resume_pending
+    from litreview.models import Outline
+    from litreview.workflows.review import ReviewWorkflow
+
+    _preflight(final)
+    store = _pending_store()
+    pending_run = store.load(run_id)
+    waiting = pending_run.waiting_for
+    if isinstance(waiting, OutlineApprovalRequired):
+        if reject:
+            decision = OutlineDecision(action="reject", feedback=reject)
+        elif edit:
+            try:
+                edited = Outline.model_validate(
+                    yaml.safe_load(edit_in_editor(outline_to_yaml(waiting.outline)))
+                )
+            except (ValidationError, yaml.YAMLError, TypeError) as e:
+                raise typer.BadParameter(f"edited outline doesn't validate: {e}") from e
+            decision = OutlineDecision(action="edit", edited_outline=edited)
         else:
-            with Live(view, console=console, refresh_per_second=8, transient=False):
-                result = await drive(handler, auto_responder, on_event, expose_internal=debug_steps)
-        folder = Path(result.markdown_path).parent
-        mermaid = draw_most_recent_execution_mermaid(handler, filename=str(folder / "execution.mermaid"))
-        (folder / "execution.md").write_text(f"# Execution of this run\n\n```mermaid\n{mermaid}\n```\n")
-        (folder / "execution.mermaid").unlink(missing_ok=True)
-        return result
+            decision = OutlineDecision(action="approve")
+    else:
+        decision = Clarified(refined_question=answer or (waiting.suggestions or [waiting.question])[0])
+    mode = "auto" if yes else "ask" if interactive else "detach"
+    ui = _ReviewUI(mode, False, False, debug_steps)
 
-    result = asyncio.run(go())
-    if as_json:
-        return
-    if quiet:
-        print(result.markdown_path)
-        print(result.bib_path)
-        return
-    if result.error:
-        console.print(f"[red]run failed, partial output written:[/] {result.error}")
+    async def start(respond, on_event):
+        return await resume_pending(
+            store,
+            run_id,
+            ReviewWorkflow(timeout=3600),
+            decision,
+            respond,
+            on_event,
+            debug_steps,
+            on_start=ui.handlers.append,
+        )
+
     console.print(
-        f"\n[green]review[/] {result.markdown_path}\n[green]bibtex[/] {result.bib_path}\n"
-        f"[green]citations[/] {result.n_citations}   [yellow]quotes not found in chunk[/] "
-        f"{result.unsupported_claims}   [yellow]invented markers removed[/] {result.unknown_markers}\n"
-        f"[yellow]cost[/] ${result.cost_usd:.4f}"
+        f"restoring {run_id} and sending: {type(decision).__name__}({decision.model_dump(exclude_none=True)})"
     )
-    if result.failed_subquestions:
-        console.print(f"[red]research failed for:[/] {'; '.join(result.failed_subquestions)}")
+    ui.finish(asyncio.run(ui.run(start)))
 
 
 @app.command()

@@ -189,6 +189,10 @@ class IngestionWorkflow(Workflow):
     ) -> PaperIndexed:
         rows = read_jsonl(_paths().root / "parsed" / f"{ev.arxiv_id}.jsonl")
         new_nodes = await asyncio.to_thread(storage.ingest, documents_from_segments(rows))
+        if new_nodes:
+            # Durable before this step counts as done: a checkpoint taken after this step must never
+            # point at chunks that existed only in the memory of a process that was then killed.
+            await asyncio.to_thread(storage.persist)
         async with ctx.store.edit_state() as state:
             state.indexed.append(ev.arxiv_id)
             state.new_nodes += new_nodes

@@ -9,6 +9,8 @@ Two kinds live here:
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -82,3 +84,10 @@ class FindingRecord(BaseModel):
     @property
     def ok(self) -> bool:
         return self.error is None
+
+
+class CitationIssue(BaseModel):
+    section_idx: int
+    claim: str  # the sentence, markers stripped
+    problem: Literal["no_citation", "citation_not_supporting", "unknown_node"]
+    suggested_fix: str | None = None

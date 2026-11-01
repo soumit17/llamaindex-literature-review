@@ -68,6 +68,24 @@ Rules:
 - About {words} words of Markdown prose. No heading line (it is added for you), no reference list."""
 
 
+REVISE = """[REVISE]
+Revise the section "{heading}" of a literature review titled "{title}", for {audience}.
+A citation check flagged these sentences:
+
+{notes}
+
+Current draft:
+{previous}
+
+Claims you may cite, each with its marker:
+
+{claims}
+
+Fix every flagged sentence: re-cite it to a claim that really supports it, weaken it to what the
+claim says, or remove it. Keep the rest of the draft as it is. Every factual sentence ends with
+marker(s) from the list; never invent one. Return only the revised section text, no heading."""
+
+
 def format_excerpts(nodes: list[NodeWithScore], titles: dict[str, str]) -> str:
     parts = []
     for i, n in enumerate(nodes, start=1):

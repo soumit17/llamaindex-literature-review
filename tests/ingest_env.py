@@ -17,9 +17,8 @@ from litreview.corpus import (
     save_papers,
 )
 from litreview.events import IngestRequest
-from litreview.resources import get_arxiv_client, get_embed_model, get_llm
+from litreview.resources import get_arxiv_client, get_embed_model, get_llm, shared_resources
 from litreview.workflows.ingestion import IngestionWorkflow
-from tests.conftest import override_resources
 from tests.fakes import CountingEmbedding, FakePdfServer, InstantClock, ScriptedLLM, make_paper_pdf
 
 IDS = ["2501.00001", "2501.00002", "2501.00003"]
@@ -46,7 +45,7 @@ class Env:
             http=self.server.client(),
             limiter=RateLimiter(3, clock=clock.clock, sleep=clock.sleep),
         )
-        manager = await override_resources(
+        manager = await shared_resources(
             {get_arxiv_client: client, get_llm: self.llm, get_embed_model: self.embed}
         )
         wf = IngestionWorkflow(timeout=60, resource_manager=manager)

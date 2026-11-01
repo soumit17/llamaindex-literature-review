@@ -200,3 +200,32 @@ ReviewRequest ─scope─▶ QuestionScoped | NeedsClarification ··you··▶ 
 | Token streaming (`SectionToken`) and the live view | `write_section`, [review_view.py](src/litreview/review_view.py) |
 | Typed state with `edit_state` | [state.py](src/litreview/state.py) `ReviewState` |
 | Deterministic citations and BibTeX | [bib.py](src/litreview/bib.py) |
+
+## M5: human in the loop, citation checking, crash-safe ingestion
+
+One-time migration (chunk ids became deterministic; ~5 min of local embedding, $0):
+
+```bash
+rm -rf data/cache/ingestion && uv run litreview ingest --rebuild
+```
+
+```bash
+uv run litreview review                        # you approve the outline: [a]pprove [e]dit [r]eject
+uv run litreview review --yes                  # M4 behaviour: approve automatically
+uv run litreview review --detach               # stop at the outline, save the run, exit
+uv run litreview pending                       # what is waiting
+uv run litreview approve <run_id>              # restore in this process and approve
+uv run litreview approve <run_id> --edit       # ...or edit the outline in $EDITOR first
+uv run litreview approve <run_id> --reject "more on failure handling"   # re-plans; detaches again
+uv run python scripts/crash_ingest.py          # kill -9 an ingest at 12 summaries, restart, check (~$0.02)
+```
+
+| Concept | Where |
+|---|---|
+| HITL pattern A: InputRequired -> caller -> HumanResponse | `interactive_responder` in [hitl.py](src/litreview/hitl.py) |
+| HITL pattern B: `ctx.to_dict()` -> `cancel_run()` -> `Context.from_dict()` -> `run(ctx=)` -> `send_event` | `drive` (DETACH), `PendingStore`, `resume_pending` |
+| Child workflow with shared Resources | [citation_check.py](src/litreview/workflows/citation_check.py), `check_citations` |
+| Bounded loop (check -> revise -> write) | `check_citations`, `revise` in [review.py](src/litreview/workflows/review.py) |
+| Checkpoint loop on `StepStateChanged` | [durability.py](src/litreview/durability.py), `litreview ingest` |
+| At-least-once resume made safe: deterministic ids, persist-then-done, atomic files | [pipeline.py](src/litreview/retrieval/pipeline.py), `index_paper` |
+| Crash test (real kill -9) | [scripts/crash_ingest.py](scripts/crash_ingest.py) |

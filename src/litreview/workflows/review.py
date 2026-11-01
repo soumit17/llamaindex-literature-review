@@ -12,7 +12,9 @@ Event flow (no graph is written down; it follows from the step signatures):
                                        └─▶ ReplanRequested     reject: loop back to plan (<= 3 outlines)
     WriteSection ─write_section (3 workers)─▶ SectionDraft    tokens streamed as SectionToken
     list[SectionDraft] ─assemble─▶ DraftAssembled             fan-in by list parameter
-    DraftAssembled ─finalize─▶ ReviewReady                    review.md, refs.bib, citations.json
+    DraftAssembled ─check_citations─▶ ReadyToFinalize         runs CitationCheckWorkflow (child)
+                                 └─▶ CitationIssues ─revise─▶ list[WriteSection]  loop, <= 2 rounds
+    ReadyToFinalize ─finalize─▶ ReviewReady                   review.md, refs.bib, citations.json
     Progress subclasses ─log_progress─▶ (state.log + stream)  accept_event_subclasses=True
     any other step failing ─on_any_failure─▶ ReviewReady(error) wildcard @catch_error: partial output
 
@@ -45,6 +47,7 @@ from litreview.config import get_settings
 from litreview.corpus import PaperMeta, Topic
 from litreview.cost import CostTracker
 from litreview.events import (
+    CitationIssues,
     Clarified,
     DraftAssembled,
     Finding,
@@ -54,6 +57,7 @@ from litreview.events import (
     OutlineDecision,
     Progress,
     QuestionScoped,
+    ReadyToFinalize,
     ReplanRequested,
     ResearchProgress,
     ReviewReady,
@@ -81,12 +85,15 @@ from litreview.resources import (
     get_storage,
     get_topic,
     get_writer_llm,
+    shared_resources,
 )
 from litreview.retrieval.pipeline import Storage
 from litreview.retry import LLM_RETRY, fix_note
-from litreview.state import ReviewState
+from litreview.state import ReviewState, SectionDraftRecord
+from litreview.workflows.citation_check import CheckRequest, CitationCheckWorkflow, ClaimRef, SectionText
 
 MAX_OUTLINE_ATTEMPTS = 3
+MAX_REVISIONS = 2  # citation check -> revise loop: at most 2 revise rounds, so at most 3 checks
 QUOTE_MATCH_THRESHOLD = 85  # rapidfuzz partial_ratio, 0-100
 
 
@@ -326,14 +333,25 @@ class ReviewWorkflow(Workflow):
         records = _section_findings(state, ev.finding_ids)
         known = {c.claim_id for r in records for c in r.claims}
         words = max(120, state.target_words // max(1, state.expected_sections))
-        prompt = prompts.WRITE.format(
-            heading=ev.heading,
-            title=state.outline.title,
-            audience=state.audience,
-            points="; ".join(ev.points),
-            claims=prompts.format_claims(records, {k: p.title for k, p in papers.items()}),
-            words=words,
-        )
+        claims_text = prompts.format_claims(records, {k: p.title for k, p in papers.items()})
+        if ev.previous_markdown is not None:  # a revision requested by the citation check
+            prompt = prompts.REVISE.format(
+                heading=ev.heading,
+                title=state.outline.title,
+                audience=state.audience,
+                notes="\n".join(f"- {n}" for n in ev.revision_notes),
+                previous=ev.previous_markdown,
+                claims=claims_text,
+            )
+        else:
+            prompt = prompts.WRITE.format(
+                heading=ev.heading,
+                title=state.outline.title,
+                audience=state.audience,
+                points="; ".join(ev.points),
+                claims=claims_text,
+                words=words,
+            )
         text = ""
         if retrying:  # tokens from the failed attempt are already on screen
             ctx.write_event_to_stream(SectionToken(section_idx=ev.section_idx, delta="", restart=True))
@@ -351,17 +369,96 @@ class ReviewWorkflow(Workflow):
 
     @step
     async def assemble(self, ctx: Context[ReviewState], drafts: list[SectionDraft]) -> DraftAssembled:
-        # List fan-in: fires once, after every WriteSection from on_outline_decision's list is done.
+        # List fan-in: fires once per batch of WriteSections, i.e. after on_outline_decision's list
+        # (all sections) and again after each revise list (only the flagged ones). New drafts replace
+        # old ones in state, so the assembled draft is always complete.
+        async with ctx.store.edit_state() as s:
+            for d in drafts:
+                s.drafts[d.section_idx] = SectionDraftRecord(
+                    heading=d.heading, markdown=d.markdown, unknown_markers=d.unknown_markers
+                )
+            outline, current = s.outline, dict(s.drafts)
+        assert outline is not None
+        return DraftAssembled(
+            title=outline.title,
+            sections=[
+                SectionDraft(
+                    section_idx=i, heading=d.heading, markdown=d.markdown, unknown_markers=d.unknown_markers
+                )
+                for i, d in sorted(current.items())
+            ],
+        )
+
+    # ---------- citation check: a child workflow, then maybe a revise loop ----------
+    @step
+    async def check_citations(
+        self,
+        ctx: Context[ReviewState],
+        ev: DraftAssembled,
+        storage: Annotated[Storage, Resource(get_storage)],
+        llm: Annotated[LLM, Resource(get_llm)],
+    ) -> CitationIssues | ReadyToFinalize | Progress:
         state = await ctx.store.get_state()
-        assert state.outline is not None
-        return DraftAssembled(title=state.outline.title, sections=sorted(drafts, key=lambda d: d.section_idx))
+        claims = {
+            c.claim_id: ClaimRef(node_id=c.citation.node_id, quote=c.citation.quote)
+            for r in state.findings.values()
+            for c in r.claims
+        }
+        # The child gets the index and LLM this run already loaded, not fresh copies.
+        manager = await shared_resources({get_storage: storage, get_llm: llm})
+        report = await CitationCheckWorkflow(timeout=600, resource_manager=manager).run(
+            start_event=CheckRequest(
+                sections=[
+                    SectionText(section_idx=d.section_idx, heading=d.heading, markdown=d.markdown)
+                    for d in ev.sections
+                ],
+                claims=claims,
+            )
+        )
+        async with ctx.store.edit_state() as s:
+            s.citation_rounds += 1
+            rounds, revisions = s.citation_rounds, s.revisions
+        ctx.send_event(
+            Progress(
+                stage="check",
+                message=f"round {rounds}: {len(report.issues)} issue(s) in {report.n_sentences} sentences "
+                f"({report.n_judged} judged)",
+            )
+        )
+        if report.issues and revisions < MAX_REVISIONS:
+            return CitationIssues(issues=report.issues, round=rounds)  # loop: revise -> write -> assemble
+        return ReadyToFinalize(title=ev.title, sections=ev.sections, remaining_issues=report.issues)
+
+    @step
+    async def revise(self, ctx: Context[ReviewState], ev: CitationIssues) -> list[WriteSection]:
+        async with ctx.store.edit_state() as s:
+            s.revisions += 1
+            outline, drafts = s.outline, dict(s.drafts)
+        assert outline is not None
+        flagged: dict[int, list[str]] = {}
+        for issue in ev.issues:
+            note = f'{issue.problem}: "{issue.claim}"' + (
+                f" ({issue.suggested_fix})" if issue.suggested_fix else ""
+            )
+            flagged.setdefault(issue.section_idx, []).append(note)
+        return [  # only the flagged sections are rewritten
+            WriteSection(
+                section_idx=i,
+                heading=outline.sections[i].heading,
+                points=outline.sections[i].points,
+                finding_ids=outline.sections[i].finding_ids,
+                previous_markdown=drafts[i].markdown,
+                revision_notes=notes,
+            )
+            for i, notes in sorted(flagged.items())
+        ]
 
     # ---------- finalize: deterministic ----------
     @step
     async def finalize(
         self,
         ctx: Context[ReviewState],
-        ev: DraftAssembled,
+        ev: ReadyToFinalize,
         papers: Annotated[dict[str, PaperMeta], Resource(get_papers)],
         storage: Annotated[Storage, Resource(get_storage)],
         tracker: Annotated[CostTracker, Resource(get_cost_tracker)],
@@ -376,7 +473,6 @@ class ReviewWorkflow(Workflow):
         unknown_nodes = [n for r in refs for n in r.node_ids if n not in known_nodes]
         if unknown_nodes:  # can't happen: node ids come from retrieval. Fail loudly if it ever does.
             raise RuntimeError(f"citations point at chunks not in the index: {unknown_nodes[:3]}")
-        cited = [c for r in refs for c in r.claims]
         failed = [r.sub_question for r in sorted(state.findings.values(), key=lambda r: r.idx) if not r.ok]
         gaps = [f"- {r.sub_question}: {r.gap}" for r in state.findings.values() if r.ok and r.gap]
 
@@ -399,12 +495,15 @@ class ReviewWorkflow(Workflow):
         _atomic_write(bib_path, bibtex(cited_papers))
         _atomic_write(folder / "citations.json", json.dumps(_citations_json(refs, papers), indent=2) + "\n")
         _atomic_write(folder / "log.txt", "\n".join(state.log) + "\n")
+        issues = [i.model_dump() for i in ev.remaining_issues]
+        _atomic_write(folder / "check_issues.json", json.dumps(issues, indent=2) + "\n")
 
         return ReviewReady(
             markdown_path=str(md_path),
             bib_path=str(bib_path),
             n_citations=len(refs),
-            unsupported_claims=sum(not c.citation.quote_verified for c in cited),
+            unsupported_claims=len(ev.remaining_issues),
+            citation_rounds=state.citation_rounds,
             unknown_markers=numbering.unknown + sum(d.unknown_markers for d in ev.sections),
             failed_subquestions=failed,
             cost_usd=round(tracker.spent_usd - state.cost_at_start, 6),
@@ -453,7 +552,13 @@ def _prompt(template: str):
 
 
 def _section_findings(state: ReviewState, finding_ids: list[int]) -> list[FindingRecord]:
-    usable = [r for r in sorted(state.findings.values(), key=lambda r: r.idx) if r.ok and r.claims]
+    """The claims a section may cite: only those whose quote was found in the chunk during research.
+    An unverified claim stays in the findings (and the log) but is never offered to the writer."""
+    usable = []
+    for r in sorted(state.findings.values(), key=lambda r: r.idx):
+        verified = [c for c in r.claims if c.citation.quote_verified]
+        if r.ok and verified:
+            usable.append(r.model_copy(update={"claims": verified}))
     if finding_ids:
         return [r for r in usable if r.idx in finding_ids]
     # Introduction / conclusion: a few claims from every finding, to frame without repeating.

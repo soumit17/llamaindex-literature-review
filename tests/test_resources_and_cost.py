@@ -8,9 +8,8 @@ from workflows.resource import Resource, ResourceManager
 from workflows.testing import WorkflowTestRunner
 
 from litreview import cost
-from litreview.resources import BudgetedAnthropic, get_cost_tracker, get_llm
+from litreview.resources import BudgetedAnthropic, get_cost_tracker, get_llm, shared_resources
 from litreview.workflows.smoke import Ask, SmokeWorkflow
-from tests.conftest import override_resources
 from tests.fakes import ScriptedLLM
 
 PRICES = {"claude-haiku-5-5": {"input": 0.10, "cache_write": 0.125, "cache_read": 0.01, "output": 0.50}}
@@ -18,7 +17,7 @@ PRICES = {"claude-haiku-5-5": {"input": 0.10, "cache_write": 0.125, "cache_read"
 
 async def test_smoke_workflow_uses_the_injected_llm():
     fake = ScriptedLLM(script={"event-driven": "Steps react to events."}, calls=[])
-    manager = await override_resources({get_llm: fake})
+    manager = await shared_resources({get_llm: fake})
 
     r = await WorkflowTestRunner(SmokeWorkflow(timeout=10, resource_manager=manager)).run(Ask())
 

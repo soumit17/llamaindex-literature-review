@@ -15,72 +15,11 @@ from litreview.events import (
     OutlineDecision,
     ResearchProgress,
     ReviewReady,
-    ReviewRequest,
     SectionToken,
 )
-from litreview.hitl import auto_responder, drive
+from litreview.hitl import auto_responder
 from litreview.models import Outline, OutlineSection
-from litreview.resources import get_embed_model, get_llm, get_reranker, get_writer_llm
-from litreview.workflows.review import ReviewWorkflow
-from tests.conftest import override_resources
-from tests.fakes import CountingEmbedding, ScriptedLLM
-from tests.test_engines import fake_reranker
-
-SUBQUESTIONS = ["How do hubs route work?", "How do rings pass messages?", "When do trees help?"]
-SCRIPT = {
-    "[SCOPE]": json.dumps({"specific": True, "reason": "clear", "suggestions": []}),
-    "[PLAN]": json.dumps(
-        {
-            "sub_questions": [{"text": q, "rationale": "r"} for q in SUBQUESTIONS],
-            "scope_note": "Coordination topologies only.",
-        }
-    ),
-    "[RESEARCH]": json.dumps(
-        {
-            "claims": [
-                {"statement": "Orchestrators assign roles.", "excerpt": 1, "quote": "assigns roles"},
-                {"statement": "Excerpt 9 does not exist.", "excerpt": 9, "quote": "x"},
-            ],
-            "gap": None,
-        }
-    ),
-    "[OUTLINE]": json.dumps(
-        {
-            "title": "Coordination Topologies",
-            "sections": [
-                {"heading": "Introduction", "points": ["why"], "finding_ids": []},
-                {"heading": "Hubs and Rings", "points": ["compare"], "finding_ids": [1, 2]},
-                {"heading": "Trees", "points": ["when"], "finding_ids": [3, 99]},
-                {"heading": "Conclusion", "points": ["wrap"], "finding_ids": []},
-            ],
-        }
-    ),
-    # Cites a claim of every finding plus an invented one; each section may only keep its own.
-    "[WRITE]": "Agents coordinate through roles [1.1, 2.1]. Trees help depth [3.1]. Made up [9.9].",
-}
-
-
-def scripted(**kwargs: Any) -> ScriptedLLM:
-    return ScriptedLLM(script={**SCRIPT, **kwargs.pop("script", {})}, **kwargs)
-
-
-async def run_review(
-    llm: ScriptedLLM, respond=auto_responder, question: str = "How do agent teams coordinate?", **request
-):
-    """Like `litreview review`: drive the run, answer HITL prompts, keep every streamed event."""
-    manager = await override_resources(
-        {
-            get_embed_model: CountingEmbedding.make(),
-            get_reranker: fake_reranker(),
-            get_llm: llm,
-            get_writer_llm: llm,
-        }
-    )
-    wf = ReviewWorkflow(timeout=60, resource_manager=manager)
-    events: list[Event] = []
-    handler = wf.run(start_event=ReviewRequest(question=question, **request))
-    result = await drive(handler, respond, on_event=events.append, expose_internal=True)
-    return result, events, handler
+from tests.review_env import SUBQUESTIONS, run_review, scripted
 
 
 def of_type(events: list[Event], cls: type) -> list[Any]:

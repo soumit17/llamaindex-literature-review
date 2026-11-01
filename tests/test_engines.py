@@ -7,9 +7,15 @@ from llama_index.core.schema import NodeWithScore, QueryBundle, TextNode
 from workflows.resource import Resource
 
 from litreview.config import CONFIG_DIR
-from litreview.resources import get_embed_model, get_llm, get_query_engine, get_reranker, get_storage
+from litreview.resources import (
+    get_embed_model,
+    get_llm,
+    get_query_engine,
+    get_reranker,
+    get_storage,
+    shared_resources,
+)
 from litreview.retrieval.engines import (
-    FastEmbedRerank,
     QueryConfig,
     ensure_summary_index,
     load_summary_index,
@@ -17,23 +23,9 @@ from litreview.retrieval.engines import (
     make_retriever,
 )
 from litreview.retrieval.summaries import load_all_summaries
-from tests.conftest import override_resources
 from tests.fakes import CountingEmbedding, ScriptedLLM
 from tests.ingest_env import IDS
-
-
-class WordOverlapEncoder:
-    """Stand-in for fastembed's TextCrossEncoder: score = query words found in the text."""
-
-    def rerank(self, query: str, texts: list[str]):
-        words = set(query.lower().split())
-        return [float(len(words & set(t.lower().split()))) for t in texts]
-
-
-def fake_reranker(top_n: int = 5) -> FastEmbedRerank:
-    reranker = FastEmbedRerank(top_n=top_n)
-    reranker._encoder = WordOverlapEncoder()
-    return reranker
+from tests.review_env import fake_reranker
 
 
 async def test_ingest_builds_summary_index_from_saved_summaries(ingested):
@@ -46,7 +38,7 @@ async def test_ingest_builds_summary_index_from_saved_summaries(ingested):
 
 
 async def test_summary_chunks_keep_vector_node_ids(ingested):
-    manager = await override_resources({get_embed_model: CountingEmbedding.make()})
+    manager = await shared_resources({get_embed_model: CountingEmbedding.make()})
     storage = await manager.get(Resource(get_storage))
     index = load_summary_index(ingested.root / "storage" / "summary", CountingEmbedding.make())
     chunk_ids = {nid for s in index.index_struct.summary_id_to_node_ids.values() for nid in s}
@@ -113,7 +105,7 @@ async def test_router_sends_overview_question_to_summaries(ingested):
 
 
 async def test_query_engine_resource_follows_config(ingested):
-    manager = await override_resources(
+    manager = await shared_resources(
         {get_embed_model: CountingEmbedding.make(), get_llm: ScriptedLLM(), get_reranker: fake_reranker()}
     )
     engine = await manager.get(Resource(get_query_engine))

@@ -18,6 +18,7 @@ DocumentSummaryIndex the saved text instead of asking an LLM, so building it cos
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -151,7 +152,9 @@ def ensure_summary_index(
     """(Re)build the summary index when its papers or chunks changed. Returns True if it rebuilt."""
     nodes = _regroup_by_paper(vector_index, set(summaries))
     manifest_path = persist_dir / "manifest.json"
-    manifest = {"papers": sorted(summaries), "nodes": len(nodes)}
+    # The chunk ids, not just their count: a rebuild with new ids must rebuild this index too.
+    ids_digest = hashlib.sha1("".join(sorted(n.node_id for n in nodes)).encode()).hexdigest()
+    manifest = {"papers": sorted(summaries), "nodes": len(nodes), "node_ids_sha1": ids_digest}
     if manifest_path.exists() and json.loads(manifest_path.read_text()) == manifest:
         return False
     index = DocumentSummaryIndex(

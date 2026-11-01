@@ -205,3 +205,49 @@ Verified against the docs MCP (concurrent_execution: dynamic API) and the instal
   review diagram's line order differs between processes; the edges don't.
 - **Dry run on the real index** (scripted LLM, real embeddings + reranker, 4 sub-questions): 25.6 s,
   research peaked at exactly 4 concurrent workers, citations resolved to real papers/pages.
+
+## D10. M5 HITL, citation check, durability level 1
+
+Verified against the docs MCP (human_in_the_loop, durable_workflows) and the installed source.
+
+- **Deterministic chunk ids** (`chunk_id`: `"<arxiv_id>#<segment>/<chunk>"`, passed as the splitter's
+  `id_func`). LlamaIndex defaults to uuid4, so re-indexing a segment after a crash (at-least-once)
+  would add a second copy under new ids. Catch found while designing: `IngestionCache` returns the
+  *stored* output nodes on a hit, ids included, so an old cache silently brings uuid ids back. One-time
+  migration `rm -rf data/cache/ingestion && litreview ingest --rebuild` (re-embeds ~5 min, $0);
+  `Storage.ingest` refuses stale-cache nodes with that message, and so does the crash script. The
+  summary-index manifest now includes a digest of the node ids, so it rebuilds after the migration.
+- **`index_paper` persists before it counts as done.** A snapshot holds events and state, not Resources:
+  an index that lived only in a killed process's memory would be gone while the checkpoint says "indexed".
+  `Storage.persist` writes to `storage.tmp/` then `os.replace`s each file (no truncated JSON after
+  kill -9), pipeline docstore last.
+- **Checkpoint loop** (`durability.run_checkpointed`): snapshot on `StepStateChanged(NOT_RUNNING)` of
+  `index_paper` / `summarize_paper`, throttled to 2 s, atomic write; if a checkpoint exists, resume with
+  `Context.from_dict` + `run(ctx=...)` and no StartEvent; delete it on success. `--fresh` / `--rebuild`
+  discard it. Verified with a kill -9 harness on a scratch copy of the real corpus (real embeddings,
+  fake LLM): killed at 9/25 indexed; the restart indexed only the other 16; 803 chunks, 0 duplicates,
+  `IngestReport.papers == 25` (the list fan-in completed across both processes).
+- **Citation check = child workflow** (`CitationCheckWorkflow`), run with `await Child(...).run(...)`
+  inside `check_citations`; the drawing utility finds it by scanning the step source and nests it.
+  It gets the parent's loaded index and LLM via `shared_resources` (a pre-seeded `ResourceManager`;
+  tests use the same function, `override_resources` is gone). Deterministic checks first (unknown
+  claim/node, quote not in chunk, an unmarked sentence with a number), then Haiku judges only what
+  passed, in batches of 10 (list fan-out/fan-in inside the child).
+- **Only verified claims are citable.** The writer gets claims whose research quote was found in the
+  chunk. Found when the revise-loop test never reached the LLM judge: an unverified quote fails the
+  deterministic check every round, and no revision can fix it. Real runs had 42/42 verified.
+- **Revise loop:** check -> revise (flagged sections only, with the draft and the notes) -> write ->
+  assemble -> check, at most `MAX_REVISIONS = 2` (so <= 3 checks). `assemble` merges into
+  `state.drafts`, because each revise list opens a new stream that only contains the flagged sections.
+  `ReviewReady.unsupported_claims` = what the last check still flagged; details in `check_issues.json`.
+- **HITL caller** (`hitl.py`): pattern A `interactive_responder` (approve / edit YAML in `$EDITOR` with
+  re-edit on validation errors / reject with feedback; prompts run in a thread; the live view is paused
+  meanwhile); pattern B `DETACH` -> `PendingStore` (`runs/pending/<run_id>.json` = `ctx.to_dict()` + the
+  prompt event) -> `handler.cancel_run()`; `resume_pending` restores into a new workflow instance,
+  `run(ctx=...)`, `send_event(answer)`. A later prompt detaches again under the same run id. The
+  cross-process test restores in a real subprocess and gets a byte-identical review, with no scope /
+  plan / research / outline calls after the restore.
+- **Subprocess safety.** `tests/conftest.py` clears P2_* dirs at import time; anything a child process
+  imports (`tests/review_env.py`, `tests/restore_child.py`) must not import it, and the child asserts
+  it is inside a pytest temp dir.
+- **Field named `items` on an Event** shadows `DictLikeModel.items()`; renamed (`JudgeBatch.entries`).

@@ -11,7 +11,7 @@ from typing import Literal
 
 from workflows.events import Event, HumanResponseEvent, InputRequiredEvent, StartEvent, StopEvent
 
-from litreview.models import FindingRecord, Outline
+from litreview.models import CitationIssue, FindingRecord, Outline
 
 
 # ---------- ingestion ----------
@@ -131,6 +131,8 @@ class WriteSection(Event):
     heading: str
     points: list[str]
     finding_ids: list[int]
+    previous_markdown: str | None = None  # set on a revision: the draft to fix
+    revision_notes: list[str] = []  # what the citation check flagged in it
 
 
 class SectionToken(Event):  # streamed only: live LLM tokens for the section being written
@@ -149,6 +151,17 @@ class SectionDraft(Event):
 class DraftAssembled(Event):
     title: str
     sections: list[SectionDraft]
+
+
+class CitationIssues(Event):  # the check found problems and a revision round is still allowed
+    issues: list[CitationIssue]
+    round: int
+
+
+class ReadyToFinalize(Event):
+    title: str
+    sections: list[SectionDraft]
+    remaining_issues: list[CitationIssue]  # what the last check still flagged (0 if clean)
 
 
 class Progress(Event):
@@ -173,7 +186,8 @@ class ReviewReady(StopEvent):
     markdown_path: str
     bib_path: str
     n_citations: int
-    unsupported_claims: int  # citations whose quote wasn't found in the chunk (checked properly in M5)
+    unsupported_claims: int  # sentences the last citation check still flagged
+    citation_rounds: int = 0  # how many times the citation check ran
     unknown_markers: int  # writer markers that matched no claim (removed)
     failed_subquestions: list[str]
     cost_usd: float

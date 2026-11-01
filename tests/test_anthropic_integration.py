@@ -11,9 +11,8 @@ from llama_index.core.llms import ChatMessage
 from workflows.testing import WorkflowTestRunner
 
 from litreview.config import get_settings
-from litreview.resources import BudgetedAnthropic, get_cost_tracker
+from litreview.resources import BudgetedAnthropic, get_cost_tracker, shared_resources
 from litreview.workflows.smoke import Ask, SmokeWorkflow
-from tests.conftest import override_resources
 
 
 def _llm_with_fake_http(sent: list[dict]) -> BudgetedAnthropic:
@@ -52,7 +51,7 @@ async def test_request_building_response_parsing_and_cost_ledger():
 async def test_smoke_workflow_end_to_end_with_real_integration():
     from litreview.resources import get_llm
 
-    manager = await override_resources({get_llm: _llm_with_fake_http([])})
+    manager = await shared_resources({get_llm: _llm_with_fake_http([])})
 
     r = await WorkflowTestRunner(SmokeWorkflow(timeout=10, resource_manager=manager)).run(Ask())
 

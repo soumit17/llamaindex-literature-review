@@ -21,6 +21,12 @@ class IngestState(BaseModel):
     failed: dict[str, str] = {}  # arxiv_id -> error, filled by the catch_error handler
 
 
+class SectionDraftRecord(BaseModel):
+    heading: str
+    markdown: str
+    unknown_markers: int = 0
+
+
 class ReviewState(BaseModel):
     question: str = ""
     audience: str = "ML engineers"
@@ -33,6 +39,8 @@ class ReviewState(BaseModel):
     outline: Outline | None = None
     outline_attempts: int = 0
     expected_sections: int = 0
-    citation_rounds: int = 0  # M5: revise loop counter
+    drafts: dict[int, SectionDraftRecord] = {}  # latest draft per section (revisions replace)
+    citation_rounds: int = 0  # how many times the citation check ran
+    revisions: int = 0  # how many revise rounds ran (<= MAX_REVISIONS)
     cost_at_start: float = 0.0  # ledger total when the run began; cost = now - this
     log: list[str] = []  # every Progress event, appended by log_progress
