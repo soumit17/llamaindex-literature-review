@@ -15,7 +15,7 @@ from litreview.resources import BudgetedAnthropic, get_cost_tracker, shared_reso
 from litreview.workflows.smoke import Ask, SmokeWorkflow
 
 
-def _llm_with_fake_http(sent: list[dict]) -> BudgetedAnthropic:
+def _llm_with_fake_http(sent: list[dict], stop_reason: str = "end_turn") -> BudgetedAnthropic:
     llm = BudgetedAnthropic(get_cost_tracker(), model="claude-haiku-5-5", max_tokens=50, api_key="x")
 
     async def fake_create(**kwargs):
@@ -26,7 +26,7 @@ def _llm_with_fake_http(sent: list[dict]) -> BudgetedAnthropic:
             role="assistant",
             model="claude-haiku-5-5",
             content=[TextBlock(type="text", text="Steps react to events.")],
-            stop_reason="end_turn",
+            stop_reason=stop_reason,
             usage=Usage(input_tokens=20, output_tokens=8),
         )
 
@@ -58,7 +58,7 @@ async def test_smoke_workflow_end_to_end_with_real_integration():
     assert r.result == "Steps react to events."
 
 
-def _llm_with_fake_stream(text_parts: list[str]) -> BudgetedAnthropic:
+def _llm_with_fake_stream(text_parts: list[str], stop_reason: str = "end_turn") -> BudgetedAnthropic:
     """Real integration code; only `messages.create(stream=True)` is faked with Anthropic's own events."""
     from anthropic.types import (
         MessageDeltaUsage,
@@ -98,7 +98,7 @@ def _llm_with_fake_stream(text_parts: list[str]) -> BudgetedAnthropic:
             yield RawContentBlockStopEvent(type="content_block_stop", index=0)
             yield RawMessageDeltaEvent(
                 type="message_delta",
-                delta=Delta(stop_reason="end_turn"),
+                delta=Delta(stop_reason=stop_reason),
                 usage=MessageDeltaUsage(output_tokens=12),
             )
             yield RawMessageStopEvent(type="message_stop")
@@ -118,3 +118,20 @@ async def test_streamed_calls_are_recorded_in_the_cost_ledger():
     rows = [json.loads(x) for x in (get_settings().p2_runs_dir / "costs.jsonl").read_text().splitlines()]
     recorded = [(r["model"], r["input_tokens"], r["output_tokens"]) for r in rows]
     assert recorded == [("claude-haiku-5-5", 30, 12)]
+
+
+async def test_truncated_output_is_billed_then_raises():
+    import pytest
+
+    from litreview.cost import OutputTruncated
+
+    with pytest.raises(OutputTruncated, match="max_tokens"):
+        await _llm_with_fake_http([], stop_reason="max_tokens").achat(
+            [ChatMessage(role="user", content="hi")]
+        )
+    llm = _llm_with_fake_stream(["cut ", "off"], stop_reason="max_tokens")
+    with pytest.raises(OutputTruncated):
+        async for _ in await llm.astream_chat([ChatMessage(role="user", content="hi")]):
+            pass
+    rows = [json.loads(x) for x in (get_settings().p2_runs_dir / "costs.jsonl").read_text().splitlines()]
+    assert [r["stop_reason"] for r in rows] == ["max_tokens", "max_tokens"]  # paid for, and visible

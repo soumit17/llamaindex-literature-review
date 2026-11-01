@@ -143,7 +143,7 @@ async def run_one(workflow: str, qi: int, repeat: int, storage, judge) -> RunMet
             error = result.error
         else:
             handler = start_agent_review(
-                build_agent_review(await production_deps(), question), f"compare-{qi}-{repeat}"
+                build_agent_review(await production_deps()), question, f"compare-{qi}-{repeat}"
             )
             await drive(handler, auto_responder)
             if await agent_result(handler.ctx) is None:

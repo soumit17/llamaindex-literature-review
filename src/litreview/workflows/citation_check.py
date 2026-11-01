@@ -18,19 +18,18 @@ from typing import Annotated, Literal
 from llama_index.core.llms import LLM
 from llama_index.core.prompts import PromptTemplate
 from pydantic import BaseModel, Field
-from rapidfuzz import fuzz
 from workflows import Context, Workflow, step
 from workflows.events import Event, StartEvent, StopEvent
 from workflows.resource import Resource
 
 from litreview.bib import MARKER_RE
 from litreview.models import CitationIssue
+from litreview.quotes import quote_in_chunk
 from litreview.resources import get_llm, get_storage
 from litreview.retrieval.pipeline import Storage
 from litreview.retry import LLM_RETRY, fix_note
 
 BATCH_SIZE = 10
-QUOTE_MATCH_THRESHOLD = 85
 CHUNK_CHARS = 1200  # of each cited chunk shown to the judge
 SENTENCE_RE = re.compile(r"(?<=[.!?])\s+(?=[A-Z(])")
 FACTUAL_RE = re.compile(r"\d")  # a number with no marker is a factual claim with no source
@@ -145,7 +144,7 @@ class CitationCheckWorkflow(Workflow):
                         ok = False
                         break
                     text = node.get_content()
-                    if fuzz.partial_ratio(ref.quote.lower(), text.lower()) < QUOTE_MATCH_THRESHOLD:
+                    if not quote_in_chunk(ref.quote, text, ref.node_id):
                         issues.append(
                             CitationIssue(
                                 section_idx=section.section_idx,

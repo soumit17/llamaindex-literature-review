@@ -26,12 +26,31 @@ from litreview.config import CONFIG_DIR
 PROJECT = "p2"
 
 
+class OutputTruncated(RuntimeError):
+    """The model hit max_tokens. Raised instead of returning a cut-off answer: a truncated tool call
+    looks like "no tool call" to an agent (which then silently ends its run), and a truncated
+    structured output just fails validation again on retry. Not retried: raise max_tokens instead."""
+
+
 class BudgetExceeded(RuntimeError):
     """Raised before an LLM call once cumulative spend has reached the cap. Never retried."""
 
 
 def load_prices(path: Path = CONFIG_DIR / "prices.json") -> dict[str, dict[str, float]]:
     return {k: v for k, v in json.loads(path.read_text()).items() if not k.startswith("_")}
+
+
+def current_step() -> str | None:
+    """Name of the workflow step this code runs in, if any: what the ledger's `step` column records.
+
+    Reads the runtime's step context variable (an internal of llama-index-workflows 2.x, so failures
+    just leave the column empty)."""
+    try:
+        from workflows.runtime.types.results import StepWorkerStateContextVar
+
+        return StepWorkerStateContextVar.get().state.step_name
+    except Exception:
+        return None
 
 
 def _get(obj: Any, key: str) -> Any:
@@ -78,11 +97,19 @@ class CostTracker:
         }
         return sum(tokens[k] * p[k] for k in tokens) / 1_000_000
 
-    def record(self, model: str, usage: Any, response_id: str | None, step: str | None = None) -> float:
+    def record(
+        self,
+        model: str,
+        usage: Any,
+        response_id: str | None,
+        step: str | None = None,
+        stop_reason: str | None = None,
+    ) -> float:
         # A resumed run is at-least-once: a replayed response keeps its id, so skip it.
         if response_id and response_id in self._seen:
             return 0.0
         cost = self.price(model, usage)
+        step = step or current_step()
         row = {
             "ts": datetime.now(UTC).isoformat(),
             "project": PROJECT,
@@ -92,6 +119,7 @@ class CostTracker:
             "output_tokens": _get(usage, "output_tokens") or 0,
             "cost_usd": round(cost, 6),
             "response_id": response_id,
+            "stop_reason": stop_reason,  # "max_tokens" means the output was cut off
         }
         with self._lock:
             self.ledger.parent.mkdir(parents=True, exist_ok=True)
@@ -120,7 +148,7 @@ class CostEventHandler(BaseEventHandler):
         # No model: a MockLLM, or the last chunk of a stream (BudgetedAnthropic records those itself).
         if usage is None or model is None:
             return
-        self.tracker.record(model, usage, _get(raw, "id"))
+        self.tracker.record(model, usage, _get(raw, "id"), stop_reason=_get(raw, "stop_reason"))
 
 
 _handler: CostEventHandler | None = None

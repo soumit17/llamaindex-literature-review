@@ -31,7 +31,7 @@ async def test_chained_resource_builds_haiku_from_json_config():
     llm = await ResourceManager().get(Resource(get_llm))
 
     assert isinstance(llm, BudgetedAnthropic)
-    assert (llm.model, llm.max_tokens) == ("claude-haiku-5-5", 1500)
+    assert (llm.model, llm.max_tokens) == ("claude-haiku-5-5", 4096)
 
 
 def test_price_math_and_snapshot_model_ids(tmp_path):

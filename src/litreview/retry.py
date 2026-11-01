@@ -44,13 +44,45 @@ class Scaled:
 
 # arXiv: network errors, rate limiting / unavailability, and the "PDF is being generated" HTML page.
 # Not retried: hash mismatch (a real change) or a 404.
-FETCH_RETRY = Scaled(
-    retry_policy(
-        retry=retry_if_exception_type((httpx.TransportError, ConnectionError, TimeoutError))
-        | retry_if_exception_message(match=r"429|503|rate|not a PDF"),
-        wait=wait_exponential_jitter(initial=3, max=60),
-        stop=stop_after_attempt(4) | stop_before_delay(120),
-    )
+class NamedPolicy:
+    """A shared policy that pickles *by name*.
+
+    The DBOS runtime pickles each run's configuration, retry policies included, and the built-in
+    composable conditions hold local lambdas, which pickle can't handle. `__reduce__` makes pickle
+    store just the name; unpickling looks the module-level policy up again.
+    """
+
+    def __init__(self, name: str, policy: RetryPolicy) -> None:
+        self.name = name
+        self.policy = policy
+        _POLICIES[name] = self
+
+    def next(
+        self, elapsed_time: float, attempts: int, error: Exception, *, seed: int | None = None
+    ) -> float | None:
+        return self.policy.next(elapsed_time, attempts, error, seed=seed)
+
+    def __reduce__(self):
+        return (policy_by_name, (self.name,))
+
+
+_POLICIES: dict[str, NamedPolicy] = {}
+
+
+def policy_by_name(name: str) -> NamedPolicy:
+    return _POLICIES[name]
+
+
+FETCH_RETRY = NamedPolicy(
+    "fetch",
+    Scaled(
+        retry_policy(
+            retry=retry_if_exception_type((httpx.TransportError, ConnectionError, TimeoutError))
+            | retry_if_exception_message(match=r"429|503|rate|not a PDF"),
+            wait=wait_exponential_jitter(initial=3, max=60),
+            stop=stop_after_attempt(4) | stop_before_delay(120),
+        )
+    ),
 )
 
 
@@ -103,15 +135,18 @@ STRUCTURED_FAILURE = (
 
 # Anthropic: transient errors, plus structured outputs that didn't validate (the step re-prompts
 # with the error, see `fix_note`). BudgetExceeded, auth and bad-request errors fail immediately.
-LLM_RETRY = Scaled(
-    RetryAfterPolicy(
-        retry_policy(
-            retry=retry_if_exception_type((*TRANSIENT_ANTHROPIC, ValidationError))
-            | retry_if_exception_message(match=STRUCTURED_FAILURE),
-            wait=wait_exponential_jitter(initial=2, max=30),
-            stop=stop_after_attempt(4),
+LLM_RETRY = NamedPolicy(
+    "llm",
+    Scaled(
+        RetryAfterPolicy(
+            retry_policy(
+                retry=retry_if_exception_type((*TRANSIENT_ANTHROPIC, ValidationError))
+                | retry_if_exception_message(match=STRUCTURED_FAILURE),
+                wait=wait_exponential_jitter(initial=2, max=30),
+                stop=stop_after_attempt(4),
+            )
         )
-    )
+    ),
 )
 
 

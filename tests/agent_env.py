@@ -140,5 +140,5 @@ async def agent_deps(llm: PolicyLLM, check_llm: ScriptedLLM | None = None) -> Ag
     )
 
 
-async def agent_workflow(llm: PolicyLLM, check_llm: ScriptedLLM | None = None, question: str = QUESTION):
-    return build_agent_review(await agent_deps(llm, check_llm), question)
+async def agent_workflow(llm: PolicyLLM, check_llm: ScriptedLLM | None = None):
+    return build_agent_review(await agent_deps(llm, check_llm))

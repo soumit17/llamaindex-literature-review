@@ -85,3 +85,69 @@ async def run_checkpointed(
     result = await handler
     checkpoint.unlink(missing_ok=True)
     return result
+
+
+# ---------- durability level 2: the DBOS runtime (spec §12.2) ----------
+# Same workflows, different runtime: DBOS journals every step transition to SQLite and, when a
+# process restarts, replays the journal of its unfinished runs. There is no snapshot code here; what
+# we keep is only the run id, so a restart asks DBOS for *the same* run.
+
+_dbos_configured = False
+
+
+def dbos_runtime():
+    """Configure DBOS once per process (it is a process-wide singleton) and return a runtime."""
+    global _dbos_configured
+    from dbos import DBOS
+    from llama_agents.dbos import DBOSRuntime
+
+    from litreview.config import get_settings
+
+    if not _dbos_configured:
+        runs = get_settings().p2_runs_dir
+        runs.mkdir(parents=True, exist_ok=True)
+        DBOS(
+            config={
+                "name": "litreview",
+                "run_admin_server": False,
+                "system_database_url": f"sqlite:///{runs / 'dbos.sqlite'}",
+            }
+        )
+        _dbos_configured = True
+    return DBOSRuntime()
+
+
+async def run_durable(
+    build: Callable[[Any], Workflow],
+    start_event: StartEvent,
+    run_id_file: Path,
+    on_event: Callable[[Event], None] = lambda ev: None,
+    on_resume: Callable[[str], None] = lambda run_id: None,
+):
+    """Run `build(runtime)` on the DBOS runtime under a stable run id.
+
+    DBOS keys runs by id: the same id after a crash resumes the unfinished run; the same id after a
+    *finished* run just returns its stored result. So the id lives in `run_id_file` from start until
+    success, and a fresh one is minted for the next run.
+    """
+    import uuid
+
+    runtime = dbos_runtime()
+    workflow = build(runtime)
+    await runtime.launch()  # also re-launches unfinished runs this process (executor) owns
+    try:
+        if run_id_file.exists():
+            run_id = run_id_file.read_text().strip()
+            on_resume(run_id)
+        else:
+            run_id = f"run-{uuid.uuid4().hex[:12]}"
+            run_id_file.parent.mkdir(parents=True, exist_ok=True)
+            run_id_file.write_text(run_id)
+        handler = workflow.run(start_event=start_event, run_id=run_id)
+        async for ev in handler.stream_events():  # under DBOS this replays from the start on resume
+            on_event(ev)
+        result = await handler
+        run_id_file.unlink(missing_ok=True)
+        return result
+    finally:
+        await runtime.destroy()

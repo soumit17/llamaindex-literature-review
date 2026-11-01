@@ -59,11 +59,19 @@ class BudgetedAnthropic(Anthropic):
 
     def chat(self, messages, **kwargs):  # type: ignore[override]
         self._tracker.check()
-        return super().chat(messages, **kwargs)
+        response = super().chat(messages, **kwargs)
+        self._fail_if_truncated(
+            getattr(response.raw, "stop_reason", None) or (response.raw or {}).get("stop_reason")
+        )
+        return response
 
     async def achat(self, messages, **kwargs):  # type: ignore[override]
         self._tracker.check()
-        return await super().achat(messages, **kwargs)
+        response = await super().achat(messages, **kwargs)
+        self._fail_if_truncated(
+            getattr(response.raw, "stop_reason", None) or (response.raw or {}).get("stop_reason")
+        )
+        return response
 
     # Streaming: the integration's last chunk carries usage in additional_kwargs, but its `raw` is the
     # final stream event, which has no model or id, so CostEventHandler can't price it. Record here.
@@ -92,9 +100,19 @@ class BudgetedAnthropic(Anthropic):
         return gen()
 
     def _record_stream(self, last: Any) -> None:
-        usage = last.message.additional_kwargs.get("usage") if last is not None else None
-        if usage:
-            self._tracker.record(self.model, usage, response_id=None)  # stream events carry no id
+        extra = last.message.additional_kwargs if last is not None else {}
+        if extra.get("usage"):  # stream events carry no response id
+            self._tracker.record(
+                self.model, extra["usage"], response_id=None, stop_reason=extra.get("stop_reason")
+            )
+        self._fail_if_truncated(extra.get("stop_reason"))
+
+    def _fail_if_truncated(self, stop_reason: str | None) -> None:
+        if stop_reason == "max_tokens":
+            raise cost.OutputTruncated(
+                f"{self.model} stopped at max_tokens={self.max_tokens} (thinking counts toward it); "
+                "raise max_tokens in config/llm.json"
+            )
 
 
 # Chained resource: the framework resolves `config` (JSON -> LLMConfig via ResourceConfig) and

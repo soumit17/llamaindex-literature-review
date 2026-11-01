@@ -118,3 +118,13 @@ def test_llm_retry_matches_structured_failures_only():
     assert LLM_RETRY.next(0, 1, ValueError("Structured output extraction failed: bad")) == 0.0
     assert LLM_RETRY.next(0, 1, ValueError("something else")) is None
     assert LLM_RETRY.next(0, 4, ValueError("Structured output extraction failed: bad")) is None  # 4 attempts
+
+
+def test_shared_policies_pickle_by_name():
+    """The DBOS runtime pickles run configuration; the built-in conditions alone would not pickle."""
+    import pickle
+
+    from litreview.retry import FETCH_RETRY
+
+    for policy in (LLM_RETRY, FETCH_RETRY):
+        assert pickle.loads(pickle.dumps(policy)) is policy

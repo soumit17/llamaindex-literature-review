@@ -34,13 +34,13 @@ from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.schema import QueryBundle
 from llama_index.core.workflow import Context  # the same class as workflows.Context; tools need this name
 from pydantic import BaseModel, ValidationError
-from rapidfuzz import fuzz
 
 from litreview.bib import strip_unknown_markers
 from litreview.config import get_settings
 from litreview.corpus import PaperMeta
 from litreview.events import OutlineApprovalRequired, OutlineDecision
 from litreview.models import Citation, CitationIssue, FindingClaim, FindingRecord, Outline
+from litreview.quotes import quote_in_chunk
 from litreview.render import DraftSection, out_dir, render_review
 from litreview.resources import get_llm, get_storage, shared_resources
 from litreview.retrieval.pipeline import Storage
@@ -51,9 +51,7 @@ MAX_CHECKS = 3  # same bound as Workflow 2: check, revise, check, revise, check
 # AgentWorkflow stops a run after this many agent turns (default 20). A full review is ~30 turns
 # (plan, 2 per sub-question, outline, 1 per section, checks, handoffs); this leaves room for revisions.
 MAX_ITERATIONS = 120
-KICKOFF = "Write the literature review for the research question in the current state."
 EXCERPT_CHARS = 700  # per search hit shown to the Researcher (agents re-send their whole history)
-QUOTE_MATCH_THRESHOLD = 85
 
 
 class ClaimInput(BaseModel):
@@ -75,6 +73,7 @@ class AgentDeps:
 
 def empty_review() -> dict[str, Any]:
     return {
+        "question": "",  # the run's user message, recorded by the first tool call
         "sub_questions": [],
         "seen_nodes": [],  # node ids returned by search_corpus: the only ones a claim may cite
         "findings": {},  # str(idx) -> FindingRecord dump
@@ -109,9 +108,11 @@ class ReviewTools:
     async def record_subquestions(self, ctx: Context, sub_questions: list[str]) -> str:
         """Record 3-5 non-overlapping sub-questions that together answer the research question."""
         qs = [q.strip() for q in sub_questions if q.strip()][:6]
+        # AgentWorkflow keeps the run's user message (= the question, verbatim) under "user_msg_str".
+        question = await ctx.store.get("user_msg_str", default="")
 
         def apply(r):
-            r["sub_questions"], r["findings"] = qs, {}
+            r["sub_questions"], r["findings"], r["question"] = qs, {}, question
             r["log"].append(f"plan: {len(qs)} sub-questions")
 
         await self._edit(ctx, apply)
@@ -161,7 +162,7 @@ class ReviewTools:
             if node is None:
                 rejected.append(f"{c.node_id}: not a node_id from your searches")
                 continue
-            if fuzz.partial_ratio(c.quote.lower(), node.get_content().lower()) < QUOTE_MATCH_THRESHOLD:
+            if not quote_in_chunk(c.quote, node.get_content(), c.node_id):
                 rejected.append(f"{c.node_id}: quote not found in that passage")
                 continue
             accepted.append(
@@ -336,14 +337,14 @@ class ReviewTools:
     async def finalize_review(self, ctx: Context) -> str:
         """Write review.md, refs.bib and citations.json. Call once, at the end."""
         review = await _review(ctx)
-        state = await ctx.store.get("state")
+        question = review.get("question") or await ctx.store.get("user_msg_str", default="")
         if review["outline"] is None or not review["sections"]:
             return "Nothing to finalize yet."
         outline = Outline.model_validate(review["outline"])
         sections = [DraftSection(**review["sections"][k]) for k in sorted(review["sections"], key=int)]
         result = render_review(
-            out_dir(state["question"]) / "agent",
-            state["question"],
+            out_dir(question) / "agent",
+            question,
             outline.title,
             sections,
             [FindingRecord.model_validate(f) for f in review["findings"].values()],
@@ -358,11 +359,11 @@ class ReviewTools:
         return f"Review written to {result.markdown_path}. You are done: reply with a one-line summary."
 
 
-PLANNER = """You are the Planner of a literature-review team. The research question and audience are
-in the current state. Break the question into 3-5 non-overlapping sub-questions answerable from a
-corpus of ML papers on multi-agent LLM orchestration (prefer comparative / mechanism questions),
-record them with record_subquestions, then hand off to the Researcher. If the Researcher hands back
-because sub-questions can't be answered, record better ones."""
+PLANNER = """You are the Planner of a literature-review team. The user's message is the research
+question; the audience is in the current state. Break the question into 3-5 non-overlapping
+sub-questions answerable from a corpus of ML papers on multi-agent LLM orchestration (prefer
+comparative and mechanism questions), record them with record_subquestions, then hand off to the
+Researcher. If the Researcher hands back because sub-questions can't be answered, record better ones."""
 
 RESEARCHER = """You are the Researcher. For each recorded sub-question, in order: run 1-2 search_corpus
 queries (get_paper_summary is optional, for orientation), then call record_finding with up to 6 claims.
@@ -383,9 +384,8 @@ call request_revision for each flagged section and hand off to the Writer, listi
 fix. Otherwise call finalize_review, then reply with a one-line summary."""
 
 
-def build_agent_review(
-    deps: AgentDeps, question: str, audience: str = "ML engineers", target_words: int = 1500
-):
+def build_agent_review(deps: AgentDeps, audience: str = "ML engineers", target_words: int = 1500):
+    """One instance serves any number of runs: the question is each run's user message."""
     tools = ReviewTools(deps)
     words = max(120, target_words // 6)
     agents: list[BaseWorkflowAgent] = [
@@ -425,7 +425,7 @@ def build_agent_review(
     return AgentWorkflow(
         agents=agents,
         root_agent="Planner",
-        initial_state={"question": question, "audience": audience},
+        initial_state={"audience": audience},
         timeout=3600,
     )
 
@@ -451,9 +451,10 @@ async def attach_memory(ctx: Context, session_id: str) -> None:
     await ctx.store.set("memory", agent_memory(session_id))
 
 
-def start_agent_review(workflow: AgentWorkflow, session_id: str):
-    """Start a run. max_iterations is stored in the Context, so a restored run keeps it."""
-    return workflow.run(user_msg=KICKOFF, max_iterations=MAX_ITERATIONS, memory=agent_memory(session_id))
+def start_agent_review(workflow: AgentWorkflow, question: str, session_id: str):
+    """Start a run; the question is the user message. max_iterations is stored in the Context, so a
+    restored run keeps it."""
+    return workflow.run(user_msg=question, max_iterations=MAX_ITERATIONS, memory=agent_memory(session_id))
 
 
 async def production_deps() -> AgentDeps:

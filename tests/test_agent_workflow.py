@@ -16,7 +16,7 @@ from tests.agent_env import QUESTION, PolicyLLM, agent_deps, agent_workflow, jud
 
 
 async def run_agents(llm: PolicyLLM, respond=auto_responder, check_llm=None, session="s1"):
-    handler = start_agent_review(await agent_workflow(llm, check_llm), session)
+    handler = start_agent_review(await agent_workflow(llm, check_llm), QUESTION, session)
     events: list = []
     result = await drive(handler, respond, on_event=events.append)
     return result, events, handler
@@ -92,7 +92,7 @@ async def ctx_review(handler):
 
 async def test_detached_agent_run_resumes_in_a_new_process(ingested, tmp_path):
     store = PendingStore(tmp_path / "pending")
-    handler = start_agent_review(await agent_workflow(PolicyLLM()), "agent-run-1")
+    handler = start_agent_review(await agent_workflow(PolicyLLM()), QUESTION, "agent-run-1")
     detached = await drive(handler, detach_responder, pending=(store, "agent-run-1", QUESTION))
     assert isinstance(detached, Detached) and isinstance(detached.waiting_for, OutlineApprovalRequired)
 

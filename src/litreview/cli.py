@@ -1,5 +1,5 @@
 """`litreview` command line. M0: hello, tiny, smoke, draw, cost. M2: ingest. M4: review.
-M5: pending, approve. M6: agent-review."""
+M5: pending, approve. M6: agent-review. M7: serve."""
 
 from __future__ import annotations
 
@@ -131,7 +131,7 @@ def draw(out_dir: Path = typer.Option(PROJECT_ROOT / "docs")) -> None:
 
     deps = AgentDeps(engine=None, storage=None, llm=MockLLM(), writer_llm=MockLLM(), papers={}, summaries={})  # type: ignore[arg-type]
     mermaid = draw_agent_workflow_mermaid(
-        build_agent_review(deps, "drawing"), filename=str(out_dir / "agent_flow.mermaid")
+        build_agent_review(deps), filename=str(out_dir / "agent_flow.mermaid")
     )
     (out_dir / "agent_flow.md").write_text(
         f"# agent workflow: agents, tools, handoffs\n\n```mermaid\n{mermaid}\n```\n"
@@ -149,6 +149,9 @@ def ingest(
     ),
     debug_steps: bool = typer.Option(False, "--debug-steps", help="Show StepStateChanged events."),
     fresh: bool = typer.Option(False, "--fresh", help="Ignore a checkpoint left by an interrupted run."),
+    runtime: str = typer.Option(
+        "default", help="default (checkpoint loop) or dbos (the DBOS runtime journals every step)."
+    ),
 ) -> None:
     """Run the ingestion workflow: fetch -> parse -> index -> summarize. Summaries cost ~$0.001/paper.
 
@@ -157,7 +160,7 @@ def ingest(
     from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskID, TextColumn, TimeElapsedColumn
 
     from litreview.corpus import CorpusLock, CorpusPaths
-    from litreview.durability import run_checkpointed
+    from litreview.durability import run_checkpointed, run_durable
     from litreview.events import IngestProgress, IngestReport, IngestRequest
     from litreview.resources import get_cost_tracker
     from litreview.workflows.ingestion import IngestionWorkflow
@@ -173,10 +176,14 @@ def ingest(
     spent_before = get_cost_tracker().spent_usd
     marks = {"retry": "[yellow]retry[/]", "failed": "[red]FAILED[/]"}
 
+    if runtime not in ("default", "dbos"):
+        raise typer.BadParameter("--runtime must be default or dbos")
     checkpoint = s.p2_runs_dir / "checkpoints" / "ingest.json"
-    if (fresh or rebuild) and checkpoint.exists():
-        checkpoint.unlink()
-        console.print("[yellow]discarded the previous run's checkpoint[/]")
+    run_id_file = s.p2_runs_dir / "dbos_ingest_run_id"
+    for leftover in (checkpoint, run_id_file):
+        if (fresh or rebuild) and leftover.exists():
+            leftover.unlink()
+            console.print(f"[yellow]discarded the previous interrupted run ({leftover.name})[/]")
 
     async def go() -> IngestReport:
         columns = (TextColumn("{task.description:<10}"), BarColumn(), MofNCompleteColumn())
@@ -203,9 +210,26 @@ def ingest(
 
             # The checkpoint loop (durability.py): snapshot after index/summarize steps, at most every
             # 2 s; if a checkpoint exists, resume from it instead of starting over.
+            request = IngestRequest(limit=limit, rebuild=rebuild, fail_ids=fail)
+            if runtime == "dbos":
+                # Durability level 2: no checkpoint code. DBOS journals each step; we keep the run id.
+                report = await run_durable(
+                    lambda rt: IngestionWorkflow(
+                        timeout=3600, runtime=rt, workflow_name="litreview-ingest-v1"
+                    ),
+                    request,
+                    run_id_file,
+                    on_event=on_event,
+                    on_resume=lambda run_id: progress.console.print(
+                        f"[yellow]resuming durable run[/] {run_id} (flags of the new command are ignored)"
+                    ),
+                )
+                return report
+            # Durability level 1: the checkpoint loop (durability.py): snapshot after index/summarize
+            # steps, at most every 2 s; if a checkpoint exists, resume from it instead of starting over.
             report = await run_checkpointed(
                 IngestionWorkflow(timeout=3600),
-                IngestRequest(limit=limit, rebuild=rebuild, fail_ids=fail),
+                request,
                 checkpoint,
                 steps={"index_paper", "summarize_paper"},
                 on_event=on_event,
@@ -465,7 +489,7 @@ def approve(
         session = (pending_run.extra or {}).get("session", run_id)
 
         async def start_agents():
-            wf = build_agent_review(await production_deps(), pending_run.question)
+            wf = build_agent_review(await production_deps())
             result = await resume_pending(
                 store,
                 run_id,
@@ -594,7 +618,7 @@ def agent_review(
     )
 
     async def go():
-        handler = start_agent_review(build_agent_review(await production_deps(), question), session)
+        handler = start_agent_review(build_agent_review(await production_deps()), question, session)
         ui.handlers.append(handler)
         # expose_internal: AgentWorkflow streams AgentInput/ToolCall/... as normal events already.
         result = await drive(handler, ui.responder(), ui.on_event, debug_steps, (store, run_id, question))
@@ -602,6 +626,28 @@ def agent_review(
 
     console.print(f"[dim]run {run_id}, memory session {session!r}[/]")
     ui.finish(asyncio.run(go()))
+
+
+@app.command()
+def serve(
+    runtime: str = typer.Option("default", help="default (SqliteWorkflowStore) or dbos (DBOS runtime)."),
+    host: str = typer.Option(None, help="Default: WORKFLOWS_PY_SERVER_HOST or 127.0.0.1."),
+    port: int = typer.Option(None, help="Default: WORKFLOWS_PY_SERVER_PORT or 8080."),
+) -> None:
+    """Serve ingest, review and agent_review over HTTP, with the debugger UI at http://HOST:PORT/."""
+    import os
+
+    from litreview.server import production_server
+
+    host = host or os.environ.get("WORKFLOWS_PY_SERVER_HOST", "127.0.0.1")
+    port = port or int(os.environ.get("WORKFLOWS_PY_SERVER_PORT", "8080"))
+
+    async def go() -> None:
+        server = await production_server(runtime)
+        console.print(f"[green]serving[/] http://{host}:{port}/  (runtime: {runtime}; Ctrl-C to stop)")
+        await server.serve(host=host, port=port)  # starts the server, which resumes unfinished runs
+
+    asyncio.run(go())
 
 
 @app.command()

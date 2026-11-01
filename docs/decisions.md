@@ -297,3 +297,55 @@ Verified against the docs MCP (agent human_in_the_loop, state) and the installed
   whose first chunk isn't in the loaded index, so it is re-ingested (an overwrite, thanks to deterministic
   ids); saves take a process lock and a unique temp dir. Test builds that mixed state directly; the
   flaky test passed 15/15 afterwards.
+
+## D12. M7 serving and durability level 2 (and an M6 fix found on the way)
+
+- **max_tokens was silently breaking runs (M6 agents, and Workflow 2's retries).** In the comparison,
+  5 of 6 agent runs ended early: each last turn had exactly 1,500 output tokens, our cap. Haiku 5.5 thinks
+  before answering and thinking counts toward max_tokens, so a turn that started a large tool call
+  (record_finding, propose_outline) was cut off; with no complete tool call, AgentWorkflow treats the
+  turn as the final answer and ends the run. 125 ledger rows sat at the cap, so Workflow 2's structured
+  outputs were being truncated and silently retried too. Fixes: caps raised (dev 4096, final 8192);
+  the ledger records `stop_reason`; `BudgetedAnthropic` raises `OutputTruncated` (after billing) instead
+  of returning a cut-off answer; not retried (same cap, same result).
+- **`dbos` pinned to 2.31.1** (last 2.x). `llama-agents-dbos==0.7.0` (latest) requires `dbos>=2.18.0` with
+  no upper bound; uv chose 3.4.0, where `Queue(...)` can no longer be constructed directly, so
+  `runtime.launch()` fails. Same pattern as D5 (anthropic).
+- **Retry policies pickle by name** (`retry.NamedPolicy`). The DBOS runtime pickles each run's
+  configuration, retry policies included; `workflows`' composable conditions hold local lambdas, so no
+  retried workflow could start under DBOS. `__reduce__` stores the policy's name; unpickling returns the
+  same module-level object.
+- **DBOS run identity**: a run id that already finished returns its stored result. `run_durable` keeps the
+  id in `runs/dbos_ingest_run_id` from start to success: a restart after a crash reuses it (resume), the
+  next ingest gets a new one. That file is the only durability code left for ingestion. The in-process
+  stream replays every event from the start on resume (as documented).
+  Verified: kill -9 at 9/25 indexed on a scratch copy of the corpus (real embeddings, fake LLM): the
+  restart resumed the same run id, 25 papers, 803 chunks, 0 duplicates.
+- **Server**: `build_server` registers review / ingest / agent_review with `additional_events=[OutlineDecision,
+  Clarified]` (the human's answers aren't produced by any step, so the debugger's Send Event form needs
+  them) and `idle_timeout=3600` (a run waiting for a human is released from memory after an hour and
+  restored when the answer comes). `litreview serve` builds it async; `server_app.py` holds a module-level
+  instance for `python -m llama_agents.server` (kept separate so importing `server.py` stays cheap).
+- **Agent workflow takes the question as the user message** (was `initial_state`): the server registers
+  one instance for all runs. Tools read it from `user_msg_str`, which AgentWorkflow stores verbatim.
+- **agent_review is not served on DBOS.** Its memory sits under a Context key the state store refuses to
+  serialize (D11), so a journal replay or an idle release would resume without it. The same caveat
+  applies to the default server's idle release after `IDLE_TIMEOUT_S`.
+- **"One reader per stream" (spec §2.2) no longer holds.** Events are persisted in the store and each
+  reader follows its own cursor (`after_sequence`): two concurrent readers of one run see identical event
+  lists, and a finished run's events can be read again. Tested over real HTTP.
+- **Restart behaviour (spec §13.5) measured, `scripts/server_restart_demo.py`**, a 10-tick run, server
+  killed with SIGKILL after ~2 ticks:
+
+  | | restarted immediately | restarted 32 s after the run began |
+  |---|---|---|
+  | SqliteWorkflowStore (default runtime) | handler stays `running`, nothing continues | resumes from persisted ticks, completes |
+  | DBOS runtime | resumes at once, completes | resumes, completes |
+
+  The default server *does* resume on start (it replays persisted ticks), but skips handlers created
+  less than 30 s before the restart (`RESUME_FRESH_HANDLER_GRACE`), presumably so a brand-new run isn't
+  picked up twice. DBOS recovers every unfinished run it owns. The spec expected "store: handler survives;
+  DBOS: run resumes"; the real difference is narrower.
+- The demo's workflow lives in the package (`workflows/countdown.py`): DBOS pickles events, and pickle
+  can't import a class from a file the server launcher loaded under an ad-hoc module name.
+- The demo picks a free port: another local project was already listening on the first one tried.

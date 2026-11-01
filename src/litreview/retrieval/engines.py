@@ -64,6 +64,9 @@ class QueryConfig(BaseModel):
     summary_top_papers: int = 2  # papers the summary retriever expands into chunks
     router: bool = True
     rerank: bool = True
+    # Diversity: at most this many of the final chunks from one paper (None = no limit). Without it,
+    # a sub-question's top 5 often came from 1-2 papers, and so did the whole review.
+    max_chunks_per_paper: int | None = 2
 
 
 # ---------- reranker ----------
@@ -77,7 +80,7 @@ class FastEmbedRerank(BaseNodePostprocessor):
     """
 
     model: str = "Xenova/ms-marco-MiniLM-L-6-v2"
-    top_n: int = 5
+    top_n: int | None = None  # None: return every candidate, re-ordered (Diversify picks the final few)
     cache_dir: str | None = None
     _encoder: Any = PrivateAttr(default=None)
 
@@ -89,7 +92,7 @@ class FastEmbedRerank(BaseNodePostprocessor):
         self, nodes: list[NodeWithScore], query_bundle: QueryBundle | None = None
     ) -> list[NodeWithScore]:
         if query_bundle is None or not nodes:
-            return nodes[: self.top_n]
+            return nodes[: self.top_n] if self.top_n else nodes
         if self._encoder is None:  # lazy: the 80 MB model loads on first use, not at import
             from fastembed.rerank.cross_encoder import TextCrossEncoder
 
@@ -97,7 +100,8 @@ class FastEmbedRerank(BaseNodePostprocessor):
         texts = [n.node.get_content(metadata_mode=MetadataMode.EMBED) for n in nodes]
         scores = list(self._encoder.rerank(query_bundle.query_str, texts))
         ranked = sorted(zip(nodes, scores, strict=True), key=lambda pair: pair[1], reverse=True)
-        return [NodeWithScore(node=n.node, score=float(s)) for n, s in ranked[: self.top_n]]
+        rescored = [NodeWithScore(node=n.node, score=float(s)) for n, s in ranked]
+        return rescored[: self.top_n] if self.top_n else rescored
 
 
 # ---------- summary index ----------
@@ -208,11 +212,11 @@ def make_retriever(
 def make_query_engine(
     retriever: BaseRetriever, config: QueryConfig, reranker: BaseNodePostprocessor | None, llm: LLM | None
 ) -> RetrieverQueryEngine:
+    # The reranker (if on) re-orders all candidates; Diversify always picks the final top_n.
     postprocessors: list[BaseNodePostprocessor] = (
-        [reranker]
-        if config.rerank and reranker is not None
-        else [_TopN(top_n=config.rerank_top_n)]  # keep "@5" honest without a reranker
+        [reranker] if (config.rerank and reranker is not None) else []
     )
+    postprocessors.append(Diversify(top_n=config.rerank_top_n, max_per_paper=config.max_chunks_per_paper))
     return RetrieverQueryEngine(
         retriever=retriever,
         node_postprocessors=postprocessors,
@@ -221,13 +225,38 @@ def make_query_engine(
     )
 
 
-class _TopN(BaseNodePostprocessor):
+class Diversify(BaseNodePostprocessor):
+    """Keep the best `top_n` nodes, at most `max_per_paper` from any one paper."""
+
     top_n: int = 5
+    max_per_paper: int | None = None
+
+    @classmethod
+    def class_name(cls) -> str:
+        return "Diversify"
 
     def _postprocess_nodes(
         self, nodes: list[NodeWithScore], query_bundle: QueryBundle | None = None
     ) -> list[NodeWithScore]:
-        return nodes[: self.top_n]
+        return diversify(nodes, self.top_n, self.max_per_paper)
+
+
+def diversify(ranked: list[NodeWithScore], top_n: int, max_per_paper: int | None) -> list[NodeWithScore]:
+    """Best-first, at most `max_per_paper` chunks per paper; if that leaves fewer than `top_n`
+    (few papers among the candidates), fill up with the best of the rest, so nothing is lost."""
+    if max_per_paper is None:
+        return ranked[:top_n]
+    kept: list[NodeWithScore] = []
+    per_paper: dict[str, int] = {}
+    for n in ranked:
+        paper = n.node.metadata.get("arxiv_id", "")
+        if per_paper.get(paper, 0) < max_per_paper:
+            kept.append(n)
+            per_paper[paper] = per_paper.get(paper, 0) + 1
+        if len(kept) == top_n:
+            return kept
+    kept += [n for n in ranked if n not in kept][: top_n - len(kept)]
+    return kept
 
 
 class _RetrievalOnly(BaseSynthesizer):

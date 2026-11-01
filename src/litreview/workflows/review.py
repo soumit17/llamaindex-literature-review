@@ -32,7 +32,6 @@ from typing import Annotated
 from llama_index.core.llms import LLM, ChatMessage
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.schema import QueryBundle
-from rapidfuzz import fuzz
 from workflows import Context, Workflow, catch_error, step
 from workflows.events import StepFailedEvent
 from workflows.resource import Resource
@@ -72,6 +71,7 @@ from litreview.models import (
     ScopeVerdict,
     SubQuestionPlan,
 )
+from litreview.quotes import quote_in_chunk
 from litreview.render import DraftSection, atomic_write, out_dir, render_review
 from litreview.resources import (
     get_cost_tracker,
@@ -90,7 +90,6 @@ from litreview.workflows.citation_check import CheckRequest, CitationCheckWorkfl
 
 MAX_OUTLINE_ATTEMPTS = 3
 MAX_REVISIONS = 2  # citation check -> revise loop: at most 2 revise rounds, so at most 3 checks
-QUOTE_MATCH_THRESHOLD = 85  # rapidfuzz partial_ratio, 0-100
 
 
 class ReviewWorkflow(Workflow):
@@ -193,7 +192,7 @@ class ReviewWorkflow(Workflow):
                 continue
             node = nodes[c.excerpt - 1].node
             quote = c.quote.strip()[:300]
-            verified = fuzz.partial_ratio(quote.lower(), node.get_content().lower()) >= QUOTE_MATCH_THRESHOLD
+            verified = quote_in_chunk(quote, node.get_content(), node.node_id)
             claims.append(
                 FindingClaim(
                     claim_id=f"{ev.idx}.{len(claims) + 1}",

@@ -7,6 +7,7 @@ crash test's ledger rows are appended to runs/costs.jsonl so `litreview cost` st
 
     uv run python scripts/crash_ingest.py               # kill after 12 summaries
     uv run python scripts/crash_ingest.py --kill-after 5
+    uv run python scripts/crash_ingest.py --runtime dbos   # M7: same test, no checkpoint code
 """
 
 from __future__ import annotations
@@ -31,9 +32,9 @@ SUMMARIZE_WORKERS = 3  # num_workers of summarize_paper: the most that can be mi
 console = Console()
 
 
-def ingest(env: dict[str, str], log: Path) -> subprocess.Popen:
+def ingest(env: dict[str, str], log: Path, runtime: str) -> subprocess.Popen:
     return subprocess.Popen(
-        [sys.executable, "-m", "litreview.cli", "ingest"],
+        [sys.executable, "-m", "litreview.cli", "ingest", "--runtime", runtime],
         env=env,
         stdout=log.open("w"),
         stderr=subprocess.STDOUT,
@@ -41,7 +42,10 @@ def ingest(env: dict[str, str], log: Path) -> subprocess.Popen:
     )
 
 
-def main(kill_after: int = typer.Option(12, help="SIGKILL once this many summaries exist.")) -> None:
+def main(
+    kill_after: int = typer.Option(12, help="SIGKILL once this many summaries exist."),
+    runtime: str = typer.Option("default", help="default = checkpoint loop (M5), dbos = DBOS runtime (M7)."),
+) -> None:
     real = get_settings()
     if not real.anthropic_api_key:
         raise typer.BadParameter("ANTHROPIC_API_KEY is not set; the crash test makes ~25 Haiku calls")
@@ -69,9 +73,10 @@ def main(kill_after: int = typer.Option(12, help="SIGKILL once this many summari
     total = len(lock.papers)
     summaries = data / "summaries"
     checkpoint = runs / "checkpoints" / "ingest.json"
+    run_id_file = runs / "dbos_ingest_run_id"
 
     console.print(f"[cyan]run 1[/]: ingest {total} papers, SIGKILL after {kill_after} summaries")
-    first = ingest(env, root / "run1.log")
+    first = ingest(env, root / "run1.log", runtime)
     while first.poll() is None and len(list(summaries.glob("*.json"))) < kill_after:
         time.sleep(0.2)
     if first.poll() is not None:
@@ -79,10 +84,13 @@ def main(kill_after: int = typer.Option(12, help="SIGKILL once this many summari
     os.kill(first.pid, signal.SIGKILL)
     first.wait()
     at_kill = len(list(summaries.glob("*.json")))
-    console.print(f"  killed with {at_kill} summaries on disk; checkpoint exists: {checkpoint.exists()}")
+    console.print(
+        f"  killed with {at_kill} summaries on disk; checkpoint: {checkpoint.exists()}, "
+        f"DBOS run id: {run_id_file.exists()}"
+    )
 
     console.print("[cyan]run 2[/]: same command again")
-    second = ingest(env, root / "run2.log")
+    second = ingest(env, root / "run2.log", runtime)
     second.wait()
     log2 = (root / "run2.log").read_text()
 
@@ -92,7 +100,7 @@ def main(kill_after: int = typer.Option(12, help="SIGKILL once this many summari
     repeats = len(ledger) - total
     checks = [
         ("run 2 exited cleanly", second.returncode == 0, f"exit {second.returncode}"),
-        ("run 2 resumed from the checkpoint", "resuming from checkpoint" in log2, ""),
+        ("run 2 resumed the interrupted run", "resuming" in log2, runtime),
         (
             "every paper indexed",
             {a for a, _ in chunks} == {p.arxiv_id for p in lock.papers},
@@ -105,7 +113,11 @@ def main(kill_after: int = typer.Option(12, help="SIGKILL once this many summari
             0 <= repeats <= SUMMARIZE_WORKERS,
             f"{len(ledger)} LLM calls for {total} papers",
         ),
-        ("checkpoint removed after success", not checkpoint.exists(), ""),
+        (
+            "checkpoint / run id removed after success",
+            not checkpoint.exists() and not run_id_file.exists(),
+            "",
+        ),
     ]
     table = Table(title="Crash test")
     for col in ("check", "result", "detail"):

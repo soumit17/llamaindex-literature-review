@@ -254,3 +254,27 @@ Output goes to `out/<slug>/agent/` (next to Workflow 2's `out/<slug>/`). The com
 | Same renderer for both workflows | [render.py](src/litreview/render.py) |
 | Comparison protocol (§8.3) | [scripts/compare_workflows.py](scripts/compare_workflows.py) |
 | Agents, tools and handoffs as a diagram | [docs/agent_flow.md](docs/agent_flow.md) |
+
+## M7: serving over HTTP, and durability the runtime owns
+
+```bash
+uv run litreview serve                       # http://127.0.0.1:8080/ : debugger UI + HTTP API
+uv run python scripts/client_demo.py         # in another terminal: a review driven over HTTP (~$0.01)
+uv run litreview serve --runtime dbos        # same, on the DBOS runtime (review + ingest)
+uv run litreview ingest --runtime dbos       # ingestion without the checkpoint loop
+uv run python scripts/crash_ingest.py --runtime dbos   # kill -9 test on DBOS (~$0.02)
+uv run python scripts/server_restart_demo.py # store vs DBOS when the server dies ($0, ~2.5 min)
+```
+
+In the debugger UI: pick `review`, start it with a question, watch the events, and when
+`OutlineApprovalRequired` appears use **Send Event** with an `OutlineDecision` (`{"action": "approve"}`).
+Over plain HTTP that is `POST /events/{handler_id}` with `{"event": {...}}`.
+
+| Concept | Where |
+|---|---|
+| `WorkflowServer`, `SqliteWorkflowStore`, `additional_events`, `idle_timeout` | [server.py](src/litreview/server.py) |
+| Python client: run-nowait, stream, send_event, get_handler | [scripts/client_demo.py](scripts/client_demo.py), [tests/test_server.py](tests/test_server.py) |
+| DBOS runtime for direct runs (run id = the only state you keep) | `dbos_runtime`, `run_durable` in [durability.py](src/litreview/durability.py) |
+| DBOS runtime for the server | `production_server("dbos")` |
+| Retry policies that survive pickling | `NamedPolicy` in [retry.py](src/litreview/retry.py) |
+| Restart behaviour, measured | [scripts/server_restart_demo.py](scripts/server_restart_demo.py), docs/decisions.md D12 |
