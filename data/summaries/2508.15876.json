@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2508.15876",
+  "title": "DeepMEL: A Multi-Agent Collaboration Framework for Multimodal Entity Linking",
+  "summary": "DeepMEL addresses Multimodal Entity Linking (MEL), which links textual and visual mentions to entities in a multimodal knowledge graph. The authors identify three challenges: fragmented context from truncated inputs, coarse fusion of text and image features before matching, and the difficulty of combining large language models (LLMs) with large visual models (LVMs). DeepMEL uses four role-specialized agents: Modal-Fuser, which combines LLM context summaries with LVM visual question-answering outputs; Candidate-Adapter, which filters candidates with embedding retrieval tools and refines the Top-K set through an adaptive iteration loop; Entity-Clozer, which recasts linking as a cloze-style prompt for the LLM; and Role-Orchestrator, described as a central scheduling module that coordinates task distribution and model updates among agents. The text does not specify the communication topology or message formats beyond this description. On five public benchmarks, the authors report state-of-the-art performance, with ACC improvements of 1% to 57%, and ablation studies that they say verify each module. The provided text does not state any limitations, so none are reported here.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 9932,
+  "created": "2026-10-30T06:00:04+00:00"
+}

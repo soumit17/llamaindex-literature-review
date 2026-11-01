@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2605.13110",
+  "title": "A Multi-Agent Orchestration Framework for Venture Capital Due Diligence",
+  "summary": "This paper presents an automated multi-agent framework for venture capital due diligence, aimed at the fragmentation of unstructured web data, news, and official financial registries, and at LLM hallucination of financial figures. The system uses an event-driven orchestration architecture in which a single analyst trigger starts a workflow that decomposes the research into specialized sub-tasks handled by distinct agents. Real-time search APIs supply current market intelligence, and a custom module queries hidden endpoints of the Greek Business Registry (\u0393.E.MH.) to retrieve PDF filings, which a layout-aware OCR extractor parses with preserved source citations. A structural fallback flags missing data rather than generating unverified figures, and the output is a structured HTML report delivered by email. The excerpts provided do not report any quantitative evaluation results, so the reliability claims remain unmeasured in the text. The stated limitations, inferred from the future-work directions, are that the pipeline depends on a third-party PDF extraction service, that registry coverage is limited to Greece, and that reports are not yet linked to the fund's internal portfolio database, so they are generic rather than deal-specific. The agent roles and inter-agent communication details are not specified in the provided excerpts.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 5000,
+  "created": "2026-10-30T05:59:50+00:00"
+}

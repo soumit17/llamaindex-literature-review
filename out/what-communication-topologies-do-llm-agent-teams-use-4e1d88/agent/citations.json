@@ -1,0 +1,225 @@
+[
+  {
+    "n": 1,
+    "arxiv_id": "2501.06322",
+    "page": 16,
+    "title": "Multi-Agent Collaboration Mechanisms: A Survey of LLMs",
+    "claims": [
+      {
+        "claim_id": "1.1",
+        "statement": "A survey categorizes communication structure in LLM multi-agent collaboration into centralized, decentralized/distributed, and hierarchical topologies.",
+        "node_id": "2501.06322#020/0",
+        "quote": "the communication structure of multi-agent collaboration can be categorized into four main classes, referred to as 1) Centralized topology, 2) Decentralized and distributed topology, and 3) Hierarchical topology",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 2,
+    "arxiv_id": "2501.06322",
+    "page": 18,
+    "title": "Multi-Agent Collaboration Mechanisms: A Survey of LLMs",
+    "claims": [
+      {
+        "claim_id": "1.2",
+        "statement": "Decentralized MAS distribute control across agents, which each operate on local information and limited communication with peers.",
+        "node_id": "2501.06322#022/0",
+        "quote": "Each agent operates based on local information and possibly limited communication with other agents",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 3,
+    "arxiv_id": "2507.08616",
+    "page": 3,
+    "title": "AgentsNet: Coordination and Collaborative Reasoning in Multi-Agent LLMs",
+    "claims": [
+      {
+        "claim_id": "1.3",
+        "statement": "Some studies examine pre-determined graph structures while others propose automatically adapting network topology for LLM agents.",
+        "node_id": "2507.08616#005/0",
+        "quote": "Some studies examine pre-determined graph structures [39, 38] while others propose automatically adapting network topology",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.1",
+        "statement": "Experiments show different topologies perform best for specific tasks, according to prior work cited by AgentsNet.",
+        "node_id": "2507.08616#005/0",
+        "quote": "Experiments show different topologies perform best for specific tasks",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "5.1",
+        "statement": "Some multi-agent methods propose automatically adapting network topology per query, while others use predetermined graph structures.",
+        "node_id": "2507.08616#005/0",
+        "quote": "others propose automatically adapting network topology",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 4,
+    "arxiv_id": "2507.08616",
+    "page": 2,
+    "title": "AgentsNet: Coordination and Collaborative Reasoning in Multi-Agent LLMs",
+    "claims": [
+      {
+        "claim_id": "1.4",
+        "statement": "GPTSwarm organizes LLM-based agents in graph-based structured topologies and reports enhanced performance on MMLU, HumanEval, and GAIA.",
+        "node_id": "2507.08616#003/0",
+        "quote": "organizing LLM-based agents in structured topologies enhances their performance on benchmarks like MMLU [20], HumanEval [8], and GAIA [31]",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 5,
+    "arxiv_id": "2605.25746",
+    "page": 1,
+    "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+    "claims": [
+      {
+        "claim_id": "1.5",
+        "statement": "Methods such as GPTSwarm and G-Designer investigate learning adaptive communication structures or interaction patterns to reduce redundancy.",
+        "node_id": "2605.25746#002/1",
+        "quote": "investigate learning adaptive communication structures or interaction patterns to reduce redundancy",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 6,
+    "arxiv_id": "2501.06322",
+    "page": 22,
+    "title": "Multi-Agent Collaboration Mechanisms: A Survey of LLMs",
+    "claims": [
+      {
+        "claim_id": "2.2",
+        "statement": "Multi-agent debate with a judge reduces bias but requires high computational cost due to long debates, per a survey's summary of MAD.",
+        "node_id": "2501.06322#029/1",
+        "quote": "Requires high computational cost due to long debate.",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "4.2",
+        "statement": "Multi-agent debate requires high computational cost due to long debates and LLMs struggle to keep coherence in long scenarios.",
+        "node_id": "2501.06322#029/1",
+        "quote": "LLMs struggle to maintain coherence and relevance in long scenarios",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 7,
+    "arxiv_id": "2509.11079",
+    "page": 7,
+    "title": "Difficulty-Aware Agentic Orchestration for Query-Specific Multi-Agent Workflows",
+    "claims": [
+      {
+        "claim_id": "5.3",
+        "statement": "Cross-domain generalization of DAAO trained on MATH and tested on GSM8K reached 95.44%, suggesting transfer between related math domains.",
+        "node_id": "2509.11079#018/0",
+        "quote": "MATH GSM8K 95.44",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.3",
+        "statement": "In DAAO, cross-domain training on MATH transferred to GSM8K at 95.44%, while HumanEval-trained workflows transferred poorly to MATH (54.46%).",
+        "node_id": "2509.11079#018/0",
+        "quote": "single-domain training on HumanEval yields high fidelity on code generation (94.65%) but limited transfer to MATH (54.46%)",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 8,
+    "arxiv_id": "2507.08616",
+    "page": 5,
+    "title": "AgentsNet: Coordination and Collaborative Reasoning in Multi-Agent LLMs",
+    "claims": [
+      {
+        "claim_id": "3.1",
+        "statement": "AgentsNet models agent communication on the LOCAL model, where agents exchange messages only with immediate neighbors over synchronous rounds and decide from locally aggregated information.",
+        "node_id": "2507.08616#011/0",
+        "quote": "each agent can exchange messages only with its immediate neighbors on the communication graph",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 9,
+    "arxiv_id": "2507.08616",
+    "page": 9,
+    "title": "AgentsNet: Coordination and Collaborative Reasoning in Multi-Agent LLMs",
+    "claims": [
+      {
+        "claim_id": "3.2",
+        "statement": "AgentsNet finds strategy coordination poses an essential challenge, with multiple failure cases in LLM agent transcripts.",
+        "node_id": "2507.08616#020/0",
+        "quote": "Strategy coordination poses an essential challenge on AGENTSNET",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 10,
+    "arxiv_id": "2509.11079",
+    "page": 2,
+    "title": "Difficulty-Aware Agentic Orchestration for Query-Specific Multi-Agent Workflows",
+    "claims": [
+      {
+        "claim_id": "3.3",
+        "statement": "Uniform task-level multi-agent workflows rely on heavy pipelines with excessive LLM calls, which over-process simple queries and waste resources.",
+        "node_id": "2509.11079#003/0",
+        "quote": "relying on heavy pipelines with excessive LLM calls and tool usage",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 11,
+    "arxiv_id": "2507.08616",
+    "page": 10,
+    "title": "AgentsNet: Coordination and Collaborative Reasoning in Multi-Agent LLMs",
+    "claims": [
+      {
+        "claim_id": "5.4",
+        "statement": "The AgentsNet benchmark finds its tasks challenging for even the best frontier LLMs.",
+        "node_id": "2507.08616#023/0",
+        "quote": "find that our tasks can be challenging for even the best models",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 12,
+    "arxiv_id": "2509.11079",
+    "page": 1,
+    "title": "Difficulty-Aware Agentic Orchestration for Query-Specific Multi-Agent Workflows",
+    "claims": [
+      {
+        "claim_id": "5.2",
+        "statement": "DAAO dynamically generates query-specific multi-agent workflows guided by predicted query difficulty rather than static task-level workflows.",
+        "node_id": "2509.11079#001/0",
+        "quote": "dynamically generate query-specific multi-agent workflows guided by predicted query difficulty",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 13,
+    "arxiv_id": "2509.11079",
+    "page": 8,
+    "title": "Difficulty-Aware Agentic Orchestration for Query-Specific Multi-Agent Workflows",
+    "claims": [
+      {
+        "claim_id": "4.1",
+        "statement": "DAAO reports up to 11.21% higher accuracy with up to 36% lower cost than existing multi-agent and routing systems across six benchmarks.",
+        "node_id": "2509.11079#021/0",
+        "quote": "achieving up to 11.21% higher accuracy with up to 36% lower cost",
+        "quote_verified": true
+      }
+    ]
+  }
+]

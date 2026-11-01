@@ -1,0 +1,328 @@
+[
+  {
+    "idx": 1,
+    "sub_question": "What orchestration patterns (e.g., centralized/manager, hierarchical, decentralized/peer-to-peer, sequential pipelines, debate/voting) do LLM-based multi-agent systems in the corpus employ, and how is each pattern defined?",
+    "claims": [
+      {
+        "claim_id": "1.1",
+        "statement": "Decentralized multi-agent systems distribute control and decision-making across agents, in contrast to centralized systems.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#022/0",
+          "page": 18,
+          "quote": "Decentralized MAS differs from centralized systems by distributing control and decision-making across agents.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.2",
+        "statement": "A centralized orchestrator can be modeled as selecting which agents to activate at each step based on the task state.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#005/0",
+          "page": 3,
+          "quote": "This orchestrator dynamically selects which agents to activate in each step",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.3",
+        "statement": "Early LLM multi-agent efforts used role-specialized pipelines, where agents have distinct responsibilities and communicate through predefined protocols.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#004/0",
+          "page": 2,
+          "quote": "role-specialized pipelines, in which agents are assigned distinct responsibilities and communicate through predefined protocols",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.4",
+        "statement": "In debate setups, two agents argue their positions while a judge agent monitors and manages the debate.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#029/1",
+          "page": 22,
+          "quote": "A judge monitors and manages the debate.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.5",
+        "statement": "Later work introduced dynamic and self-organizing topologies, where the interaction graph is learned, searched, or adapted online.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#004/0",
+          "page": 2,
+          "quote": "the interaction graph itself is learned, searched, or adapted online",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.6",
+        "statement": "Some recent frameworks formalize coordination as a directed agent graph, where edges specify admissible interactions, plus an ordered orchestration process over that graph.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#006/0",
+          "page": 3,
+          "quote": "the structure is defined as a directed graph G = (V, E)",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": null,
+    "error": null
+  },
+  {
+    "idx": 2,
+    "sub_question": "How do centralized versus decentralized orchestration patterns compare in terms of control, i.e., how much the orchestrator constrains agent behavior, routing, and final decisions?",
+    "claims": [
+      {
+        "claim_id": "2.1",
+        "statement": "Prior approaches let each agent autonomously select collaborators, which incurs coordination overhead and poor scalability as agents increase or change; a centralized orchestrator decouples agent selection from internal reasoning.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#005/0",
+          "page": 3,
+          "quote": "each agent autonomously selects collaborators, but this incurs coordination overhead and poor scalability",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.2",
+        "statement": "A centralized learnable orchestrator in one framework routes agents at each step based on the current context, formulated as a sequential decision problem.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#002/1",
+          "page": 2,
+          "quote": "we employ a dynamic orchestrator that routing agents at each step based on the current contexts",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.3",
+        "statement": "In decentralized settings, agents operate on local information and possibly limited communication with other agents, requiring sophisticated interaction algorithms.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#022/0",
+          "page": 18,
+          "quote": "Each agent operates based on local information and possibly limited communication with other agents",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.4",
+        "statement": "In one agent-network benchmark, agents first elect a single leader who then guides the task, a structured coordination pattern.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#003/1",
+          "page": 2,
+          "quote": "agents first agree on a single agent to take a leadership role, and then subsequently solve the task, guided and instructed by the elected leader",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The corpus gives little direct empirical comparison of control granularity between centralized and decentralized patterns; the claims are mostly conceptual or from a single framework's authors.",
+    "error": null
+  },
+  {
+    "idx": 3,
+    "sub_question": "What are the reported cost trade-offs of different orchestration patterns, measured in LLM calls, tokens, latency, or dollars, and what drives these costs (e.g., number of rounds, agents, or communication topology)?",
+    "claims": [
+      {
+        "claim_id": "3.1",
+        "statement": "Multi-agent debate is reported to incur elevated cost because it requires multiple model calls and long debates.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#029/1",
+          "page": 22,
+          "quote": "Elevated cost with multiple model calls.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.2",
+        "statement": "Multi-agent debate is reported to require high computational cost due to long debates, and LLMs struggle to stay coherent over long scenarios.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#029/1",
+          "page": 22,
+          "quote": "Requires high computational cost due to long debate.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.3",
+        "statement": "A query-level difficulty-aware orchestration method reports inference cost of $0.27 versus $1.66 for AFlow, which the authors attribute to avoiding redundant participation and adapting to easy queries.",
+        "citation": {
+          "arxiv_id": "2509.11079",
+          "node_id": "2509.11079#013/1",
+          "page": 5,
+          "quote": "our method significantly reduces these costs to $2.34 for training and $0.27 for inference",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.4",
+        "statement": "MasRouter's collaborative paradigm is criticized for redundant LLM participation in each step and excessive cost on easy queries without proportional performance gains.",
+        "citation": {
+          "arxiv_id": "2509.11079",
+          "node_id": "2509.11079#013/1",
+          "page": 5,
+          "quote": "redundant participation of LLMs in each collaborative step",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.5",
+        "statement": "MARCO, a multi-agent real-time chat orchestration framework, reports 44.91% latency improvement and 33.71% cost reduction relative to its baselines on its evaluation datasets.",
+        "citation": {
+          "arxiv_id": "2410.21784",
+          "node_id": "2410.21784#017/0",
+          "page": 7,
+          "quote": "improved latency by 44.91% and 33.71% cost reduction",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "Costs are reported in heterogeneous units across papers (dollars, latency, accuracy), with few controlled head-to-head comparisons of patterns at matched budgets; the MARCO cost comparison baseline is not clearly specified in the retrieved passage.",
+    "error": null
+  },
+  {
+    "idx": 4,
+    "sub_question": "How do orchestration patterns differ in robustness to failures such as faulty or adversarial agents, error propagation, and hallucination cascades, and what mechanisms (verification, redundancy, voting, referees) do papers report for mitigating them?",
+    "claims": [
+      {
+        "claim_id": "4.1",
+        "statement": "A single agent's hallucination can be spread and reinforced by other agents, leading to cascading effects.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#037/1",
+          "page": 28,
+          "quote": "A single agent's hallucination can be spread and reinforced by other agents, leading to minor inaccuracies into critical and cascading effects.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.2",
+        "statement": "Hallucinated information can propagate and amplify through agent interactions, driven by LLM overconfidence and inter-agent misunderstandings.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#040/0",
+          "page": 29,
+          "quote": "When deployed in MASs, these issues can propagate and amplify through agent interactions.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.3",
+        "statement": "Compromised agents in LLM multi-agent systems can be manipulated to execute harmful behaviors, and risks grow as agent count increases.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#040/0",
+          "page": 29,
+          "quote": "Compromised agents in such systems can be manipulated to execute harmful or malicious behaviors.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.4",
+        "statement": "In the MARCO framework, reflection prompts significantly reduce guardrail error recurrence on retries, typically resolving issues within the first retry.",
+        "citation": {
+          "arxiv_id": "2410.21784",
+          "node_id": "2410.21784#016/0",
+          "page": 7,
+          "quote": "incorporating reflection prompts significantly reduces error recurrence, typically resolving issues within the first retry",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.5",
+        "statement": "A dedicated verifier agent has been proposed as a way to check a main agent's responses for hallucination and intervene to correct them.",
+        "citation": {
+          "arxiv_id": "2306.03314",
+          "node_id": "2306.03314#023/0",
+          "page": 8,
+          "quote": "This agent could verify the main agent's responses to find out when the agent is hallucinating and intervene to correct the output.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.6",
+        "statement": "Distributed multi-agent problem solving is argued to offer reliability because failed tasks can be reassigned to other agents.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#005/0",
+          "page": 6,
+          "quote": "In the event of agent failure, the task can be readily reassigned to other agents.",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The corpus gives no controlled comparison of how centralized versus decentralized or debate patterns fare under faulty or adversarial agents; robustness claims are largely survey-level or proposed rather than measured.",
+    "error": null
+  },
+  {
+    "idx": 5,
+    "sub_question": "What evaluation setups and benchmarks do the corpus papers use to compare orchestration patterns, and what limitations or confounds (task choice, model strength, unequal compute budgets) do they acknowledge?",
+    "claims": [
+      {
+        "claim_id": "5.1",
+        "statement": "AgentsNet is a benchmark built on classic distributed-computing problems to assess whether agent networks can coordinate, scaling to up to 100 agents whereas existing benchmarks are limited to 2-5 agents.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#022/0",
+          "page": 9,
+          "quote": "existing benchmarks are limited to 2\u20135 agents, the initial AGENTSNET suite probes up to 100 agents",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.2",
+        "statement": "AgentsNet evaluates coordination on topologies such as small-world, scale-free, and Delaunay graphs ranging from 4 to 16 nodes.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#015/0",
+          "page": 7,
+          "quote": "we generate a set of 27 network topologies, consisting of 9 small-world, scale-free, and Delaunay graphs",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.3",
+        "statement": "ForestBench maps heterogeneous multi-agent execution traces into a common graph representation so that methods can be compared under the same structural criteria, releasing 844 queries.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#003/2",
+          "page": 2,
+          "quote": "releasing 844 queries and their query-specific reference forests of verified-success collaboration graphs",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.4",
+        "statement": "ForestBench reports a narrow 0.038 accuracy range across methods, while structural variation between methods is wider, which the authors contrast with the accuracy result.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#025/0",
+          "page": 8,
+          "quote": "The narrow 0.038 accuracy range in Table 1 contrasts with wider structural variation.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.5",
+        "statement": "Existing systems either commit to structures determined upfront, limiting fine-grained control, or adapt orchestration dynamically while leaving coordination structure implicit and unstable.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#001/0",
+          "page": 1,
+          "quote": "committing to structures determined upfront that limit finegrained control, or orchestration-centric methods, adapting decisions dynamically while leaving coordination structure implicit and unstable",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "Corpus papers rarely report matched-budget comparisons across patterns; the cost and robustness evidence comes from different frameworks and task suites, so direct pattern-to-pattern conclusions are not supported.",
+    "error": null
+  }
+]

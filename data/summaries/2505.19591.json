@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2505.19591",
+  "title": "Multi-Agent Collaboration via Evolving Orchestration",
+  "summary": "The paper addresses a scalability problem in LLM-based multi-agent systems. Most existing approaches use static or predefined agent topologies, which cause coordination overhead, redundant computation, and weaker performance as task variety and agent count grow. The authors propose a \"puppeteer-style\" framework in which a centralized orchestrator, the puppeteer, selects and sequences agent activations (the puppets) at each step based on the evolving task state. The orchestrator's routing is framed as a sequential decision problem that yields an implicit inference graph, described as a directed graph-of-thoughts. It is trained with reinforcement learning using feedback from completed tasks, so it learns to favor effective agents and suppress less efficient ones. The excerpted text does not specify the individual puppet roles or the exact communication protocol. The paper reports that the method achieves superior performance with reduced computational cost on closed- and open-domain tasks, but the excerpt gives no numerical results. Its analysis attributes the gains to more compact, cyclic reasoning structures that emerge under the orchestrator's training. The provided excerpts contain no explicit limitations section. The authors note only that evolved topologies vary across tasks, which is an observation rather than a stated limitation.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 6206,
+  "created": "2026-10-30T05:56:34+00:00"
+}

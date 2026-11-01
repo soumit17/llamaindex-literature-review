@@ -1,0 +1,29 @@
+09:03:12 [plan] Progress: 5 sub-questions. The review covers topology choice, communication cost, and performance effects as reported in the ~25 orchestration papers, and will not cover single-agent prompting, training methods for agents, or non-LLM multi-agent systems.
+09:03:14 [research] ResearchProgress: How do the papers' agent communication topologies (e.g., star, chain, tree, fully connected, dynamic graphs) differ in how they route messages between agents, and what determines which topology a given system chooses?
+09:03:14 [research] ResearchProgress: What trade-off between communication cost (tokens, latency, number of calls) and task accuracy do the papers report when moving from sparse to dense agent connectivity?
+09:03:14 [research] ResearchProgress: Under what task properties (e.g., decomposability, need for debate or verification, error propagation risk) do the papers find hierarchical or centralized topologies outperform peer-to-peer ones, and why?
+09:03:14 [research] ResearchProgress: How do the papers' mechanisms for handling error propagation and message redundancy across topologies, such as voting, critic agents, or pruned edges, change the performance gap between topologies?
+09:03:25 [research] ResearchProgress: 7 claims
+09:03:25 [research] ResearchProgress: Which evaluation setups and benchmarks do the papers use to compare topologies, and where do their findings conflict or fail to generalize across models and task domains?
+09:03:25 [research] ResearchProgress: 7 claims
+09:03:26 [research] ResearchProgress: 7 claims
+09:03:29 [research] ResearchProgress: 7 claims
+09:03:32 [research] ResearchProgress: 6 claims
+09:03:39 [outline] Progress: outline attempt 1: waiting for approval
+09:03:39 [write] WriteProgress: Introduction
+09:03:39 [write] WriteProgress: Topology Taxonomy and Routing Design
+09:03:39 [write] WriteProgress: Cost Versus Accuracy Trade-offs
+09:03:45 [write] WriteProgress: Cost Versus Accuracy Trade-offs
+09:03:45 [write] WriteProgress: When Hierarchy Beats Peer-to-Peer
+09:03:46 [write] WriteProgress: Introduction
+09:03:46 [write] WriteProgress: Error Propagation and Redundancy
+09:03:46 [write] WriteProgress: Topology Taxonomy and Routing Design
+09:03:46 [write] WriteProgress: Evaluation Gaps and Generalization
+09:03:53 [write] WriteProgress: Error Propagation and Redundancy
+09:03:53 [write] WriteProgress: Conclusion
+09:03:53 [write] WriteProgress: When Hierarchy Beats Peer-to-Peer
+09:03:53 [write] WriteProgress: Evaluation Gaps and Generalization
+09:04:00 [write] WriteProgress: Conclusion
+09:04:06 [check] Progress: round 1: 1 issue(s) in 12 sentences (6 judged)
+09:04:06 [write] WriteProgress: Cost Versus Accuracy Trade-offs
+09:04:12 [write] WriteProgress: Cost Versus Accuracy Trade-offs

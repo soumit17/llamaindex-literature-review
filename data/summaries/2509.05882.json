@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2509.05882",
+  "title": "Collaborate, Deliberate, Evaluate: How LLM Alignment Affects Coordinated Multi-Agent Outcomes",
+  "summary": "This paper asks how different LLM alignment methods affect an AI agent's effectiveness as a partner in multi-turn, multi-party collaboration. It argues that common alignment techniques, developed for simplified single-user settings, lose their optimality guarantees in long-horizon group interactions, which it frames using a modified-action MDP. The system uses an intervention agent that joins group dialogues not to supply answers but to add \"friction\" that prompts collaborators to slow down and reflect. Multiple LLMs play the collaborating roles in a roleplay simulation over two collaborative tasks, communicating through human-readable dialogue. The excerpted text does not specify the communication topology or detailed control flow beyond this. The authors report that the FAAF alignment method, designed for friction interventions, outperforms other methods in balancing common-ground convergence with correct task solutions, and that it resists collaborator action modification and belief update. The excerpts give no numerical results, so no figures can be reported. Stated limitations include: the scope is restricted to AI-AI interactions; the roleplay methodology has not been validated with human subjects; and it is unclear whether the effect stems partly from exposure bias or persists in tasks with larger, more open-ended hypothesis spaces.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 8834,
+  "created": "2026-10-30T05:59:36+00:00"
+}

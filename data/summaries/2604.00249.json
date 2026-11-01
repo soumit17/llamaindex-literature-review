@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2604.00249",
+  "title": "A Safety-Aware Role-Orchestrated Multi-Agent LLM Framework for Behavioral Health Communication Simulation",
+  "summary": "Single-agent LLM systems struggle to support the diverse conversational functions of behavioral health communication while maintaining safety, and existing multi-agent work often emphasizes task performance or reasoning chains over dynamic, multi-turn dialogue. The authors propose a safety-aware, role-orchestrated multi-agent framework in which empathy-focused, action-oriented, and supervisory agents handle decomposed conversational responsibilities. A prompt-based controller dynamically activates relevant agents and enforces continuous safety auditing at every interaction. The source does not specify the communication topology beyond this controller-mediated activation. The framework was evaluated on semi-structured interview transcripts from the DAIC-WOZ corpus using scalable proxy metrics for structural quality, functional diversity, and computational characteristics, compared against a single-agent baseline. The authors report clear role differentiation, coherent inter-agent coordination, and predictable trade-offs among modularity, safety oversight, and response latency. The provided excerpt gives no specific numerical results. The stated limitations are that the work is a simulation and analysis tool rather than a clinical intervention or therapeutic evaluation, that it relies on proxy metrics, and that adaptive orchestration, richer interaction patterns, and human-in-the-loop evaluation remain future work.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 6168,
+  "created": "2026-10-30T05:58:32+00:00"
+}

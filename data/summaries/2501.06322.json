@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2501.06322",
+  "title": "Multi-Agent Collaboration Mechanisms: A Survey of LLMs",
+  "summary": "The paper addresses the limits of individual LLMs, including hallucination, autoregressive constraints on slow thinking, and scaling laws. It proposes horizontal scaling, with multiple LLM-based agents collaborating toward collective intelligence. Rather than presenting one orchestration system, it surveys collaboration mechanisms in LLM-based multi-agent systems (MASs) and introduces an extensible framework with five dimensions: actors, types (cooperation, competition, coopetition), structures (peer-to-peer, centralized, distributed), strategies (role-based, model-based), and coordination protocols. The survey also reviews applications in 5G/6G networks, Industry 5.0, question answering, and social and cultural settings. The excerpt does not specify concrete agent roles, a particular communication topology, or control-flow logic for any system. It reports no quantitative results, benchmarks, or numerical comparisons; benefits such as knowledge sharing, long-term planning, generalization, and efficiency are stated qualitatively, with supporting citations not included. The excerpt contains no explicit limitations section. It mentions lessons learned, open challenges, and research directions, but their content is not provided.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 6509,
+  "created": "2026-10-30T05:57:36+00:00"
+}

@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2606.13598",
+  "title": "Reward Modeling for Multi-Agent Orchestration",
+  "summary": "The paper addresses the difficulty of training LLM-based orchestrators for multi-agent systems (MAS), where human orchestration annotations are scarce and full sub-agent rollouts are costly; the cited MAS-Orchestra GRPO training consumes over 1B tokens for 100 orchestrator updates. The proposed Orchestration Reward Modeling (OrchRM) is a self-supervised framework that builds win-lose pairs from MAS-Orchestra checkpoints and trajectories, using a multi-faceted grouping strategy, and trains a Bradley-Terry reward model that scores orchestration quality without sub-agent rollouts. The excerpt describes the orchestrator only generally, as an LLM-based controller that dynamically plans workflow structure and agent interactions; it does not specify agent roles, communication topology, or control flow. Reported results include up to 10x token-efficiency gains in training and up to 8% accuracy gains in MAS test-time scaling. Reward-based best-of-N selection consistently outperforms majority voting, reward-guided continued training improves MAS-Orchestra, and training from scratch with reward feedback approaches the teacher's performance.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 7348,
+  "created": "2026-10-30T05:59:15+00:00"
+}

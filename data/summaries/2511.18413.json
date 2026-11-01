@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2511.18413",
+  "title": "Multi-Agent Collaborative Filtering: Orchestrating Users and Items for Agentic Recommendations",
+  "summary": "Most agentic recommenders use either a single LLM agent in a plan-and-execute loop or generic multi-agent task-decomposition pipelines, and neither structures the collaborative signals in user-item histories the way collaborative filtering does. The proposed Multi-Agent Collaborative Filtering (MACF) framework instantiates similar users and relevant items from the target user's history as LLM agents, each with a profile and access to retrieval tools (e.g., GetSimilarUsers, GetRelevantItems, RetrieveByQuery). A central orchestrator runs a multi-round discussion among these agents, dynamically recruiting participants and issuing personalized collaboration instructions. A sufficiency test decides whether to continue or end, capped at five rounds with a top-10 ranked list. The excerpt reports results only qualitatively, without numeric values. MACF achieves the best hit rate on Clothing and Beauty and leads on both metrics on Music, outperforming retrieval, CF-based, and agentic baselines. Ablations show that removing personalized collaboration instruction, dynamic agent recruitment, or adaptive tool use reduces HR@10 and NDCG@10, with the tool-use effect most pronounced on Music. Most queries finish before the third round. The provided text contains no explicit limitations section, so no limitations are stated by the authors in the excerpt.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 8487,
+  "created": "2026-10-30T05:57:39+00:00"
+}

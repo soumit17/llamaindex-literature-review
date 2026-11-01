@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2310.08067",
+  "title": "GameGPT: Multi-agent Collaborative Framework for Game Development",
+  "summary": "GameGPT targets two failure modes of LLM-based agents in automated game development: hallucination, which the authors note is common in planning and code generation, and redundancy, where models produce unnecessary or uninformative tasks and code. The framework spans planning, task identification, and implementation phases. Its coordination combines dual collaboration, in which LLMs interact with small expert deep learning models and execution roles interact with review roles. A game engine engineer generates code, and a code reviewer agent checks it for deviations and hallucinations and returns recommendations. User suggestions entered through a frontend are relayed to the reviewer in an iterative loop. A testing engineer executes tasks in a set sequence, logs results, summarizes them for the user, and reports tracebacks. To curb hallucination and redundancy, the Lua script is decoupled into shorter snippets, prompts include multiple example snippets, K candidate snippets per task are tested in a virtual environment and filtered with user feedback, and an in-house annotated lexicon supports instruction tuning. The excerpt gives no quantitative results. The authors state only that empirical results demonstrate effective decision-making and decision-rectifying. The excerpt also does not explicitly state limitations, though it notes that lengthy script generation carries greater hallucination and redundancy risk, which motivates the decoupling approach.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 10853,
+  "created": "2026-10-30T05:57:45+00:00"
+}

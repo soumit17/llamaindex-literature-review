@@ -1,0 +1,96 @@
+[
+  {
+    "n": 1,
+    "arxiv_id": "2505.19591",
+    "page": 3,
+    "title": "Multi-Agent Collaboration via Evolving Orchestration",
+    "claims": [
+      {
+        "claim_id": "1.1",
+        "statement": "A centralized orchestrator dynamically selects which agents to activate at each step based on the dynamic task state and delegates reasoning to them.",
+        "node_id": "855b8dab-4a4a-4f03-a028-c56afe675d13",
+        "quote": "This orchestrator dynamically selects which agents to activate in each step, based on the dynamic task state, and delegates reasoning to the selected agents.",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "1.2",
+        "statement": "At each time step the orchestrator selects a single agent to activate, conditioned on the current global system state and the task specification, via a policy over candidate agents.",
+        "node_id": "47c8d496-2d92-4337-b15f-00a275812d32",
+        "quote": "At each time step t, the orchestrator selects a single agent at \u2208A to activate, conditioned on the current global system state St and the task specification \u03c4.",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "1.3",
+        "statement": "The orchestrator's next-agent selection depends only on the current system state and task, satisfying the Markov property.",
+        "node_id": "47c8d496-2d92-4337-b15f-00a275812d32",
+        "quote": "This sequential agent selection process explicitly satisfies the Markov property",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "1.4",
+        "statement": "In previous approaches where each agent autonomously selects collaborators, coordination incurs overhead and poor scalability as agents increase or change.",
+        "node_id": "855b8dab-4a4a-4f03-a028-c56afe675d13",
+        "quote": "each agent autonomously selects collaborators, but this incurs coordination overhead and poor scalability, particularly as agents increase or change",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.3",
+        "statement": "The paper states that prior decentralized approaches, where each agent autonomously selects collaborators, incur coordination overhead and poor scalability as agents increase.",
+        "node_id": "855b8dab-4a4a-4f03-a028-c56afe675d13",
+        "quote": "each agent autonomously selects collaborators, but this incurs coordination overhead and poor scalability, particularly as agents increase or change",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "1.5",
+        "statement": "Centralization decouples agent selection from internal agent behaviors, which enhances adaptability and scalability without extensive parameter retraining.",
+        "node_id": "855b8dab-4a4a-4f03-a028-c56afe675d13",
+        "quote": "Such centralization decouples agent selection from internal agent behaviors, greatly enhancing adaptability and scalability without extensive parameter retraining.",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.4",
+        "statement": "The centralized orchestrator is reported to greatly enhance adaptability and scalability without extensive parameter retraining.",
+        "node_id": "855b8dab-4a4a-4f03-a028-c56afe675d13",
+        "quote": "greatly enhancing adaptability and scalability without extensive parameter retraining",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 2,
+    "arxiv_id": "2505.19591",
+    "page": 7,
+    "title": "Multi-Agent Collaboration via Evolving Orchestration",
+    "claims": [
+      {
+        "claim_id": "2.1",
+        "statement": "In the Multi-Agent Collaboration via Evolving Orchestration paper, the centralized orchestrator's token consumption consistently decreases over the course of learning across almost all settings.",
+        "node_id": "0d41c50a-0b4a-4d82-ae63-79dfc3eeade0",
+        "quote": "the token metric consistently decreases over the course of learning across almost all settings",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.2",
+        "statement": "The same paper reports that a tunable weighting factor \u03bb lets the centralized orchestrator trade accuracy against cost, with higher \u03bb placing greater emphasis on minimizing cost.",
+        "node_id": "0d41c50a-0b4a-4d82-ae63-79dfc3eeade0",
+        "quote": "balances accuracy and efficiency via a tunable weighting factor \u03bb, enabling adaptable trade-offs tailored to different application needs",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 3,
+    "arxiv_id": "2605.25746",
+    "page": 7,
+    "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+    "claims": [
+      {
+        "claim_id": "1.6",
+        "statement": "In the structure-guided approach, a structure-conditioned prior concentrates routing transition mass on a few dominant paths, which is described as making orchestration more cost-efficient.",
+        "node_id": "823d0b04-bf76-4e42-8629-3955eff4f1e5",
+        "quote": "This concentration makes orchestration more selective and cost-efficient, improving MACA\u2019s efficiency.",
+        "quote_verified": true
+      }
+    ]
+  }
+]

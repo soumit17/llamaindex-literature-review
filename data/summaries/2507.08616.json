@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2507.08616",
+  "title": "AgentsNet: Coordination and Collaborative Reasoning in Multi-Agent LLMs",
+  "summary": "AgentsNet addresses the lack of benchmarks that test whether multi-agent LLM systems can coordinate and collaborate over a network topology, rather than only solving standard reasoning tasks. The benchmark is built from five distributed-computing problems: graph coloring, minimal vertex cover, maximal matching, leader election, and consensus. Agents are homogeneous LLM agents that first must agree on organization and communication protocols, then exchange messages with their graph neighbors over multiple rounds using a message-passing protocol. Problem instances are sampled from graph models such as small-world and preferential-attachment networks. Evaluated baselines range from open-source models (Llama 4) to frontier models (GPT, Gemini, Claude) and reasoning models. Some frontier models perform strongly on small networks of 4, 8, and 16 nodes but decline as network size grows, and the authors also probe setups with up to 100 agents. Figure 1 plots mean score against API cost per repeat, marking Pareto-optimal models, but the excerpt does not report exact scores. The authors state that the tasks remain challenging even for the best models. The provided excerpt has no dedicated limitations section, so the stated shortcomings are the performance drop at scale and the qualitative challenges in coordination identified in the analysis.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 9057,
+  "created": "2026-10-30T05:57:52+00:00"
+}

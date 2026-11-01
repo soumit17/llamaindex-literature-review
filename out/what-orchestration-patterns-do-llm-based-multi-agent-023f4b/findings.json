@@ -1,0 +1,460 @@
+[
+  {
+    "idx": 1,
+    "sub_question": "How do centralized orchestrator-worker designs and decentralized peer-to-peer agent designs differ in how they decide which agent acts next, and what does each do to controllability and debuggability?",
+    "claims": [
+      {
+        "claim_id": "1.1",
+        "statement": "In the centralized orchestrator design, a single orchestrator selects which single agent to activate at each step, conditioned on the current global system state and task specification.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#005/1",
+          "page": 3,
+          "quote": "the orchestrator selects a single agent at \u2208A to activate, conditioned on the current global system state St and the task specification \u03c4",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.2",
+        "statement": "The centralized orchestrator's policy conditions agent selection only on the current state and task, so it satisfies the Markov property.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#005/1",
+          "page": 3,
+          "quote": "P(at+1 | S0, . . . , St+1, \u03c4) = P(at+1 | St+1, \u03c4)",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.3",
+        "statement": "The centralized design decouples agent selection from internal agent behaviors, which is presented as enhancing adaptability and scalability.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#005/0",
+          "page": 3,
+          "quote": "Such centralization decouples agent selection from internal agent behaviors, greatly enhancing adaptability and scalability",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.4",
+        "statement": "In prior approaches, each agent autonomously selects its collaborators, which incurs coordination overhead and poor scalability.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#005/0",
+          "page": 3,
+          "quote": "each agent autonomously selects collaborators, but this incurs coordination overhead and poor scalability",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.5",
+        "statement": "In the decentralized peer-to-peer design, agents autonomously decide whom to address, limiting communication to peers they deem relevant.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#011/0",
+          "page": 4,
+          "quote": "Agents autonomously decide whom to address, limiting communication to peers they deem relevant.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.6",
+        "statement": "Selective point-to-point decentralized communication optimizes relevance but risks fragmented context.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#011/0",
+          "page": 4,
+          "quote": "optimizing relevance but risking fragmented context",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.7",
+        "statement": "The centralized orchestrator's sequential, learned routing is reconstructable as a directed graph after folding, and the orchestrator's policy is updated via reinforcement learning from task feedback.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#002/1",
+          "page": 2,
+          "quote": "we employ reinforcement learning to continuously update the orchestrator\u2019s policy by leveraging feedback from completed tasks",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not directly assess controllability or debuggability for either design, and do not compare debuggability of the two designs; the evidence is largely about design mechanics and performance claims.",
+    "error": null
+  },
+  {
+    "idx": 2,
+    "sub_question": "How do the reviewed systems trade off token and API cost against task accuracy, for example through the number of agent calls, debate rounds, or parallel fan-out?",
+    "claims": [
+      {
+        "claim_id": "2.1",
+        "statement": "MACA shows a clear cost-performance tradeoff in which higher cost consistently yields higher accuracy, and its budget is tunable.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#015/0",
+          "page": 7,
+          "quote": "MACA exhibits a clear cost-performance tradeoff: higher cost consistently yields higher accuracy.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.2",
+        "statement": "MACA is reported to achieve a more favorable cost-performance frontier than existing multi-agent baselines, attributed to how it uses the budget through structured and selective coordination.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#015/0",
+          "page": 7,
+          "quote": "MACA achieves a more favorable cost\u2013performance frontier than existing multi-agent baselines.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.3",
+        "statement": "In the Beyond Frameworks study, different collaboration configurations produced an accuracy gap of up to 37.6% and substantial variation in token cost.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#016/0",
+          "page": 6,
+          "quote": "leading to an accuracy gap of up to 37.6% (ranging from 49.3% to 86.9%).",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.4",
+        "statement": "In the EBFC task, strategy G1-P2-I4-C2 reached 86.4% accuracy, comparable to G2-P3-I1-C3, but used 11.5 times more output tokens.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#016/0",
+          "page": 6,
+          "quote": "the strategy \u201cG1-P2-I4-C2\u201d achieves an accuracy of 86.4%, comparable to that of \u201cG2-P3-I1-C3\u201d, but costs 11.5 times more output tokens",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.5",
+        "statement": "The study introduces a Token-Accuracy Ratio that weights input tokens by 1 and output tokens by 4, and it identifies G2-P3-C3 as optimal under this ratio in both scenarios.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#018/1",
+          "page": 8,
+          "quote": "we set \u03b1 = 1 and \u03b2 = 4.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.6",
+        "statement": "In the SES setting, the C2 context strategy achieved over 16.0% higher accuracy than C1 but cost much more in tokens than both C1 and C3.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#018/1",
+          "page": 8,
+          "quote": "C2 and C3 achieve over 16.0% higher accuracy than C1",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.7",
+        "statement": "In the Multi-Agent Collaboration via Evolving Orchestration work, a tunable weighting factor \u03bb in the reward trades accuracy against efficiency, with higher \u03bb placing more emphasis on minimizing cost.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#013/0",
+          "page": 7,
+          "quote": "balances accuracy and efficiency via a tunable weighting factor \u03bb, enabling adaptable trade-offs",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.8",
+        "statement": "In the Titan setting, token consumption and the number of active agents decreased over training, while in Mimas agent count stayed relatively stable and token savings came from selecting lower-cost agents.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#013/0",
+          "page": 7,
+          "quote": "In contrast, in the Mimas setting (see Appendix for results), the number of orchestrated agents remains relatively stable",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.9",
+        "statement": "The excerpts do not give dollar costs, debate round counts, or direct fan-out numbers for the reviewed systems.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#015/0",
+          "page": 7,
+          "quote": "higher cost consistently yields higher accuracy",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not report monetary API cost, explicit debate-round counts, or systematic parallel fan-out comparisons; cost is mostly reported as tokens or abstract budgets, and most systems (e.g., AgentVerse, MaAS) lack specific cost figures.",
+    "error": null
+  },
+  {
+    "idx": 3,
+    "sub_question": "How do different orchestration patterns behave under agent failures, hallucinated outputs, or malformed messages, and which recovery mechanisms (retries, verifiers, supervisors, fallbacks) are used and how effective are they?",
+    "claims": [
+      {
+        "claim_id": "3.1",
+        "statement": "In MARCO, reflection prompts on retries substantially reduce guardrail error recurrence, typically resolving issues within the first retry.",
+        "citation": {
+          "arxiv_id": "2410.21784",
+          "node_id": "2410.21784#016/0",
+          "page": 7,
+          "quote": "incorporating reflection prompts significantly reduces error recurrence, typically resolving issues within the first retry",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.2",
+        "statement": "Without reflection prompts, retrying with the original prompt reduces guardrail errors only gradually and does not eliminate them even after four attempts.",
+        "citation": {
+          "arxiv_id": "2410.21784",
+          "node_id": "2410.21784#016/0",
+          "page": 7,
+          "quote": "retrying without reflection shows a gradual decrease in errors but fails to eliminate them entirely even after four attempts",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.3",
+        "statement": "In MARCO, the first retry with reflection resolves all but two errors, while error rates without reflection remain high even after four retries.",
+        "citation": {
+          "arxiv_id": "2410.21784",
+          "node_id": "2410.21784#016/0",
+          "page": 7,
+          "quote": "the first retry with reflection resolves all but two errors, whereas without any reflection prompt",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.4",
+        "statement": "In MARCO, temperature 0 gave the best accuracy for MARS because task execution procedure instruction following and function calling should be reliable and not vary.",
+        "citation": {
+          "arxiv_id": "2410.21784",
+          "node_id": "2410.21784#016/0",
+          "page": 7,
+          "quote": "setting the value temparature=0 gives the best accuracy for MARS",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.5",
+        "statement": "In MACA, verification by a Checker agent is coupled with generation, with transitions such as Solver to Checker at 0.30 and iterative feedback from Checker to Solver at 0.21.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#016/0",
+          "page": 7,
+          "quote": "transitions such as Solver \u2192 Checker (0.30) and Router \u2192Checker (0.27), with iterative feedback (e.g., Checker \u2192Solver, 0.21)",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.6",
+        "statement": "MACA learns an orchestration policy that invokes verification more frequently on complex reasoning and skips it for simpler steps, which the authors say balances accuracy and token efficiency.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#016/0",
+          "page": 7,
+          "quote": "verification is invoked more frequently along complex reasoning while being skipped for simpler steps",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.7",
+        "statement": "Orch-RM is a reward model that scores orchestrations before sub-agents execute, enabling early-stage intervention and avoiding redundant sub-agent rollouts during test-time scaling.",
+        "citation": {
+          "arxiv_id": "2606.13598",
+          "node_id": "2606.13598#010/0",
+          "page": 6,
+          "quote": "our Orch-RM operates at the orchestration level, directly evaluating high-level plans before any sub-agent execution",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not report how orchestration patterns behave under agent failures, hallucinated outputs, or malformed messages in general; they do not evaluate supervisors or fallbacks, and they do not compare verifiers or retries across orchestration patterns with quantified effectiveness beyond MARCO's guardrail retries and MACA's transition statistics.",
+    "error": null
+  },
+  {
+    "idx": 4,
+    "sub_question": "What mechanisms do the papers use to coordinate shared state and handoffs between agents (e.g., shared memory, message passing, blackboards), and how do these choices affect error propagation and scalability as agent count grows?",
+    "claims": [
+      {
+        "claim_id": "4.1",
+        "statement": "In AgentsNet, agents communicate via a message-passing protocol implemented with LangChain over graph neighbors.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#015/1",
+          "page": 7,
+          "quote": "We implement our message-passing protocol, as outlined in Section 4, using LangChain",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.2",
+        "statement": "AgentsNet agents sometimes agree on a common strategy too late during message-passing, leaving too few rounds to implement it.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#020/0",
+          "page": 9,
+          "quote": "agents agree on a common strategy too late during message-passing, leaving an insufficient number of message-passing rounds to implement the strategy",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.3",
+        "statement": "Agents in AgentsNet often do not inform neighbors of the strategy they assume, and then follow it throughout message-passing.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#020/0",
+          "page": 9,
+          "quote": "agents assume some strategy in their initial chain-of-thought and then follow that strategy throughout message-passing without informing neighbors",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.4",
+        "statement": "Agents generally accept information sent by neighbors, which enables effective coordination but can propagate incorrect assumptions into incorrect solutions.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#020/0",
+          "page": 9,
+          "quote": "agents sometimes fail to question erroneous information, leading to incorrect solutions",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.5",
+        "statement": "Round counts for global tasks scale with graph diameter (2D+1), while local tasks use rounds fixed by graph size (4, 5, or 6 rounds for 4, 8, or 16 nodes).",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#015/0",
+          "page": 7,
+          "quote": "we select the number of messagepassing rounds as 2D + 1, where D is the diameter of the graph",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.6",
+        "statement": "Models were chosen partly because problems on 8 and 16 nodes accumulate long communication histories, requiring an effective context window larger than 16K tokens.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#015/0",
+          "page": 7,
+          "quote": "problems on graphs of 8 and 16 nodes, especially at later stages of message passing, accumulate a long communication history",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.7",
+        "statement": "The Collaborate-Deliberate-Evaluate paper uses roleplay with multi-party dialogue and intervention agents, but the excerpts do not describe shared memory or blackboard mechanisms.",
+        "citation": {
+          "arxiv_id": "2509.05882",
+          "node_id": "2509.05882#002/0",
+          "page": 1,
+          "quote": "we use a roleplay methodology to examine LLM behavior in multi-party collaborative settings",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.8",
+        "statement": "The excerpts do not report how error propagation or performance changes quantitatively as agent count grows.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#015/0",
+          "page": 7,
+          "quote": "ranging in size from 4 to 16 nodes",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not describe shared memory or blackboard designs, do not compare mechanisms, and provide no systematic measurement of error propagation or scalability as agent count grows; the scalability evidence is limited to graph sizes of 4 to 16 nodes.",
+    "error": null
+  },
+  {
+    "idx": 5,
+    "sub_question": "Under what task conditions (e.g., decomposability, need for verification, latency budget) do the reviewed papers recommend one orchestration pattern over another, and what evidence supports those recommendations?",
+    "claims": [
+      {
+        "claim_id": "5.1",
+        "statement": "The MACA paper's structural prior assigns probability to valid agent topologies under the given task and budget conditions.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#006/1",
+          "page": 3,
+          "quote": "a structural prior p(G | x, b) that assigns probability to valid agent topologies under the given conditions",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.2",
+        "statement": "MACA learns an orchestration policy that decides when and where verification should occur, invoking it more often on complex reasoning and skipping it on simpler steps.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#016/0",
+          "page": 7,
+          "quote": "verification is invoked more frequently along complex reasoning while being skipped for simpler steps",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.3",
+        "statement": "MACA's verification pattern is described as balancing accuracy and token efficiency.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#016/0",
+          "page": 7,
+          "quote": "This mechanism allows MACA to balance accuracy and token efficiency.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.4",
+        "statement": "The Orch-RM paper reports that its orchestration-level verification costs far fewer tokens than trajectory-level LLM judging on BrowseComp+ while outperforming those judges.",
+        "citation": {
+          "arxiv_id": "2606.13598",
+          "node_id": "2606.13598#015/1",
+          "page": 8,
+          "quote": "reducing verification cost from 142.80M to 8.26M tokens",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.5",
+        "statement": "The Orch-RM paper reports that gains are smaller on HotpotQA and GPQA because orchestration diversity is limited there, making orchestration-level verification less discriminative.",
+        "citation": {
+          "arxiv_id": "2606.13598",
+          "node_id": "2606.13598#015/1",
+          "page": 8,
+          "quote": "orchestration diversity is more limited and orchestration-level verification becomes less discriminative",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.6",
+        "statement": "Orch-RM's best supervision mixes Specialized-over-Other-domains and Correct-over-Incorrect pairs at a 1:3 ratio.",
+        "citation": {
+          "arxiv_id": "2606.13598",
+          "node_id": "2606.13598#015/1",
+          "page": 8,
+          "quote": "combines Specialized-over-Other-domains (SoO) and Correct-over-Incorrect (CoI) pairs with a 1:3 ratio",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.7",
+        "statement": "The Orch-RM paper notes its reward model is currently trained in a domain-specific manner, which limits generalizability.",
+        "citation": {
+          "arxiv_id": "2606.13598",
+          "node_id": "2606.13598#019/0",
+          "page": 10,
+          "quote": "Orch-RM is currently trained in a domain-specific manner, limiting its generalizability",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not state explicit recommendations for choosing one orchestration pattern over another under specific conditions such as decomposability or latency budget; no latency-budget evidence is provided, and the MACA claims describe observed behavior rather than prescriptive guidance.",
+    "error": null
+  }
+]

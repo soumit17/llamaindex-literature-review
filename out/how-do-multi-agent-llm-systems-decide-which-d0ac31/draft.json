@@ -1,0 +1,41 @@
+{
+  "question": "How do multi-agent LLM systems decide which agent acts next, and what does each approach cost?",
+  "title": "Who Speaks Next: Turn-Taking Mechanisms and Their Costs in Multi-Agent LLM Systems",
+  "sections": [
+    {
+      "heading": "Introduction: The Next-Agent Selection Problem",
+      "markdown": "",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Centralized Orchestrators and Routing Signals",
+      "markdown": "Centralized orchestrators separate *who acts* from *how agents work internally*. In the Evolving Orchestration work, a central orchestrator selects a single agent at each time step, conditioned on the current global system state and task specification [1.1]. It does not need to inspect agent internals, since it dynamically chooses which agents to activate as the task state changes [1.4]. The selection policy maps observable context to a distribution over candidates, realized through neural scoring, embedding-based models, or Bradley-Terry style approaches [1.2]. At each step, the orchestrator re-selects the next agent using a policy conditioned only on the updated state and task [1.3].\n\nStructure-Guided Orchestration adds a different kind of signal. Actions are chosen by a state-conditioned policy that is guided by a directed interaction graph G [1.5], so the topology constrains which interactions are plausible rather than leaving selection entirely to learned scores. Routing signals may also be mixed. The Difficulty-Aware approach activates operators sequentially in descending score order until cumulative evidence exceeds a threshold, while a separate LLM router pairs each chosen operator with an LLM via a temperature-scaled softmax over candidates [1.6]. This suggests that rule-based gating and learned LLM routing can coexist in one pipeline.\n\nScoring orchestration quality is handled differently again. The Reward Modeling work uses an LLM-based controller that plans workflow structure and agent interactions, and trains a Bradley-Terry reward model on win-lose orchestration trajectory pairs [1.7]. The Bradley-Terry family thus appears both as a selection policy [1.2] and as a training objective for evaluating trajectories [1.7], a shared pairwise-preference view that may matter for practitioners.",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Decentralized Turn-Taking and Coordination Failures",
+      "markdown": "",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Cost and Latency Profiles of Orchestration",
+      "markdown": "Reported costs are difficult to compare across systems. AFlow is reported with a training cost of $22.50 and an inference cost of $1.66, while the difficulty-aware method reports $2.34 for training and $0.27 for inference [3.6, 3.7]. MARCO's figures are relative rather than absolute: Claude-3-sonnet is described as 30% faster and 60% cheaper than claude-v2.1 under a 5000-request MARS assumption [3.3], and its intent classifier has a reported latency of 1.98 seconds [3.4]. Because these numbers mix training and inference, single components and end-to-end systems, and different workloads, any cross-paper ranking should be treated as tentative.\n\nLearned orchestrators offer a different cost lever. Puppeteer-Mono's token consumption on MMLU-Pro consistently decreases over training across almost all settings [3.1]. This is a",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Accuracy-Efficiency Trade-offs",
+      "markdown": "Accuracy-efficiency trade-offs are often handled by folding cost directly into the training objective. The Evolving Orchestration work defines a terminal reward that subtracts a cost term scaled by a coefficient \u03bb, which governs how strongly accuracy is traded against consumption [4.1]. Raising \u03bb shifts emphasis toward minimizing cost, which lets practitioners select operating points suited to different application requirements [4.3]. The same work, however, suggests the trade-off is not always zero-sum: token consumption fell over training in nearly all settings while performance rose, which the authors describe as simultaneous gains in effectiveness and efficiency [4.2]. Whether this pattern generalizes beyond the reported settings remains unclear.\n\nStructural choices interact with these costs. In the Structure-Guided Orchestration paper, removing the GraphSpec prior produced distinct accuracy degradation and increased overhead, suggesting that agent composition and interaction patterns should be designed jointly rather than independently [4.5]. Orchestration-level reward modeling offers a complementary route, as the Orch-RM paper reports consistent improvements in the performance-efficiency trade-off for test-time scaling and orchestrator training [4.6]. Taken together, these results point toward treating t",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Evaluation Gaps and Conflicting Evidence",
+      "markdown": "Evaluation practice for turn-selection strategies is fragmented, and the gaps matter when choosing one. Fixed-dialogue benchmarks are a particular concern. The Collaborate, Deliberate, Evaluate paper argues that offline multi-turn benchmarks such as MT-Bench make fair comparison of interventions impossible, because the dialogue diverges after each intervention [5.1]. Simulation-based protocols can sidestep this divergence, but results then depend on the chosen simulator and backbone, and the excerpts do not report controls for either [5.8].\n\nComparability is a second obstacle. A survey notes that multi-agent evaluations are often run in narrow scenarios with differing configurations, producing inconsistent and incomparable",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Conclusion: Implications for Practitioners",
+      "markdown": "",
+      "unknown_markers": 0
+    }
+  ]
+}

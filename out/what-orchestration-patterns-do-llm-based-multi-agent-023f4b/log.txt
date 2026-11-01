@@ -1,0 +1,42 @@
+08:54:25 [plan] Progress: 5 sub-questions. The review covers orchestration patterns and their control, cost, and robustness trade-offs as reported in the roughly 25 ML papers in the corpus, and does not survey base model training, prompt engineering in isolation, or non-LLM multi-agent systems.
+08:54:27 [research] ResearchProgress: How do centralized orchestrator-worker designs and decentralized peer-to-peer agent designs differ in how they decide which agent acts next, and what does each do to controllability and debuggability?
+08:54:27 [research] ResearchProgress: How do the reviewed systems trade off token and API cost against task accuracy, for example through the number of agent calls, debate rounds, or parallel fan-out?
+08:54:27 [research] ResearchProgress: How do different orchestration patterns behave under agent failures, hallucinated outputs, or malformed messages, and which recovery mechanisms (retries, verifiers, supervisors, fallbacks) are used and how effective are they?
+08:54:27 [research] ResearchProgress: What mechanisms do the papers use to coordinate shared state and handoffs between agents (e.g., shared memory, message passing, blackboards), and how do these choices affect error propagation and scalability as agent count grows?
+08:54:38 [research] ResearchProgress: 8 claims
+08:54:38 [research] ResearchProgress: Under what task conditions (e.g., decomposability, need for verification, latency budget) do the reviewed papers recommend one orchestration pattern over another, and what evidence supports those recommendations?
+08:54:38 [research] ResearchProgress: 7 claims
+08:54:39 [research] ResearchProgress: 7 claims
+08:54:39 [research] ResearchProgress: 9 claims
+08:54:43 [research] ResearchProgress: 7 claims
+08:54:49 [outline] Progress: outline attempt 1: waiting for approval
+08:54:49 [write] WriteProgress: Introduction
+08:54:49 [write] WriteProgress: Control Structures: Centralized Versus Decentralized Orchestration
+08:54:49 [write] WriteProgress: Cost and Accuracy Trade-offs
+08:54:56 [write] WriteProgress: Cost and Accuracy Trade-offs
+08:54:56 [write] WriteProgress: Robustness, Failure Recovery, and Verification
+08:54:56 [write] WriteProgress: Control Structures: Centralized Versus Decentralized Orchestration
+08:54:56 [write] WriteProgress: State Sharing, Handoffs, and Scalability
+08:54:56 [write] WriteProgress: Introduction
+08:54:56 [write] WriteProgress: Conclusion
+08:55:03 [write] WriteProgress: State Sharing, Handoffs, and Scalability
+08:55:03 [write] WriteProgress: Conclusion
+08:55:04 [write] WriteProgress: Robustness, Failure Recovery, and Verification
+08:55:13 [check] Progress: round 1: 7 issue(s) in 51 sentences (30 judged)
+08:55:13 [write] WriteProgress: Control Structures: Centralized Versus Decentralized Orchestration
+08:55:13 [write] WriteProgress: Cost and Accuracy Trade-offs
+08:55:13 [write] WriteProgress: Robustness, Failure Recovery, and Verification
+08:55:19 [write] WriteProgress: Control Structures: Centralized Versus Decentralized Orchestration
+08:55:19 [write] WriteProgress: State Sharing, Handoffs, and Scalability
+08:55:19 [write] WriteProgress: Cost and Accuracy Trade-offs
+08:55:19 [write] WriteProgress: Conclusion
+08:55:19 [write] WriteProgress: Robustness, Failure Recovery, and Verification
+08:55:25 [write] WriteProgress: State Sharing, Handoffs, and Scalability
+08:55:25 [write] WriteProgress: Conclusion
+08:55:32 [check] Progress: round 2: 4 issue(s) in 39 sentences (24 judged)
+08:55:32 [write] WriteProgress: Control Structures: Centralized Versus Decentralized Orchestration
+08:55:32 [write] WriteProgress: Robustness, Failure Recovery, and Verification
+08:55:32 [write] WriteProgress: State Sharing, Handoffs, and Scalability
+08:55:37 [write] WriteProgress: Control Structures: Centralized Versus Decentralized Orchestration
+08:55:39 [write] WriteProgress: State Sharing, Handoffs, and Scalability
+08:55:39 [write] WriteProgress: Robustness, Failure Recovery, and Verification

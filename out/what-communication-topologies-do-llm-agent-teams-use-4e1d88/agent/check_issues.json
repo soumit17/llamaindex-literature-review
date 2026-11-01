@@ -1,0 +1,8 @@
+[
+  {
+    "section_idx": 5,
+    "claim": "Start with the simplest structure that meets the task's coordination needs, since global tasks justify richer connectivity and simple queries do not .",
+    "problem": "citation_not_supporting",
+    "suggested_fix": "The source describes DAAO's motivation and per-query adaptation but says nothing about starting with the simplest structure or richer connectivity for global tasks."
+  }
+]

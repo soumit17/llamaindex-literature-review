@@ -1,0 +1,83 @@
+[
+  {
+    "n": 1,
+    "arxiv_id": "2505.12467",
+    "page": 6,
+    "title": "Beyond Frameworks: Unpacking Collaboration Strategies in Multi-Agent Systems",
+    "claims": [
+      {
+        "claim_id": "2.1",
+        "statement": "Different configurations of collaboration dimensions significantly influence performance, with an accuracy gap of up to 37.6% across strategies.",
+        "node_id": "2505.12467#016/0",
+        "quote": "leading to an accuracy gap of up to 37.6%",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.2",
+        "statement": "Some collaboration strategies reach similar accuracy but differ substantially in token cost.",
+        "node_id": "2505.12467#016/0",
+        "quote": "there is a substantial variation in token cost",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.3",
+        "statement": "In the EBFC task, strategy G1-P2-I4-C2 reaches accuracy comparable to G2-P3-I1-C3 but produces 11.5 times more output tokens.",
+        "node_id": "2505.12467#016/0",
+        "quote": "costs 11.5 times more output tokens",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 2,
+    "arxiv_id": "2505.12467",
+    "page": 8,
+    "title": "Beyond Frameworks: Unpacking Collaboration Strategies in Multi-Agent Systems",
+    "claims": [
+      {
+        "claim_id": "2.4",
+        "statement": "In the SES scenario, context strategy C2 incurs much higher token costs than C1 and C3, while C3 shows more stable performance.",
+        "node_id": "2505.12467#018/1",
+        "quote": "C2, which overemphasizes an agent's preferred evidence type, costs much higher token costs",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 3,
+    "arxiv_id": "2511.20639",
+    "page": 7,
+    "title": "Latent Collaboration in Multi-Agent Systems",
+    "claims": [
+      {
+        "claim_id": "2.5",
+        "statement": "LatentMAS reduces token usage by 59.4% to 87.9% compared with TextMAS.",
+        "node_id": "2511.20639#015/1",
+        "quote": "reduces token usage by 59.4%- 87.9% compared with TextMAS",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.6",
+        "statement": "LatentMAS achieves a 2.6x to 7x speedup over vLLM-optimized TextMAS.",
+        "node_id": "2511.20639#015/1",
+        "quote": "LatentMAS still achieves a 2.6\u00d7-7\u00d7 speedup over the vLLM-optimized TextMAS",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 4,
+    "arxiv_id": "2511.20639",
+    "page": 9,
+    "title": "Latent Collaboration in Multi-Agent Systems",
+    "claims": [
+      {
+        "claim_id": "2.7",
+        "statement": "In LatentMAS, accuracy rises with latent step depth and peaks around 40-80 steps, which the authors describe as the best accuracy-efficiency tradeoff.",
+        "node_id": "2511.20639#018/0",
+        "quote": "accuracy steadily rises and peaks around 40-80 steps",
+        "quote_verified": true
+      }
+    ]
+  }
+]

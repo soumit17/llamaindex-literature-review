@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2308.00352",
+  "title": "MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework",
+  "summary": "The paper addresses the problem that LLM-based multi-agent systems handle simple dialogue tasks but produce logically inconsistent solutions on complex tasks, because naively chaining LLMs causes cascading hallucinations and unproductive chatter between agents. MetaGPT encodes human Standardized Operating Procedures (SOPs) as prompt sequences and organizes agents as a simulated software company in an assembly-line structure. Specialized roles such as Product Manager, Architect, and Engineer produce structured intermediate outputs (requirement documents, design artifacts, flowcharts, interface specifications) that downstream agents and reviewers can check. Agents share information through a message pool with subscriptions, and an executable feedback mechanism runs and debugs code at runtime. On HumanEval and MBPP, MetaGPT reports 85.9% and 87.7% Pass@1, described as state-of-the-art, and the executable feedback mechanism yields a 5.4% absolute improvement on MBPP. The paper also reports a 100% task completion rate and more coherent solutions than chat-based multi-agent systems on collaborative software engineering benchmarks. The excerpt provided contains no dedicated limitations section. The conclusion describes the work as an \"early attempt\" to regulate LLM-based multi-agent frameworks and refers to an outlook in Appendix A, which is not included, so stated limitations cannot be identified from this text.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 10090,
+  "created": "2026-10-30T05:58:00+00:00"
+}

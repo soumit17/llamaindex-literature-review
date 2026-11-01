@@ -1,0 +1,42 @@
+08:58:41 [plan] Progress: 5 sub-questions. The review covers how the ~25 papers select the next acting agent and the resulting cost and performance trade-offs, and it excludes single-agent tool-use planning and training-time methods for building the underlying LLMs.
+08:58:44 [research] ResearchProgress: How do centralized orchestrator agents select the next acting agent, and what routing signals (LLM planner output, learned router, rule-based dispatch) do the papers use to make that choice?
+08:58:44 [research] ResearchProgress: How do decentralized or peer-to-peer multi-agent systems decide turn-taking, such as through broadcast, bidding, or self-selection by agents, and what coordination failures do they exhibit?
+08:58:44 [research] ResearchProgress: What token, latency, and monetary costs do the reported orchestration patterns incur per decision step, and how do these costs scale with the number of agents and conversation rounds?
+08:58:44 [research] ResearchProgress: What trade-offs between task success rate and orchestration overhead do the papers report when comparing next-agent selection strategies on shared benchmarks?
+08:58:55 [research] ResearchProgress: 6 claims
+08:58:55 [research] ResearchProgress: Which evaluation setups, models, and benchmarks do the papers use to compare selection strategies, and where do their results conflict or lack controls?
+08:58:56 [research] ResearchProgress: 7 claims
+08:58:56 [research] ResearchProgress: 8 claims
+08:58:56 [research] ResearchProgress: 8 claims
+08:59:02 [research] ResearchProgress: 8 claims
+08:59:10 [outline] Progress: outline attempt 1: waiting for approval
+08:59:10 [write] WriteProgress: Introduction: The Next-Agent Selection Problem
+08:59:10 [write] WriteProgress: Centralized Orchestrators and Routing Signals
+08:59:10 [write] WriteProgress: Decentralized Turn-Taking and Coordination Failures
+08:59:17 [write] WriteProgress: Introduction: The Next-Agent Selection Problem
+08:59:18 [write] WriteProgress: Cost and Latency Profiles of Orchestration
+08:59:18 [write] WriteProgress: Centralized Orchestrators and Routing Signals
+08:59:18 [write] WriteProgress: Accuracy-Efficiency Trade-offs
+08:59:18 [write] WriteProgress: Decentralized Turn-Taking and Coordination Failures
+08:59:18 [write] WriteProgress: Evaluation Gaps and Conflicting Evidence
+08:59:24 [write] WriteProgress: Cost and Latency Profiles of Orchestration
+08:59:24 [write] WriteProgress: Conclusion: Implications for Practitioners
+08:59:24 [write] WriteProgress: Evaluation Gaps and Conflicting Evidence
+08:59:25 [write] WriteProgress: Accuracy-Efficiency Trade-offs
+08:59:31 [write] WriteProgress: Conclusion: Implications for Practitioners
+08:59:39 [check] Progress: round 1: 4 issue(s) in 44 sentences (24 judged)
+08:59:39 [write] WriteProgress: Centralized Orchestrators and Routing Signals
+08:59:39 [write] WriteProgress: Cost and Latency Profiles of Orchestration
+08:59:39 [write] WriteProgress: Accuracy-Efficiency Trade-offs
+08:59:43 [write] WriteProgress: Centralized Orchestrators and Routing Signals
+08:59:43 [write] WriteProgress: Evaluation Gaps and Conflicting Evidence
+08:59:44 [write] WriteProgress: Accuracy-Efficiency Trade-offs
+08:59:46 [write] WriteProgress: Cost and Latency Profiles of Orchestration
+08:59:48 [write] WriteProgress: Evaluation Gaps and Conflicting Evidence
+08:59:58 [check] Progress: round 2: 3 issue(s) in 44 sentences (24 judged)
+08:59:58 [write] WriteProgress: Cost and Latency Profiles of Orchestration
+08:59:58 [write] WriteProgress: Accuracy-Efficiency Trade-offs
+08:59:58 [write] WriteProgress: Evaluation Gaps and Conflicting Evidence
+09:00:03 [write] WriteProgress: Accuracy-Efficiency Trade-offs
+09:00:04 [write] WriteProgress: Cost and Latency Profiles of Orchestration
+09:00:05 [write] WriteProgress: Evaluation Gaps and Conflicting Evidence

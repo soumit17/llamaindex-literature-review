@@ -1,0 +1,39 @@
+plan: 5 sub-questions
+search: 'error propagation redundancy self-correction in multi-agent LLM collaboration' -> 5 passages
+search: 'token cost latency scalability of multi-agent communication' -> 5 passages
+search: 'multi-agent topology performance comparison benchmark accuracy' -> 5 passages
+search: 'communication topology in LLM multi-agent systems chain star fully connected graph' -> 5 passages
+search: 'automatic topology search or learned communication structure for LLM agents' -> 5 passages
+search: 'GPTSwarm graph-based agent optimization results MMLU HumanEval' -> 5 passages
+search: 'multi-agent debate rounds accuracy reasoning improvement' -> 5 passages
+search: 'multi-agent collaboration survey communication structure hierarchical flat' -> 5 passages
+finding 1: 5 claims, 1 rejected
+finding 2: 3 claims, 0 rejected
+search: 'query-adaptive multi-agent workflow orchestration cost efficiency' -> 5 passages
+search: 'LLM agents message passing information bottleneck topology effects on reasoning' -> 5 passages
+finding 3: 3 claims, 0 rejected
+finding 4: 4 claims, 0 rejected
+finding 5: 4 claims, 0 rejected
+outline attempt 1: approve
+section 0: 191 words, 0 invented markers
+section 1: 225 words, 0 invented markers
+section 2: 252 words, 0 invented markers
+section 3: 205 words, 0 invented markers
+section 4: 173 words, 0 invented markers
+section 5: 197 words, 0 invented markers
+section 3: 200 words, 0 invented markers
+section 4: 198 words, 0 invented markers
+section 5: 192 words, 0 invented markers
+section 4: 192 words, 0 invented markers
+section 5: 213 words, 0 invented markers
+check 1: 3 issues
+revision requested for 1: Sentence "Surveys of LLM-based multi-agent collaboration group communication structure into three main classes: centralized, decentralized or distributed, and hierarchical topologies [1.1]." The cited survey says communication structure falls into four main classes. It names three (centralized, decentralized/distributed, hierarchical). Fix: state that the survey reports four main classes and name the three it spells out, e.g. "A survey of LLM-based multi-agent collaboration describes four main classes of communication structure, three of which are centralized, decentralized or distributed, and hierarchical topologies [1.1]." Do not claim there are three.
+revision requested for 2: Sentence "AgentsNet, a benchmark built on distributed-computing problems, notes that prior work finds different topologies perform best for specific tasks [2.1]." The judge says the source describes AgentsNet as focused on graph reasoning. The topology-by-task claim is supported. Fix: describe AgentsNet more neutrally, e.g. "AgentsNet, a benchmark that draws on classical distributed-computing and graph-theory problems, reports that prior work finds different topologies perform best for specific tasks [2.1]." Keep the citation to [2.1] for the task-dependence claim.
+revision requested for 5: Sentence "Performance gains from structured and adaptive topologies are reported [1.4, 5.1], but they come from systems that differ in routing, orchestration, and message format, so the topology effect is confounded [4.1, 4.4]." The judge says the cited sources do not discuss confounding from routing, orchestration, or message format. Fix: remove the claim that the effect is confounded by those factors, or attribute it to the sources. A supported version: "Performance gains from structured and adaptive topologies are reported [1.4, 5.1], but the corpus contains no controlled comparison that varies only the topology, so the size of the topology effect is not isolated." Also note that [4.1] and [4.4] do not say anything about confounding. Remove those citations from this sentence unless they directly support the revised claim.
+section 1: 220 words, 0 invented markers
+section 2: 256 words, 0 invented markers
+section 5: 211 words, 0 invented markers
+check 2: 1 issues
+revision requested for 2: Sentence "AgentsNet, a benchmark that draws on classical distributed-computing and graph-theory problems, reports that prior work finds different topologies perform best for specific tasks [2.1]." The judge says the cited passage does not support the description of AgentsNet, and that the task-dependence finding is attributed to prior work, not to AgentsNet. Fix: drop the description of AgentsNet from this sentence and attribute the finding directly to the prior work it summarizes, e.g. "Prior experiments, as summarized in AgentsNet, find that different topologies perform best for specific tasks [2.1]." Cite [2.1] only for that claim.
+section 2: 248 words, 0 invented markers
+check 3: 1 issues

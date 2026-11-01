@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2410.21784",
+  "title": "MARCO: Multi-Agent Real-time Chat Orchestration",
+  "summary": "MARCO tackles multi-step task execution with LLMs, where non-deterministic outputs cause formatting inconsistencies, function and parameter hallucination, and gaps in domain knowledge. Its real-time, multi-turn chat framework guides agents with task execution procedures (TEPs), natural-language symbolic plans that steer each agent through a task's steps. Tool execution follows deterministic graphs that return status updates, intermediate results, and requests for user clarification. Agents share a hybrid long-term memory containing TEPs, tool updates, dynamic information, and conversation turns. Guardrails validate tool invocations and use reflection to recover from common LLM errors. The excerpts do not specify agent roles or detail the communication topology beyond the shared memory. On the Digital Restaurant Service Platform (DRSP) and Retail conversation datasets, MARCO reports 94.48% and 92.74% task execution accuracy, up to 11.77% and 4.36% above a single-agent baseline. It also reports 44.91% lower latency and 33.71% lower cost, and a reflection-guardrail accuracy gain of +30%. Backbones include Claude, Mistral, and Llama-3-8B, though no per-model figures appear in the excerpts. The provided text contains no explicit limitations section.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 5366,
+  "created": "2026-10-30T05:58:10+00:00"
+}

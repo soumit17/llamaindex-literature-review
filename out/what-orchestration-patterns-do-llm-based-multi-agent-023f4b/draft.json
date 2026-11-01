@@ -1,0 +1,36 @@
+{
+  "question": "What orchestration patterns do LLM-based multi-agent systems use, and how do they trade off control, cost and robustness?",
+  "title": "Orchestration Patterns in LLM-Based Multi-Agent Systems: Control, Cost, and Robustness Trade-offs",
+  "sections": [
+    {
+      "heading": "Introduction",
+      "markdown": "Coordinating several LLM agents raises a question that single-model pipelines avoid: who decides which agent acts next, and at what price? Centralized designs place one orchestrator in charge. In one formulation, it selects a single agent at each step based on the current global state and task specification [1.1]. Because this policy depends only on that state and task, it satisfies the Markov property [1.2], and its separation of agent selection from agent internals is presented as improving adaptability and scalability [1.3].",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Control Structures: Centralized Versus Decentralized Orchestration",
+      "markdown": "Centralized orchestration concentrates control in one component. A single orchestrator selects which one agent to activate at each step, conditioned on the current global system state and task specification [1.1]. Its policy depends only on that current state and task, so it satisfies the Markov property [1.2]. Because agent selection is decoupled from internal agent behavior, the design is presented as improving adaptability and scalability [1.3]. The sequential routing can also be learned, with the orchestrator's policy updated by reinforcement learning from task feedback [1.7].\n\nDecentralized peer-to-peer designs distribute these decisions: agents autonomously decide whom to address, limiting communication to peers they deem relevant [1.5].",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Cost and Accuracy Trade-offs",
+      "markdown": "Several systems suggest that accuracy in multi-agent orchestration can be bought with budget, and that this trade-off can be made explicit. MACA reports that higher cost consistently yields higher accuracy under a tunable budget [2.1], and it is reported to reach a more favorable frontier than existing multi-agent baselines, which the authors attribute to structured and selective coordination [2.2]. Evolving orchestration offers a complementary lever: a tunable reward weight \u03bb sets how strongly accuracy is traded against efficiency, with larger values emphasizing cost reduction [2.7]. Cost savings may also come from shrinking the active team. In the Titan setting, token consumption and active agent count fell over training [2.8].\n\nConfiguration choices can matter as much as budget. In the Beyond Frameworks study, collaboration configurations produced an accuracy gap of up to 37.6% and substantial variation in token cost [2.3]. Similar accuracy can hide large efficiency differences: in the EBFC task, G1-P2-I4-C2 reached 86.4% accuracy, comparable to G2-P3-I1-C3, yet used 11.5 times more output tokens [2.4].",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Robustness, Failure Recovery, and Verification",
+      "markdown": "Simple retries are a common recovery strategy in multi-agent pipelines, but MARCO suggests that how a retry is framed matters more than how many are attempted [3.2][3.3]. Reflection prompts, which feed the failed attempt back to the model, substantially reduce guardrail error recurrence and typically resolve issues within the first retry [3.1]. The first reflective retry reportedly clears all but two errors, while error rates without reflection remain high even after four retries [3.3]. Retrying with the original prompt reduces errors only gradually and does not eliminate them within that budget [3.2]",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "State Sharing, Handoffs, and Scalability",
+      "markdown": "Message passing over graph neighbors is how agents communicate in the AgentsNet setting, through a protocol implemented with LangChain [4.1]. This locality makes coordination possible, but it also shapes how information moves. Agents sometimes agree on a common strategy late in the exchange, leaving too few rounds to implement it [4.2]. They often do not tell neighbors which strategy they assume, and then follow it throughout message-passing [4.3]. Because agents generally accept neighbor information, the same trust that enables effective coordination can carry incorrect assumptions into incorrect solutions [4.4]. Handoffs therefore appear vulnerable, since unstated assumptions go unchallenged and can propagate into incorrect solutions [4.3, 4.4].\n\nRound requirements depend on task structure. Global tasks need rounds that scale with graph diameter (2D+1), whereas local tasks use a fixed number of rounds set by graph size, namely 4, 5, or 6 rounds for 4, 8, or 16 nodes [4.5]. Context is a related constraint: on 8- and 16-node problems, communication histories grow long enough to require an effective context window larger than 16K tokens, and this partly informed the choice of models [",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Conclusion",
+      "markdown": "",
+      "unknown_markers": 0
+    }
+  ]
+}

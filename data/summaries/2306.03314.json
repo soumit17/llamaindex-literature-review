@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2306.03314",
+  "title": "Multi-Agent Collaboration: Harnessing the Power of Intelligent LLM Agents",
+  "summary": "The paper addresses the problem that GPT-style LLMs, in their conventional form, operate as isolated entities that cannot collaborate with other agents or draw on external knowledge sources, which limits their use on complex tasks requiring information sharing. It proposes a multi-agent framework of \"Intelligent Generative Agents\" (IGAs), each with unique attributes and roles, that create subtasks, seek information, solicit help from one another, and may engage in competitive evaluation. Users interact with it as a \"black box\" that takes an initial prompt and returns a final output. The framework is described as adaptive, allowing agents to be added or removed. As an illustrative configuration, one IGA with memory and one with Internet access are proposed to reduce hallucinations. The provided text does not specify the communication topology, control flow, or orchestration mechanism. The abstract names case studies (Auto-GPT, BabyAGI, Gorilla, courtroom simulations, software development), but the text reports no quantitative results, benchmarks, or measured gains. Stated limitations include looping issues, security risks, scalability, system evaluation, and ethical considerations, with the conclusion adding security and privacy and agent design and training. Future work is suggested for domains such as healthcare, finance, education, and transportation.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 9972,
+  "created": "2026-10-30T06:00:40+00:00"
+}

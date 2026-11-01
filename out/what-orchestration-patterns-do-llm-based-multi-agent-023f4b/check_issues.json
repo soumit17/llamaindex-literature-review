@@ -1,0 +1,20 @@
+[
+  {
+    "section_idx": 4,
+    "claim": "Context is a related constraint: on 8- and 16-node problems, communication histories grow long enough to require an effective context window larger than 16K tokens, and this partly informed the choice of models [",
+    "problem": "no_citation",
+    "suggested_fix": "cite the claim this number comes from, or remove the number"
+  },
+  {
+    "section_idx": 3,
+    "claim": "Simple retries are a common recovery strategy in multi-agent pipelines, but MARCO suggests that how a retry is framed matters more than how many are attempted .",
+    "problem": "citation_not_supporting",
+    "suggested_fix": "The source attributes reduced errors to reflection prompts, not to retry count; it does not compare retry count against framing as the sentence claims."
+  },
+  {
+    "section_idx": 1,
+    "claim": "Decentralized peer-to-peer designs distribute these decisions: agents autonomously decide whom to address, limiting communication to peers they deem relevant .",
+    "problem": "citation_not_supporting",
+    "suggested_fix": "The interaction patterns described involve broadcasting to all peers or fixed and random speaking orders, not agents autonomously choosing whom to address."
+  }
+]

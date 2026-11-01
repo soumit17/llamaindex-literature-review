@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2608.08605",
+  "title": "ForestBench: A Unified Graph Framework for Evaluating Multi-Agent Collaboration",
+  "summary": "The paper addresses the lack of a common basis for comparing heterogeneous LLM-based multi-agent system (MAS) execution traces. Outcome-only benchmarks such as GSM8K, MMLU, and HumanEval reduce a run to a final answer and discard collaboration. LLM-as-Judge evaluation requires additional, model- and rubric-dependent inference and has limited reproducibility.\n\nForestBench maps native MAS traces into directed acyclic collaboration graphs, where nodes are agent actions and edges encode communicative or information-flow dependencies. Each query has a reference forest of ten precomputed, verified-success graphs from six representative MAS paradigms plus a single-agent anchor, so no single coordination style is treated as the gold process. A deterministic metric panel scores candidates on structure, information uptake, redundancy, and cost, with the headline Forest Match metric measuring alignment with the forest. The benchmark contains 844 collaboration-necessary queries filtered from seven public datasets.\n\nThe authors evaluate six M",
+  "model": "claude-haiku-5-5",
+  "input_chars": 10063,
+  "created": "2026-10-30T05:59:23+00:00"
+}

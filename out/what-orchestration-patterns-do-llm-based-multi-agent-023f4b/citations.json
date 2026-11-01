@@ -1,0 +1,207 @@
+[
+  {
+    "n": 1,
+    "arxiv_id": "2505.19591",
+    "page": 3,
+    "title": "Multi-Agent Collaboration via Evolving Orchestration",
+    "claims": [
+      {
+        "claim_id": "1.1",
+        "statement": "In the centralized orchestrator design, a single orchestrator selects which single agent to activate at each step, conditioned on the current global system state and task specification.",
+        "node_id": "2505.19591#005/1",
+        "quote": "the orchestrator selects a single agent at \u2208A to activate, conditioned on the current global system state St and the task specification \u03c4",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "1.2",
+        "statement": "The centralized orchestrator's policy conditions agent selection only on the current state and task, so it satisfies the Markov property.",
+        "node_id": "2505.19591#005/1",
+        "quote": "P(at+1 | S0, . . . , St+1, \u03c4) = P(at+1 | St+1, \u03c4)",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "1.3",
+        "statement": "The centralized design decouples agent selection from internal agent behaviors, which is presented as enhancing adaptability and scalability.",
+        "node_id": "2505.19591#005/0",
+        "quote": "Such centralization decouples agent selection from internal agent behaviors, greatly enhancing adaptability and scalability",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 2,
+    "arxiv_id": "2505.19591",
+    "page": 2,
+    "title": "Multi-Agent Collaboration via Evolving Orchestration",
+    "claims": [
+      {
+        "claim_id": "1.7",
+        "statement": "The centralized orchestrator's sequential, learned routing is reconstructable as a directed graph after folding, and the orchestrator's policy is updated via reinforcement learning from task feedback.",
+        "node_id": "2505.19591#002/1",
+        "quote": "we employ reinforcement learning to continuously update the orchestrator\u2019s policy by leveraging feedback from completed tasks",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 3,
+    "arxiv_id": "2505.12467",
+    "page": 4,
+    "title": "Beyond Frameworks: Unpacking Collaboration Strategies in Multi-Agent Systems",
+    "claims": [
+      {
+        "claim_id": "1.5",
+        "statement": "In the decentralized peer-to-peer design, agents autonomously decide whom to address, limiting communication to peers they deem relevant.",
+        "node_id": "2505.12467#011/0",
+        "quote": "Agents autonomously decide whom to address, limiting communication to peers they deem relevant.",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 4,
+    "arxiv_id": "2605.25746",
+    "page": 7,
+    "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+    "claims": [
+      {
+        "claim_id": "2.1",
+        "statement": "MACA shows a clear cost-performance tradeoff in which higher cost consistently yields higher accuracy, and its budget is tunable.",
+        "node_id": "2605.25746#015/0",
+        "quote": "MACA exhibits a clear cost-performance tradeoff: higher cost consistently yields higher accuracy.",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.2",
+        "statement": "MACA is reported to achieve a more favorable cost-performance frontier than existing multi-agent baselines, attributed to how it uses the budget through structured and selective coordination.",
+        "node_id": "2605.25746#015/0",
+        "quote": "MACA achieves a more favorable cost\u2013performance frontier than existing multi-agent baselines.",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 5,
+    "arxiv_id": "2505.19591",
+    "page": 7,
+    "title": "Multi-Agent Collaboration via Evolving Orchestration",
+    "claims": [
+      {
+        "claim_id": "2.7",
+        "statement": "In the Multi-Agent Collaboration via Evolving Orchestration work, a tunable weighting factor \u03bb in the reward trades accuracy against efficiency, with higher \u03bb placing more emphasis on minimizing cost.",
+        "node_id": "2505.19591#013/0",
+        "quote": "balances accuracy and efficiency via a tunable weighting factor \u03bb, enabling adaptable trade-offs",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.8",
+        "statement": "In the Titan setting, token consumption and the number of active agents decreased over training, while in Mimas agent count stayed relatively stable and token savings came from selecting lower-cost agents.",
+        "node_id": "2505.19591#013/0",
+        "quote": "In contrast, in the Mimas setting (see Appendix for results), the number of orchestrated agents remains relatively stable",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 6,
+    "arxiv_id": "2505.12467",
+    "page": 6,
+    "title": "Beyond Frameworks: Unpacking Collaboration Strategies in Multi-Agent Systems",
+    "claims": [
+      {
+        "claim_id": "2.3",
+        "statement": "In the Beyond Frameworks study, different collaboration configurations produced an accuracy gap of up to 37.6% and substantial variation in token cost.",
+        "node_id": "2505.12467#016/0",
+        "quote": "leading to an accuracy gap of up to 37.6% (ranging from 49.3% to 86.9%).",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "2.4",
+        "statement": "In the EBFC task, strategy G1-P2-I4-C2 reached 86.4% accuracy, comparable to G2-P3-I1-C3, but used 11.5 times more output tokens.",
+        "node_id": "2505.12467#016/0",
+        "quote": "the strategy \u201cG1-P2-I4-C2\u201d achieves an accuracy of 86.4%, comparable to that of \u201cG2-P3-I1-C3\u201d, but costs 11.5 times more output tokens",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 7,
+    "arxiv_id": "2410.21784",
+    "page": 7,
+    "title": "MARCO: Multi-Agent Real-time Chat Orchestration",
+    "claims": [
+      {
+        "claim_id": "3.2",
+        "statement": "Without reflection prompts, retrying with the original prompt reduces guardrail errors only gradually and does not eliminate them even after four attempts.",
+        "node_id": "2410.21784#016/0",
+        "quote": "retrying without reflection shows a gradual decrease in errors but fails to eliminate them entirely even after four attempts",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "3.3",
+        "statement": "In MARCO, the first retry with reflection resolves all but two errors, while error rates without reflection remain high even after four retries.",
+        "node_id": "2410.21784#016/0",
+        "quote": "the first retry with reflection resolves all but two errors, whereas without any reflection prompt",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "3.1",
+        "statement": "In MARCO, reflection prompts on retries substantially reduce guardrail error recurrence, typically resolving issues within the first retry.",
+        "node_id": "2410.21784#016/0",
+        "quote": "incorporating reflection prompts significantly reduces error recurrence, typically resolving issues within the first retry",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 8,
+    "arxiv_id": "2507.08616",
+    "page": 7,
+    "title": "AgentsNet: Coordination and Collaborative Reasoning in Multi-Agent LLMs",
+    "claims": [
+      {
+        "claim_id": "4.1",
+        "statement": "In AgentsNet, agents communicate via a message-passing protocol implemented with LangChain over graph neighbors.",
+        "node_id": "2507.08616#015/1",
+        "quote": "We implement our message-passing protocol, as outlined in Section 4, using LangChain",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "4.5",
+        "statement": "Round counts for global tasks scale with graph diameter (2D+1), while local tasks use rounds fixed by graph size (4, 5, or 6 rounds for 4, 8, or 16 nodes).",
+        "node_id": "2507.08616#015/0",
+        "quote": "we select the number of messagepassing rounds as 2D + 1, where D is the diameter of the graph",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 9,
+    "arxiv_id": "2507.08616",
+    "page": 9,
+    "title": "AgentsNet: Coordination and Collaborative Reasoning in Multi-Agent LLMs",
+    "claims": [
+      {
+        "claim_id": "4.2",
+        "statement": "AgentsNet agents sometimes agree on a common strategy too late during message-passing, leaving too few rounds to implement it.",
+        "node_id": "2507.08616#020/0",
+        "quote": "agents agree on a common strategy too late during message-passing, leaving an insufficient number of message-passing rounds to implement the strategy",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "4.3",
+        "statement": "Agents in AgentsNet often do not inform neighbors of the strategy they assume, and then follow it throughout message-passing.",
+        "node_id": "2507.08616#020/0",
+        "quote": "agents assume some strategy in their initial chain-of-thought and then follow that strategy throughout message-passing without informing neighbors",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "4.4",
+        "statement": "Agents generally accept information sent by neighbors, which enables effective coordination but can propagate incorrect assumptions into incorrect solutions.",
+        "node_id": "2507.08616#020/0",
+        "quote": "agents sometimes fail to question erroneous information, leading to incorrect solutions",
+        "quote_verified": true
+      }
+    ]
+  }
+]

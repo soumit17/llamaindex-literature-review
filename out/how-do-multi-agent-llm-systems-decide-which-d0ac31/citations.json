@@ -1,0 +1,215 @@
+[
+  {
+    "n": 1,
+    "arxiv_id": "2505.19591",
+    "page": 3,
+    "title": "Multi-Agent Collaboration via Evolving Orchestration",
+    "claims": [
+      {
+        "claim_id": "1.1",
+        "statement": "In the Evolving Orchestration paper, a centralized orchestrator selects a single agent at each time step conditioned on the current global system state and task specification.",
+        "node_id": "2505.19591#005/1",
+        "quote": "the orchestrator selects a single agent at \u2208A to activate, conditioned on the current global system state St and the task specification \u03c4",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "1.4",
+        "statement": "The centralized orchestrator decouples agent selection from internal agent behaviors, dynamically selecting which agents to activate based on the dynamic task state.",
+        "node_id": "2505.19591#005/0",
+        "quote": "This orchestrator dynamically selects which agents to activate in each step, based on the dynamic task state",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "1.2",
+        "statement": "The selection policy is described as a function mapping the observable context to a distribution over candidate agents, realized via neural scoring, embedding-based models, or Bradley-Terry style approaches.",
+        "node_id": "2505.19591#005/1",
+        "quote": "e.g., via neural scoring, embeddingbased models, or Bradley-Terry style approaches [68]",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "1.3",
+        "statement": "The orchestrator re-selects the next agent at each step using the policy conditioned only on the updated state and task, which the paper states satisfies the Markov property.",
+        "node_id": "2505.19591#005/1",
+        "quote": "again using the policy \u03c0 conditioned only on St+1 and \u03c4",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 2,
+    "arxiv_id": "2605.25746",
+    "page": 3,
+    "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+    "claims": [
+      {
+        "claim_id": "1.5",
+        "statement": "In the Structure-Guided Orchestration paper, actions are chosen by a policy conditioned on the state and guided by a directed interaction graph structure G.",
+        "node_id": "2605.25746#006/0",
+        "quote": "The action selection process is guided by the structure G, i.e., at \u223c\u03c0(\u00b7 | st; G)",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 3,
+    "arxiv_id": "2509.11079",
+    "page": 5,
+    "title": "Difficulty-Aware Agentic Orchestration for Query-Specific Multi-Agent Workflows",
+    "claims": [
+      {
+        "claim_id": "1.6",
+        "statement": "In the Difficulty-Aware paper, operators are activated sequentially in descending score order until cumulative evidence exceeds a threshold, and a separate LLM router pairs each chosen operator with an LLM via a temperature-scaled softmax over candidates.",
+        "node_id": "2509.11079#011/0",
+        "quote": "For each selected operator, we define a temperature-scaled softmax over LLM candidates indexed by \ud835\udc5a",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "3.6",
+        "statement": "AFlow incurs a training cost of $22.50 and an inference cost of $1.66, totaling $24.16.",
+        "node_id": "2509.11079#013/1",
+        "quote": "AFlow incurs a substantial training cost of $22.50 and inference cost of $1.66, totaling $24.16",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "3.7",
+        "statement": "The difficulty-aware method reports training cost of $2.34 and inference cost of $0.27.",
+        "node_id": "2509.11079#013/1",
+        "quote": "reduces these costs to $2.34 for training and $0.27 for inference",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 4,
+    "arxiv_id": "2606.13598",
+    "page": 2,
+    "title": "Reward Modeling for Multi-Agent Orchestration",
+    "claims": [
+      {
+        "claim_id": "1.7",
+        "statement": "The Reward Modeling paper describes an LLM-based controller that dynamically plans workflow structure and agent interactions, and trains a Bradley-Terry reward model on win-lose orchestration trajectory pairs to evaluate orchestration quality.",
+        "node_id": "2606.13598#002/0",
+        "quote": "train a Bradley-Terry reward model [36]",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 5,
+    "arxiv_id": "2410.21784",
+    "page": 6,
+    "title": "MARCO: Multi-Agent Real-time Chat Orchestration",
+    "claims": [
+      {
+        "claim_id": "3.3",
+        "statement": "In MARCO, Claude-3-sonnet is reported as 30% faster and 60% cheaper than claude-v2.1 for MARS costs assuming 5000 requests.",
+        "node_id": "2410.21784#014/0",
+        "quote": "Sonnet is also 30% faster and 60% cheaper than claudev2.1",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "3.4",
+        "statement": "The MARCO Intent Classifier using claude-v3-sonnet has a reported latency of 1.98 seconds.",
+        "node_id": "2410.21784#014/0",
+        "quote": "with a latency of 1.98 seconds",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 6,
+    "arxiv_id": "2505.19591",
+    "page": 7,
+    "title": "Multi-Agent Collaboration via Evolving Orchestration",
+    "claims": [
+      {
+        "claim_id": "3.1",
+        "statement": "Puppeteer-Mono token consumption on MMLU-Pro consistently decreases over the course of learning across almost all settings.",
+        "node_id": "2505.19591#013/0",
+        "quote": "the token metric consistently decreases over the course of learning across almost all settings",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "4.3",
+        "statement": "In the Evolving Orchestration paper, higher values of \u03bb place greater emphasis on minimizing cost, enabling adaptable trade-offs for different application needs.",
+        "node_id": "2505.19591#013/0",
+        "quote": "with higher values of \u03bb indicating a greater emphasis on minimizing cost",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "4.2",
+        "statement": "The Evolving Orchestration paper reports that token consumption decreased over training across almost all settings while performance improved, which it describes as simultaneous gains in effectiveness and efficiency.",
+        "node_id": "2505.19591#013/0",
+        "quote": "our approach achieves simultaneous advances in both effectiveness and efficiency",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 7,
+    "arxiv_id": "2505.19591",
+    "page": 4,
+    "title": "Multi-Agent Collaboration via Evolving Orchestration",
+    "claims": [
+      {
+        "claim_id": "4.1",
+        "statement": "The Multi-Agent Collaboration via Evolving Orchestration paper defines a terminal reward that subtracts a cost term weighted by \u03bb, where \u03bb controls the trade-off between accuracy and efficiency.",
+        "node_id": "2505.19591#007/1",
+        "quote": "\u03bb controls the trade-off between accuracy and efficiency",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 8,
+    "arxiv_id": "2605.25746",
+    "page": 7,
+    "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+    "claims": [
+      {
+        "claim_id": "4.5",
+        "statement": "The Structure-Guided Orchestration paper reports that removing the GraphSpec prior produced distinct accuracy degradation and increased overhead, indicating the joint effect of agents and interaction patterns matters.",
+        "node_id": "2605.25746#014/0",
+        "quote": "tinct accuracy degradation and increased overhead",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 9,
+    "arxiv_id": "2606.13598",
+    "page": 9,
+    "title": "Reward Modeling for Multi-Agent Orchestration",
+    "claims": [
+      {
+        "claim_id": "4.6",
+        "statement": "The Orch-RM paper reports that its orchestration-level reward modeling consistently improves the performance-efficiency tradeoff when applied to test-time scaling and orchestrator training.",
+        "node_id": "2606.13598#018/0",
+        "quote": "consistently improving the performance-efficiency tradeoff while operating entirely at the orchestration level",
+        "quote_verified": true
+      }
+    ]
+  },
+  {
+    "n": 10,
+    "arxiv_id": "2509.05882",
+    "page": 5,
+    "title": "Collaborate, Deliberate, Evaluate: How LLM Alignment Affects Coordinated Multi-Agent Outcomes",
+    "claims": [
+      {
+        "claim_id": "5.1",
+        "statement": "The Collaborate, Deliberate, Evaluate paper argues that fixed datasets and offline multi-turn benchmarks like MT-Bench make fair comparison of interventions impossible because subsequent dialogue diverges after each intervention.",
+        "node_id": "2509.05882#009/0",
+        "quote": "making fair comparison under identical conditions impossible",
+        "quote_verified": true
+      },
+      {
+        "claim_id": "5.8",
+        "statement": "The excerpts do not report a head-to-head numerical comparison of selection strategies on shared benchmarks, nor controls for the backbone or judge sensitivity in the Collaborate, Deliberate, Evaluate paper's own evaluation.",
+        "node_id": "2509.05882#009/0",
+        "quote": "critically examine the evaluation claims made in prior work",
+        "quote_verified": true
+      }
+    ]
+  }
+]

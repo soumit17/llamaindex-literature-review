@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2502.14743",
+  "title": "Multi-Agent Coordination across Diverse Applications: A Survey",
+  "summary": "The survey addresses the lack of a unified account of multi-agent coordination across applications. It notes that prior surveys typically classify algorithms by technique or task rather than by \"who to coordinate with\" and \"how to coordinate.\" It proposes a unified framework built on four questions: what coordination is, why it is needed, who to coordinate with, and how to coordinate. Following Malone et al., coordination is defined as managing dependencies among agents' activities. Clustering is framed as the answer to \"who,\" and dependency management as the answer to \"how.\"\n\nThe excerpt does not describe a specific orchestration system, so it gives no agent roles, communication topology, control flow, or experimental metrics for one implementation. Its only quantitative result is bibliometric: Web of Science records show MAS research spanning 148 of 252 research areas, with Computer Science, Mathematics, and Engineering the largest. The survey covers three general coordination problems and six application domains, from search and rescue to LLM-based MAS.\n\nThe stated challenges are scalability, heterogeneity, and learning mechanisms of MAS. The authors propose hybridizing hierarchical and decentralized coordination, human-MAS coordination, and LLM-based MAS as future directions. The excerpt does not discuss limitations of the survey's own scope.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 8606,
+  "created": "2026-10-30T05:58:32+00:00"
+}

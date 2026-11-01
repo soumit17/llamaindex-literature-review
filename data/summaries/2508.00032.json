@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2508.00032",
+  "title": "Strategic Communication and Language Bias in Multi-Agent LLM Coordination",
+  "summary": "The paper examines whether letting LLM-based agents communicate amplifies language-driven biases in strategic coordination, a problem the authors frame as under-studied in multi-agent settings. They extend the FAIRGAME framework with a communication layer and compare interactive and non-interactive conditions in one-shot and repeated games. The agents differ in language, personality profile, and underlying model (GPT-4o and Llama 4 Maverick). The text does not specify the communication topology or the detailed turn-taking control flow. The two games are the Prisoner's Dilemma and the Battle of the Sexes, across three languages. Communication substantially changed behavior: in the Prisoner's Dilemma it fostered cooperation and improved outcomes, while in the Battle of the Sexes it unexpectedly reduced alignment between agents. Message length, lexical choices, and alignment varied with game type, personality, and language. The provided text reports no numerical results. Stated limitations include the restriction to three languages, with calls for work on low-resource and typologically diverse languages, and reliance on message length and frequency rather than deeper semantic analysis of strategic intent. The authors also note that LLM-based evaluators could introduce evaluator bias.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 6951,
+  "created": "2026-10-30T05:58:13+00:00"
+}

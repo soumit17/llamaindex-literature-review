@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2505.11765",
+  "title": "OMAC: A Holistic Optimization Framework for LLM-Based Multi-Agent Collaboration",
+  "summary": "The paper addresses the problem that LLM-based multi-agent systems (MAS) are usually built with handcrafted agent designs and fixed collaboration structures. It notes that prior automated methods, such as DyLAN, G-Designer, and MaAS, either optimize team composition without supervised validation or address only architectural structure. OMAC is proposed as a holistic framework covering five dimensions: optimizing existing agents, constructing new agents, and three LLM-based controllers that govern candidate team selection, dynamic per-step agent selection, and inter-agent communication. A Semantic Initializer generates an initial pool of agents or controllers. Each candidate is scored on a training set through the multi-step collaboration process, and a high- and low-performing pair is sampled. A Contrastive Comparator reasons about the performance gap and produces a refined candidate, which is re-evaluated in an iterative loop. A separate iterative algorithm jointly optimizes multiple dimensions. The excerpt does not specify a communication topology beyond the controllers that govern inter-agent communication. The authors report evaluation on general reasoning, code generation, and arithmetic reasoning, and state that OMAC outperforms strong baselines on each single dimension and that joint optimization further improves performance. The provided text contains no specific numerical results and no explicit limitations section, so neither can be reported.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 9522,
+  "created": "2026-10-30T06:00:49+00:00"
+}

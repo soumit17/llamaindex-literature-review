@@ -1,5 +1,8 @@
 # LitReview (P2): LlamaIndex Workflows
 
+> **You are on the `runs-walkthrough` branch**: `main` plus the artifacts of every run made while
+> building P2. Start with [WALKTHROUGH.md](WALKTHROUGH.md). To run the project from scratch, use `main`.
+
 Turns a research question into a **cited mini literature review** over ~25 arXiv papers on
 multi-agent LLM orchestration: it plans sub-questions, researches them in parallel over a local index,
 asks you to approve the outline, writes the sections, checks every citation against its source chunk,

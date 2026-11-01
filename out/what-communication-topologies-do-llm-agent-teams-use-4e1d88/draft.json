@@ -1,0 +1,41 @@
+{
+  "question": "What communication topologies do LLM agent teams use, and how does topology affect task performance?",
+  "title": "Communication Topologies in LLM Agent Teams: Structure, Cost, and Performance Trade-offs",
+  "sections": [
+    {
+      "heading": "Introduction",
+      "markdown": "",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Topology Taxonomy and Routing Design",
+      "markdown": "",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Cost Versus Accuracy Trade-offs",
+      "markdown": "Accuracy alone does not capture the differences between collaboration configurations. Varying collaboration dimensions produces an accuracy gap of up to 37.6% across strategies [2.1], but some strategies with similar accuracy differ substantially in token cost [2.2]. In the EBFC task, G1-P2-I4-C2 reaches accuracy comparable to G2-P3-I1-C3 while producing 11.5 times more output tokens [2.3]. A similar pattern appears in the SES scenario, where context strategy C2 incurs much higher token costs than C1 and C3, and C3 shows more stable performance [2.4].\n\nLatent-space communication shifts this trade-off. LatentMAS reduces token usage by 59.4% to 87.9% relative to TextMAS [2.5] and achieves a 2.6x to 7x speedup over vLLM-optimized TextMAS [2.6]. Within LatentMAS, accuracy rises with latent step depth and peaks around 40 to 80 steps, which the authors describe as the best accuracy-efficiency trade-off [2.7]. These savings are reported against TextMAS and the optimal depth is the authors' characterization, so engineers should treat both as task-dependent until validated on their own workloads.\n\nThe cheaper option is not uniformly the weaker one [2.4]. Because cost varies independently of accuracy in some cases [2.2, 2.3], token cost alone is an unreliable proxy for strategy quality, and in the SES scenario the lower-cost context strategy C3 was more stable than the costlier C2 [2.4].",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "When Hierarchy Beats Peer-to-Peer",
+      "markdown": "",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Error Propagation and Redundancy",
+      "markdown": "",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Evaluation Gaps and Generalization",
+      "markdown": "Accuracy alone is a weak basis for comparing multi-agent frameworks. Six candidate fr",
+      "unknown_markers": 0
+    },
+    {
+      "heading": "Conclusion",
+      "markdown": "",
+      "unknown_markers": 0
+    }
+  ]
+}

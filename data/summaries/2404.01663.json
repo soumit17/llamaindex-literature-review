@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2404.01663",
+  "title": "CMAT: A Multi-Agent Collaboration Tuning Framework for Enhancing Small Language Models",
+  "summary": "The paper addresses the reliance of LLM-based agents on human prompting to steer dialogue toward task completion, along with the high compute needs, data biases, and limited robustness of large models in resource-constrained settings. It proposes Collaborative Multi-Agent Tuning (CMAT), in which agents with specialized roles work in a structured environment. A role-playing mechanism handles task allocation and inter-agent communication, and adaptive weight updates driven by environmental feedback support real-time memory updates. The excerpt does not specify the communication topology, control flow, or how agents are sequenced or aggregated. The authors also fine-tune TinyAgent models from Qwen and CodeLlama on a curated dataset. They report that TinyAgent-7B performs on par with GPT-3.5 and rivals GPT-4 and AgentLM in certain scenarios. In the ablation (Table V), TinyAgent-7B scores 27.3 (OS), 43.0 (DB), 38.0 (KG), 10.0 (ALF), 61.8 (WS), and 14.0 (M2W). The \"agent only\" variant scores 20.1, 39.3, 25.0, 2.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 6502,
+  "created": "2026-10-30T06:00:56+00:00"
+}

@@ -1,0 +1,8 @@
+[
+  {
+    "section_idx": 5,
+    "claim": "Simulation-based protocols can sidestep this divergence, but results then depend on the chosen simulator and backbone, and the excerpts do not report controls for either .",
+    "problem": "citation_not_supporting",
+    "suggested_fix": "The visible excerpt does not discuss simulation-based protocols or report on whether simulator and backbone controls are absent, so this claim is not supported by the text shown."
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2405.14314",
+  "title": "Towards Efficient LLM Grounding for Embodied Multi-Agent Collaboration",
+  "summary": "The paper addresses how to ground LLM planning in embodied multi-agent collaboration without the excessive environment interactions and LLM queries that self-reflection and physical verification require. It proposes Reinforced Advantage (ReAd), in which a critic network, trained by regression on LLM-planned data, learns an advantage function. The LLM planner is prompted to generate actions that maximize this advantage, and it re-plans when the score falls below a threshold. Agents such as Alice and Bob negotiate through multi-agent dialog, with critic scores replacing environment feedback. ReAd-J generates joint plans for all agents at once, while ReAd-S generates each agent's action sequentially using multi-agent advantage decomposition. The method extends advantage-weighted regression to multi-agent settings. The excerpt reports that ReAd surpasses baselines in success rate and significantly reduces agent interaction steps and LLM query rounds on DV-RoCoBench and an adapted Overcooked-AI, but it gives no numerical values for these metrics. Figure 1 shows only illustrative advantage scores, and the threshold is unspecified. Stated limitations include that most experiments use two or three agents because many-agent benchm",
+  "model": "claude-haiku-5-5",
+  "input_chars": 9899,
+  "created": "2026-10-30T06:00:29+00:00"
+}

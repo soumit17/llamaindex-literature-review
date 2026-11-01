@@ -1,0 +1,20 @@
+07:02:52 [plan] Progress: 3 sub-questions. The review covers the comparative mechanics, performance trade-offs, and reliability behavior of centralized versus decentralized orchestration in LLM-based multi-agent systems as reported in the corpus, and does not address non-LLM multi-agent frameworks or model training methods.
+07:02:55 [research] ResearchProgress: How does a centralized orchestrator decide which agent acts next, and how does that control-flow mechanism differ from decentralized peer-to-peer handoff in terms of coordination overhead and latency?
+07:02:55 [research] ResearchProgress: What trade-offs in task success rate, token and API cost, and scalability as agent count grows do the papers report between centralized and decentralized orchestration?
+07:02:55 [research] ResearchProgress: How do centralized and decentralized orchestration differ in handling agent failures and maintaining shared state or memory consistency across agents?
+07:03:05 [research] ResearchProgress: 5 claims
+07:03:05 [research] ResearchProgress: 6 claims
+07:03:08 [research] ResearchProgress: 6 claims
+07:03:14 [outline] Progress: outline attempt 1: waiting for approval
+07:03:14 [write] WriteProgress: Introduction
+07:03:14 [write] WriteProgress: Control Flow and Agent Selection
+07:03:14 [write] WriteProgress: Cost, Token Consumption, and Accuracy Trade-offs
+07:03:21 [write] WriteProgress: Control Flow and Agent Selection
+07:03:21 [write] WriteProgress: Scalability and Adaptability
+07:03:21 [write] WriteProgress: Introduction
+07:03:21 [write] WriteProgress: Failure Handling and Shared State Consistency
+07:03:21 [write] WriteProgress: Cost, Token Consumption, and Accuracy Trade-offs
+07:03:21 [write] WriteProgress: Conclusion
+07:03:27 [write] WriteProgress: Scalability and Adaptability
+07:03:29 [write] WriteProgress: Conclusion
+07:03:29 [write] WriteProgress: Failure Handling and Shared State Consistency

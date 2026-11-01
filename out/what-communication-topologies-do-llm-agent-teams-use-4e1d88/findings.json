@@ -1,0 +1,416 @@
+[
+  {
+    "idx": 1,
+    "sub_question": "How do the papers' agent communication topologies (e.g., star, chain, tree, fully connected, dynamic graphs) differ in how they route messages between agents, and what determines which topology a given system chooses?",
+    "claims": [
+      {
+        "claim_id": "1.1",
+        "statement": "Puppeteer's dynamic orchestration naturally fosters tree-structured interactions by allowing selection of one or multiple agents at each step, enabling branching and parallel pathways.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#015/0",
+          "page": 8,
+          "quote": "the Puppeteer\u2019s dynamic orchestration naturally fosters tree-structured interactions by enabling the selection of one or multiple agents at each step",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.2",
+        "statement": "Despite initial tree-like expansion, the resulting topologies are inherently graph-structured because flexible orchestration permits repeated agent activations, producing cycles and feedback loops.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#015/0",
+          "page": 8,
+          "quote": "the resulting topologies are inherently graph-structured [45, 87, 2]. This property arises from the flexible orchestration, which permits repeated agent activations, leading to cycles and feedback loops.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.3",
+        "statement": "Cross-branch connections emerge organically in the evolved orchestration topology.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#015/0",
+          "page": 8,
+          "quote": "Moreover, cross-branch connections emerge organically",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.4",
+        "statement": "In the LOCAL model, computation proceeds in synchronous rounds and each agent can exchange messages only with its immediate neighbors on the communication graph.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#011/0",
+          "page": 5,
+          "quote": "computation proceeds in synchronous rounds and each agent can exchange messages only with its immediate neighbors on the communication graph",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.5",
+        "statement": "Communication becomes progressively concentrated among recurrently active hub agents, forming dense subgraphs as optimization proceeds.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#016/0",
+          "page": 9,
+          "quote": "Communication becomes progressively concentrated among a subset of recurrently active \u2019hub\u2019 agents, forming dense subgraphs",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.6",
+        "statement": "A survey paper notes that four communication paradigms (memory, report, relay, debate) were proposed as counterparts to network topologies (bus, star, ring, tree), inspired by network topology.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#023/1",
+          "page": 19,
+          "quote": "proposed four communication paradigms (i.e., memory, report, relay, and debate) to determine the counterparts for model communication (i.e., bus, star, ring, tree)",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.7",
+        "statement": "AgentsNet benchmarks use 2D+1 message-passing rounds for global tasks, where D is the graph diameter, so each pair of agents can exchange messages at least once.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#015/0",
+          "page": 7,
+          "quote": "we select the number of messagepassing rounds as 2D + 1, where D is the diameter of the graph, to ensure that each pair of agents is able to exchange messages at least once",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not describe star, chain, or fully connected routing in detail for most papers, nor explicitly state what criteria determine which topology a given system selects beyond orchestration flexibility and task demands.",
+    "error": null
+  },
+  {
+    "idx": 2,
+    "sub_question": "What trade-off between communication cost (tokens, latency, number of calls) and task accuracy do the papers report when moving from sparse to dense agent connectivity?",
+    "claims": [
+      {
+        "claim_id": "2.1",
+        "statement": "Different configurations of collaboration dimensions significantly influence performance, with an accuracy gap of up to 37.6% across strategies.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#016/0",
+          "page": 6,
+          "quote": "leading to an accuracy gap of up to 37.6%",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.2",
+        "statement": "Some collaboration strategies reach similar accuracy but differ substantially in token cost.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#016/0",
+          "page": 6,
+          "quote": "there is a substantial variation in token cost",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.3",
+        "statement": "In the EBFC task, strategy G1-P2-I4-C2 reaches accuracy comparable to G2-P3-I1-C3 but produces 11.5 times more output tokens.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#016/0",
+          "page": 6,
+          "quote": "costs 11.5 times more output tokens",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.4",
+        "statement": "In the SES scenario, context strategy C2 incurs much higher token costs than C1 and C3, while C3 shows more stable performance.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#018/1",
+          "page": 8,
+          "quote": "C2, which overemphasizes an agent's preferred evidence type, costs much higher token costs",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.5",
+        "statement": "LatentMAS reduces token usage by 59.4% to 87.9% compared with TextMAS.",
+        "citation": {
+          "arxiv_id": "2511.20639",
+          "node_id": "2511.20639#015/1",
+          "page": 7,
+          "quote": "reduces token usage by 59.4%- 87.9% compared with TextMAS",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.6",
+        "statement": "LatentMAS achieves a 2.6x to 7x speedup over vLLM-optimized TextMAS.",
+        "citation": {
+          "arxiv_id": "2511.20639",
+          "node_id": "2511.20639#015/1",
+          "page": 7,
+          "quote": "LatentMAS still achieves a 2.6\u00d7-7\u00d7 speedup over the vLLM-optimized TextMAS",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.7",
+        "statement": "In LatentMAS, accuracy rises with latent step depth and peaks around 40-80 steps, which the authors describe as the best accuracy-efficiency tradeoff.",
+        "citation": {
+          "arxiv_id": "2511.20639",
+          "node_id": "2511.20639#018/0",
+          "page": 9,
+          "quote": "accuracy steadily rises and peaks around 40-80 steps",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not compare sparse versus dense agent connectivity. The reported trade-offs concern collaboration strategy configurations, latent versus text communication medium, and latent step depth, not connectivity density. No excerpt reports how communication calls or number of agent links change with connectivity, so the sub-question is not directly answered.",
+    "error": null
+  },
+  {
+    "idx": 3,
+    "sub_question": "Under what task properties (e.g., decomposability, need for debate or verification, error propagation risk) do the papers find hierarchical or centralized topologies outperform peer-to-peer ones, and why?",
+    "claims": [
+      {
+        "claim_id": "3.1",
+        "statement": "A survey of multi-agent coordination proposes that hybridizing hierarchical and decentralized mechanisms is a practical solution for large-scale coordination, with hierarchy enabling scalability and efficient management of large-scale MAS.",
+        "citation": {
+          "arxiv_id": "2502.14743",
+          "node_id": "2502.14743#028/0",
+          "page": 15,
+          "quote": "the hybridization of hierarchical and decentralized mechanisms is a practical solution and promising open direction",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.2",
+        "statement": "Hierarchical mechanisms assign greater responsibilities to some agents, letting the MAS adapt flexibly to the demands of the task at hand.",
+        "citation": {
+          "arxiv_id": "2502.14743",
+          "node_id": "2502.14743#028/0",
+          "page": 15,
+          "quote": "The hierarchical mechanism assigns greater responsibilities to some agents, allowing the MAS to adapt flexibly to the demands of the task at hand.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.3",
+        "statement": "Decentralization is cited as enhancing robustness and adaptability, while hybrid approaches combine hierarchical scalability and global coordination with decentralized local adaptability and resilience.",
+        "citation": {
+          "arxiv_id": "2502.14743",
+          "node_id": "2502.14743#028/0",
+          "page": 15,
+          "quote": "decentralization enhances robustness and adaptability",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.4",
+        "statement": "In the LLM multi-agent survey, the centralized topology is noted as simple to design but collapses if the central node fails, and the hierarchical topology has low communication bottleneck but edge-device failures can cause system failure and high complexity and latency.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#020/0",
+          "page": 16,
+          "quote": "If the central node fails the entire system might collapse.",
+          "quote_verified": false
+        }
+      },
+      {
+        "claim_id": "3.5",
+        "statement": "ForestBench argues that a task may be solved by debate, role-specialized agents, or a peer swarm with different topologies yielding the same verified answer, so one topology should not be treated as ground truth.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#008/0",
+          "page": 3,
+          "quote": "These executions can differ substantially in topology while producing the same verified answer",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.6",
+        "statement": "ForestBench's failure analysis attributes some failures to a missing useful role or a fixed motif that does not fit the query, motivating task-adaptive role and topology selection.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#023/0",
+          "page": 7,
+          "quote": "The first mechanism motivates task-adaptive role and topology selection",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.7",
+        "statement": "ForestBench's failure analysis attributes other failures to a solver, verifier, or aggregator introducing or accepting incorrect content, motivating stronger verification and aggregation.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#023/0",
+          "page": 7,
+          "quote": "the second motivates stronger verification, aggregation, and evidence uptake",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not directly compare hierarchical or centralized topologies against peer-to-peer ones on specific task properties such as decomposability, debate or verification need, or error propagation risk, and do not report empirical outperformance results for these topologies.",
+    "error": null
+  },
+  {
+    "idx": 4,
+    "sub_question": "How do the papers' mechanisms for handling error propagation and message redundancy across topologies, such as voting, critic agents, or pruned edges, change the performance gap between topologies?",
+    "claims": [
+      {
+        "claim_id": "4.1",
+        "statement": "Recent MAS work dynamically optimizes adjacency matrices or parameterizes the graph selector to eliminate redundancy and adapt connectivity across rounds.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#005/0",
+          "page": 3,
+          "quote": "Adjacency matrices are dynamically optimized or the graph selector is explicitly parameterized to eliminate redundancy and adapt connectivity across rounds",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.2",
+        "statement": "Another line of work studies causal effects of sparsity on message propagation.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#005/0",
+          "page": 3,
+          "quote": "causal analyses of sparsity\u2019s impact on message propagation [35]",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.3",
+        "statement": "In ForestBench's perturbation tests, node deletion at p=0.5 produced the largest decrease in Forest Match, of 0.058.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#022/0",
+          "page": 7,
+          "quote": "Node deletion at \ud835\udc5d= 0.5 produces the largest decrease of 0.058",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.4",
+        "statement": "Duplicate-content injection left the set-based structural score nearly unchanged and was instead detected by Content Redundancy.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#022/0",
+          "page": 7,
+          "quote": "duplicate-content injection leaves the set-based structural score nearly unchanged and is detected by Content Redundancy",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.5",
+        "statement": "AgentsNet sets the message-passing rounds for global tasks to 2D+1, where D is the graph diameter, so every pair of agents can exchange messages.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#015/0",
+          "page": 7,
+          "quote": "we select the number of messagepassing rounds as 2D + 1, where D is the diameter of the graph",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.6",
+        "statement": "AgentsNet scores only fully correct solutions in which the entire agent network satisfies the task specification.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#015/0",
+          "page": 7,
+          "quote": "counting only fully correct solutions where the entire agent network satisfies the task specification",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.7",
+        "statement": "ForestBench labels failures as either missing roles or fixed motifs (structural) or incorrect content accepted by solvers, verifiers, or aggregators (content).",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#023/0",
+          "page": 7,
+          "quote": "Other traces exhibit a plausible collaboration structure but still fail because a solver, verifier, or aggregator introduces or accepts incorrect content",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not report any measured performance gap between topologies with or without voting, critic agents, or pruned edges, and do not compare error-propagation outcomes across topologies directly. They give no quantitative results for AgentsNet topology performance or for how redundancy mechanisms change that gap.",
+    "error": null
+  },
+  {
+    "idx": 5,
+    "sub_question": "Which evaluation setups and benchmarks do the papers use to compare topologies, and where do their findings conflict or fail to generalize across models and task domains?",
+    "claims": [
+      {
+        "claim_id": "5.1",
+        "statement": "ForestBench evaluates six candidate MAS frameworks over 844 collaboration-necessary queries drawn from seven public datasets.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#001/0",
+          "page": 1,
+          "quote": "filter 844 collaboration-necessary queries from seven public datasets, precompute ten successful target-conditioned reference graphs per query, and evaluate six representative MAS frameworks",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.2",
+        "statement": "Each framework is run with 3 random seeds per query, yielding roughly 15,192 traces in total under the DeepSeek-V4-Flash reference forest.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#019/0",
+          "page": 6,
+          "quote": "Each framework is run with 3 random seeds per query, yielding roughly 3\u00d7844 \u22482,532 traces per framework and \u223c15,192 traces in total.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.3",
+        "statement": "Accuracy alone weakly separates the six frameworks, whose accuracies span only 0.038, while Debate has the highest accuracy but the lowest Forest Match.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#019/0",
+          "page": 6,
+          "quote": "The six candidate accuracies span 0.038, from 0.531 to 0.569. Debate has the highest accuracy but the lowest Forest Match",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.4",
+        "statement": "Debate's ranking changes by domain: on SWE-bench-Verified, Debate reaches 0.382 and becomes the most aligned method.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#019/0",
+          "page": 6,
+          "quote": "on SWE-bench-Verified, whose forest contains more review-and-revise reference trees, Debate reaches 0.382 and becomes the most aligned method",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.5",
+        "statement": "Reference forests built with three different backbones preserve the same aggregate method ordering, with Kendall tau and Spearman rho equal to 1.00.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#020/0",
+          "page": 6,
+          "quote": "The six candidate methods retain the same aggregate ordering under all three forests, with pairwise Kendall \ud835\udf0fand Spearman \ud835\udf0cequal to 1.00",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.6",
+        "statement": "Removing gold-answer conditioning changes absolute Forest Match values but largely preserves the aggregate ranking, with only middle ranks swapping.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#020/0",
+          "page": 6,
+          "quote": "removing gold-answer conditioning changes the absolute Forest Match values, but largely preserves the aggregate ranking",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not report results across different backbone LLMs for the topology comparison beyond the stated backbone-capability note, do not name the specific benchmark datasets' task domains beyond SWE-bench-Verified, and do not give per-model comparisons of topologies from other papers in the set.",
+    "error": null
+  }
+]

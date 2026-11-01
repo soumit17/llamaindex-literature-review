@@ -1,0 +1,601 @@
+flowchart TD
+    external_step["external_step"]:::externalStyle
+    event_IngestRequest_0(["IngestRequest"]):::startEventStyle
+    step_load_lock_1["load_lock#1"]:::stepStyle
+    event_PaperToFetch_1(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_2(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_3(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_4(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_5(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_6(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_7(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_8(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_9(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_10(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_11(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_12(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_13(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_14(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_15(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_16(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_17(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_18(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_19(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_20(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_21(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_22(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_23(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_24(["PaperToFetch"]):::defaultEventStyle
+    event_PaperToFetch_25(["PaperToFetch"]):::defaultEventStyle
+    step_fetch_pdf_1["fetch_pdf#1"]:::stepStyle
+    event_PaperFetched_26(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_2["fetch_pdf#2"]:::stepStyle
+    event_PaperFetched_27(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_3["fetch_pdf#3"]:::stepStyle
+    event_PaperFetched_28(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_4["fetch_pdf#4"]:::stepStyle
+    event_PaperFetched_29(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_5["fetch_pdf#5"]:::stepStyle
+    event_PaperFetched_30(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_6["fetch_pdf#6"]:::stepStyle
+    event_PaperFetched_31(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_7["fetch_pdf#7"]:::stepStyle
+    event_PaperFetched_32(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_8["fetch_pdf#8"]:::stepStyle
+    event_PaperFetched_33(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_9["fetch_pdf#9"]:::stepStyle
+    event_PaperFetched_34(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_10["fetch_pdf#10"]:::stepStyle
+    event_PaperFetched_35(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_11["fetch_pdf#11"]:::stepStyle
+    event_PaperFetched_36(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_12["fetch_pdf#12"]:::stepStyle
+    event_PaperFetched_37(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_13["fetch_pdf#13"]:::stepStyle
+    event_PaperFetched_38(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_14["fetch_pdf#14"]:::stepStyle
+    event_PaperFetched_39(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_15["fetch_pdf#15"]:::stepStyle
+    event_PaperFetched_40(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_16["fetch_pdf#16"]:::stepStyle
+    event_PaperFetched_41(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_17["fetch_pdf#17"]:::stepStyle
+    event_PaperFetched_42(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_18["fetch_pdf#18"]:::stepStyle
+    event_PaperFetched_43(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_19["fetch_pdf#19"]:::stepStyle
+    event_PaperFetched_44(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_20["fetch_pdf#20"]:::stepStyle
+    event_PaperFetched_45(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_21["fetch_pdf#21"]:::stepStyle
+    event_PaperFetched_46(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_22["fetch_pdf#22"]:::stepStyle
+    event_PaperFetched_47(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_23["fetch_pdf#23"]:::stepStyle
+    event_PaperFetched_48(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_24["fetch_pdf#24"]:::stepStyle
+    event_PaperFetched_49(["PaperFetched"]):::defaultEventStyle
+    step_fetch_pdf_25["fetch_pdf#25"]:::stepStyle
+    event_PaperFetched_50(["PaperFetched"]):::defaultEventStyle
+    step_parse_pdf_1["parse_pdf#1"]:::stepStyle
+    event_PaperParsed_51(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_2["parse_pdf#2"]:::stepStyle
+    event_PaperParsed_52(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_3["parse_pdf#3"]:::stepStyle
+    event_PaperParsed_53(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_4["parse_pdf#4"]:::stepStyle
+    event_PaperParsed_54(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_5["parse_pdf#5"]:::stepStyle
+    event_PaperParsed_55(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_6["parse_pdf#6"]:::stepStyle
+    event_PaperParsed_56(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_7["parse_pdf#7"]:::stepStyle
+    event_PaperParsed_57(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_8["parse_pdf#8"]:::stepStyle
+    event_PaperParsed_58(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_9["parse_pdf#9"]:::stepStyle
+    event_PaperParsed_59(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_10["parse_pdf#10"]:::stepStyle
+    event_PaperParsed_60(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_11["parse_pdf#11"]:::stepStyle
+    event_PaperParsed_61(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_12["parse_pdf#12"]:::stepStyle
+    event_PaperParsed_62(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_13["parse_pdf#13"]:::stepStyle
+    event_PaperParsed_63(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_14["parse_pdf#14"]:::stepStyle
+    event_PaperParsed_64(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_15["parse_pdf#15"]:::stepStyle
+    event_PaperParsed_65(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_16["parse_pdf#16"]:::stepStyle
+    event_PaperParsed_66(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_17["parse_pdf#17"]:::stepStyle
+    event_PaperParsed_67(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_18["parse_pdf#18"]:::stepStyle
+    event_PaperParsed_68(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_19["parse_pdf#19"]:::stepStyle
+    event_PaperParsed_69(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_20["parse_pdf#20"]:::stepStyle
+    event_PaperParsed_70(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_21["parse_pdf#21"]:::stepStyle
+    event_PaperParsed_71(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_22["parse_pdf#22"]:::stepStyle
+    event_PaperParsed_72(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_23["parse_pdf#23"]:::stepStyle
+    event_PaperParsed_73(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_24["parse_pdf#24"]:::stepStyle
+    event_PaperParsed_74(["PaperParsed"]):::defaultEventStyle
+    step_parse_pdf_25["parse_pdf#25"]:::stepStyle
+    event_PaperParsed_75(["PaperParsed"]):::defaultEventStyle
+    step_index_paper_1["index_paper#1"]:::stepStyle
+    event_PaperIndexed_76(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_1["summarize_paper#1"]:::stepStyle
+    event_PaperSummarized_77(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_2["index_paper#2"]:::stepStyle
+    event_PaperIndexed_78(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_2["summarize_paper#2"]:::stepStyle
+    event_PaperSummarized_79(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_3["index_paper#3"]:::stepStyle
+    event_PaperIndexed_80(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_3["summarize_paper#3"]:::stepStyle
+    event_PaperSummarized_81(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_4["index_paper#4"]:::stepStyle
+    event_PaperIndexed_82(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_4["summarize_paper#4"]:::stepStyle
+    event_PaperSummarized_83(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_5["index_paper#5"]:::stepStyle
+    event_PaperIndexed_84(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_5["summarize_paper#5"]:::stepStyle
+    event_PaperSummarized_85(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_6["index_paper#6"]:::stepStyle
+    event_PaperIndexed_86(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_6["summarize_paper#6"]:::stepStyle
+    event_PaperSummarized_87(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_7["index_paper#7"]:::stepStyle
+    event_PaperIndexed_88(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_7["summarize_paper#7"]:::stepStyle
+    event_PaperSummarized_89(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_8["index_paper#8"]:::stepStyle
+    event_PaperIndexed_90(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_8["summarize_paper#8"]:::stepStyle
+    event_PaperSummarized_91(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_9["index_paper#9"]:::stepStyle
+    event_PaperIndexed_92(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_9["summarize_paper#9"]:::stepStyle
+    event_PaperSummarized_93(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_10["index_paper#10"]:::stepStyle
+    event_PaperIndexed_94(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_10["summarize_paper#10"]:::stepStyle
+    event_PaperSummarized_95(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_11["index_paper#11"]:::stepStyle
+    event_PaperIndexed_96(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_11["summarize_paper#11"]:::stepStyle
+    event_PaperSummarized_97(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_12["index_paper#12"]:::stepStyle
+    event_PaperIndexed_98(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_12["summarize_paper#12"]:::stepStyle
+    event_PaperSummarized_99(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_13["index_paper#13"]:::stepStyle
+    event_PaperIndexed_100(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_13["summarize_paper#13"]:::stepStyle
+    event_PaperSummarized_101(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_14["index_paper#14"]:::stepStyle
+    event_PaperIndexed_102(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_14["summarize_paper#14"]:::stepStyle
+    event_PaperSummarized_103(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_15["index_paper#15"]:::stepStyle
+    event_PaperIndexed_104(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_15["summarize_paper#15"]:::stepStyle
+    event_PaperSummarized_105(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_16["index_paper#16"]:::stepStyle
+    event_PaperIndexed_106(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_16["summarize_paper#16"]:::stepStyle
+    event_PaperSummarized_107(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_17["index_paper#17"]:::stepStyle
+    event_PaperIndexed_108(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_17["summarize_paper#17"]:::stepStyle
+    event_PaperSummarized_109(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_18["index_paper#18"]:::stepStyle
+    event_PaperIndexed_110(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_18["summarize_paper#18"]:::stepStyle
+    event_PaperSummarized_111(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_19["index_paper#19"]:::stepStyle
+    event_PaperIndexed_112(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_19["summarize_paper#19"]:::stepStyle
+    event_PaperSummarized_113(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_20["index_paper#20"]:::stepStyle
+    event_PaperIndexed_114(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_20["summarize_paper#20"]:::stepStyle
+    event_PaperSummarized_115(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_21["index_paper#21"]:::stepStyle
+    event_PaperIndexed_116(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_21["summarize_paper#21"]:::stepStyle
+    event_PaperSummarized_117(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_22["index_paper#22"]:::stepStyle
+    event_PaperIndexed_118(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_22["summarize_paper#22"]:::stepStyle
+    event_PaperSummarized_119(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_23["index_paper#23"]:::stepStyle
+    event_PaperIndexed_120(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_23["summarize_paper#23"]:::stepStyle
+    event_PaperSummarized_121(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_24["index_paper#24"]:::stepStyle
+    event_PaperIndexed_122(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_24["summarize_paper#24"]:::stepStyle
+    event_PaperSummarized_123(["PaperSummarized"]):::defaultEventStyle
+    step_index_paper_25["index_paper#25"]:::stepStyle
+    event_PaperIndexed_124(["PaperIndexed"]):::defaultEventStyle
+    step_summarize_paper_25["summarize_paper#25"]:::stepStyle
+    event_PaperSummarized_125(["PaperSummarized"]):::defaultEventStyle
+    step_persist_1["persist#1"]:::stepStyle
+    event_CollectionReleaseEvent_126(["CollectionReleaseEvent"]):::defaultEventStyle
+    event_IngestReport_127(["IngestReport"]):::stopEventStyle
+    external_step --> event_IngestRequest_0
+    event_IngestRequest_0 --> step_load_lock_1
+    step_load_lock_1 --> event_PaperToFetch_1
+    step_load_lock_1 --> event_PaperToFetch_2
+    step_load_lock_1 --> event_PaperToFetch_3
+    step_load_lock_1 --> event_PaperToFetch_4
+    step_load_lock_1 --> event_PaperToFetch_5
+    step_load_lock_1 --> event_PaperToFetch_6
+    step_load_lock_1 --> event_PaperToFetch_7
+    step_load_lock_1 --> event_PaperToFetch_8
+    step_load_lock_1 --> event_PaperToFetch_9
+    step_load_lock_1 --> event_PaperToFetch_10
+    step_load_lock_1 --> event_PaperToFetch_11
+    step_load_lock_1 --> event_PaperToFetch_12
+    step_load_lock_1 --> event_PaperToFetch_13
+    step_load_lock_1 --> event_PaperToFetch_14
+    step_load_lock_1 --> event_PaperToFetch_15
+    step_load_lock_1 --> event_PaperToFetch_16
+    step_load_lock_1 --> event_PaperToFetch_17
+    step_load_lock_1 --> event_PaperToFetch_18
+    step_load_lock_1 --> event_PaperToFetch_19
+    step_load_lock_1 --> event_PaperToFetch_20
+    step_load_lock_1 --> event_PaperToFetch_21
+    step_load_lock_1 --> event_PaperToFetch_22
+    step_load_lock_1 --> event_PaperToFetch_23
+    step_load_lock_1 --> event_PaperToFetch_24
+    step_load_lock_1 --> event_PaperToFetch_25
+    external_step --> event_PaperToFetch_1
+    external_step --> event_PaperToFetch_2
+    external_step --> event_PaperToFetch_3
+    external_step --> event_PaperToFetch_4
+    external_step --> event_PaperToFetch_5
+    external_step --> event_PaperToFetch_6
+    external_step --> event_PaperToFetch_7
+    external_step --> event_PaperToFetch_8
+    external_step --> event_PaperToFetch_9
+    external_step --> event_PaperToFetch_10
+    external_step --> event_PaperToFetch_11
+    external_step --> event_PaperToFetch_12
+    external_step --> event_PaperToFetch_13
+    external_step --> event_PaperToFetch_14
+    external_step --> event_PaperToFetch_15
+    external_step --> event_PaperToFetch_16
+    external_step --> event_PaperToFetch_17
+    external_step --> event_PaperToFetch_18
+    external_step --> event_PaperToFetch_19
+    external_step --> event_PaperToFetch_20
+    external_step --> event_PaperToFetch_21
+    external_step --> event_PaperToFetch_22
+    external_step --> event_PaperToFetch_23
+    external_step --> event_PaperToFetch_24
+    external_step --> event_PaperToFetch_25
+    event_PaperToFetch_1 --> step_fetch_pdf_1
+    step_fetch_pdf_1 --> event_PaperFetched_26
+    external_step --> event_PaperFetched_26
+    event_PaperToFetch_2 --> step_fetch_pdf_2
+    step_fetch_pdf_2 --> event_PaperFetched_27
+    external_step --> event_PaperFetched_27
+    event_PaperToFetch_3 --> step_fetch_pdf_3
+    step_fetch_pdf_3 --> event_PaperFetched_28
+    external_step --> event_PaperFetched_28
+    event_PaperToFetch_4 --> step_fetch_pdf_4
+    step_fetch_pdf_4 --> event_PaperFetched_29
+    external_step --> event_PaperFetched_29
+    event_PaperToFetch_5 --> step_fetch_pdf_5
+    step_fetch_pdf_5 --> event_PaperFetched_30
+    external_step --> event_PaperFetched_30
+    event_PaperToFetch_6 --> step_fetch_pdf_6
+    step_fetch_pdf_6 --> event_PaperFetched_31
+    external_step --> event_PaperFetched_31
+    event_PaperToFetch_7 --> step_fetch_pdf_7
+    step_fetch_pdf_7 --> event_PaperFetched_32
+    external_step --> event_PaperFetched_32
+    event_PaperToFetch_8 --> step_fetch_pdf_8
+    step_fetch_pdf_8 --> event_PaperFetched_33
+    external_step --> event_PaperFetched_33
+    event_PaperToFetch_9 --> step_fetch_pdf_9
+    step_fetch_pdf_9 --> event_PaperFetched_34
+    external_step --> event_PaperFetched_34
+    event_PaperToFetch_10 --> step_fetch_pdf_10
+    step_fetch_pdf_10 --> event_PaperFetched_35
+    external_step --> event_PaperFetched_35
+    event_PaperToFetch_11 --> step_fetch_pdf_11
+    step_fetch_pdf_11 --> event_PaperFetched_36
+    external_step --> event_PaperFetched_36
+    event_PaperToFetch_12 --> step_fetch_pdf_12
+    step_fetch_pdf_12 --> event_PaperFetched_37
+    external_step --> event_PaperFetched_37
+    event_PaperToFetch_13 --> step_fetch_pdf_13
+    step_fetch_pdf_13 --> event_PaperFetched_38
+    external_step --> event_PaperFetched_38
+    event_PaperToFetch_14 --> step_fetch_pdf_14
+    step_fetch_pdf_14 --> event_PaperFetched_39
+    external_step --> event_PaperFetched_39
+    event_PaperToFetch_15 --> step_fetch_pdf_15
+    step_fetch_pdf_15 --> event_PaperFetched_40
+    external_step --> event_PaperFetched_40
+    event_PaperToFetch_16 --> step_fetch_pdf_16
+    step_fetch_pdf_16 --> event_PaperFetched_41
+    external_step --> event_PaperFetched_41
+    event_PaperToFetch_17 --> step_fetch_pdf_17
+    step_fetch_pdf_17 --> event_PaperFetched_42
+    external_step --> event_PaperFetched_42
+    event_PaperToFetch_18 --> step_fetch_pdf_18
+    step_fetch_pdf_18 --> event_PaperFetched_43
+    external_step --> event_PaperFetched_43
+    event_PaperToFetch_19 --> step_fetch_pdf_19
+    step_fetch_pdf_19 --> event_PaperFetched_44
+    external_step --> event_PaperFetched_44
+    event_PaperToFetch_20 --> step_fetch_pdf_20
+    step_fetch_pdf_20 --> event_PaperFetched_45
+    external_step --> event_PaperFetched_45
+    event_PaperToFetch_21 --> step_fetch_pdf_21
+    step_fetch_pdf_21 --> event_PaperFetched_46
+    external_step --> event_PaperFetched_46
+    event_PaperToFetch_22 --> step_fetch_pdf_22
+    step_fetch_pdf_22 --> event_PaperFetched_47
+    external_step --> event_PaperFetched_47
+    event_PaperToFetch_23 --> step_fetch_pdf_23
+    step_fetch_pdf_23 --> event_PaperFetched_48
+    external_step --> event_PaperFetched_48
+    event_PaperToFetch_24 --> step_fetch_pdf_24
+    step_fetch_pdf_24 --> event_PaperFetched_49
+    external_step --> event_PaperFetched_49
+    event_PaperToFetch_25 --> step_fetch_pdf_25
+    step_fetch_pdf_25 --> event_PaperFetched_50
+    external_step --> event_PaperFetched_50
+    event_PaperFetched_29 --> step_parse_pdf_1
+    step_parse_pdf_1 --> event_PaperParsed_51
+    external_step --> event_PaperParsed_51
+    event_PaperFetched_27 --> step_parse_pdf_2
+    step_parse_pdf_2 --> event_PaperParsed_52
+    external_step --> event_PaperParsed_52
+    event_PaperFetched_26 --> step_parse_pdf_3
+    step_parse_pdf_3 --> event_PaperParsed_53
+    external_step --> event_PaperParsed_53
+    event_PaperFetched_28 --> step_parse_pdf_4
+    step_parse_pdf_4 --> event_PaperParsed_54
+    external_step --> event_PaperParsed_54
+    event_PaperFetched_30 --> step_parse_pdf_5
+    step_parse_pdf_5 --> event_PaperParsed_55
+    external_step --> event_PaperParsed_55
+    event_PaperFetched_32 --> step_parse_pdf_6
+    step_parse_pdf_6 --> event_PaperParsed_56
+    external_step --> event_PaperParsed_56
+    event_PaperFetched_31 --> step_parse_pdf_7
+    step_parse_pdf_7 --> event_PaperParsed_57
+    external_step --> event_PaperParsed_57
+    event_PaperFetched_33 --> step_parse_pdf_8
+    step_parse_pdf_8 --> event_PaperParsed_58
+    external_step --> event_PaperParsed_58
+    event_PaperFetched_34 --> step_parse_pdf_9
+    step_parse_pdf_9 --> event_PaperParsed_59
+    external_step --> event_PaperParsed_59
+    event_PaperFetched_35 --> step_parse_pdf_10
+    step_parse_pdf_10 --> event_PaperParsed_60
+    external_step --> event_PaperParsed_60
+    event_PaperFetched_37 --> step_parse_pdf_11
+    step_parse_pdf_11 --> event_PaperParsed_61
+    external_step --> event_PaperParsed_61
+    event_PaperFetched_38 --> step_parse_pdf_12
+    step_parse_pdf_12 --> event_PaperParsed_62
+    external_step --> event_PaperParsed_62
+    event_PaperFetched_36 --> step_parse_pdf_13
+    step_parse_pdf_13 --> event_PaperParsed_63
+    external_step --> event_PaperParsed_63
+    event_PaperFetched_41 --> step_parse_pdf_14
+    step_parse_pdf_14 --> event_PaperParsed_64
+    external_step --> event_PaperParsed_64
+    event_PaperFetched_40 --> step_parse_pdf_15
+    step_parse_pdf_15 --> event_PaperParsed_65
+    external_step --> event_PaperParsed_65
+    event_PaperFetched_42 --> step_parse_pdf_16
+    step_parse_pdf_16 --> event_PaperParsed_66
+    external_step --> event_PaperParsed_66
+    event_PaperFetched_39 --> step_parse_pdf_17
+    step_parse_pdf_17 --> event_PaperParsed_67
+    external_step --> event_PaperParsed_67
+    event_PaperFetched_44 --> step_parse_pdf_18
+    step_parse_pdf_18 --> event_PaperParsed_68
+    external_step --> event_PaperParsed_68
+    event_PaperFetched_46 --> step_parse_pdf_19
+    step_parse_pdf_19 --> event_PaperParsed_69
+    external_step --> event_PaperParsed_69
+    event_PaperFetched_45 --> step_parse_pdf_20
+    step_parse_pdf_20 --> event_PaperParsed_70
+    external_step --> event_PaperParsed_70
+    event_PaperFetched_43 --> step_parse_pdf_21
+    step_parse_pdf_21 --> event_PaperParsed_71
+    external_step --> event_PaperParsed_71
+    event_PaperFetched_47 --> step_parse_pdf_22
+    step_parse_pdf_22 --> event_PaperParsed_72
+    external_step --> event_PaperParsed_72
+    event_PaperFetched_48 --> step_parse_pdf_23
+    step_parse_pdf_23 --> event_PaperParsed_73
+    external_step --> event_PaperParsed_73
+    event_PaperFetched_50 --> step_parse_pdf_24
+    step_parse_pdf_24 --> event_PaperParsed_74
+    external_step --> event_PaperParsed_74
+    event_PaperFetched_49 --> step_parse_pdf_25
+    step_parse_pdf_25 --> event_PaperParsed_75
+    external_step --> event_PaperParsed_75
+    event_PaperParsed_51 --> step_index_paper_1
+    step_index_paper_1 --> event_PaperIndexed_76
+    external_step --> event_PaperIndexed_76
+    event_PaperIndexed_76 --> step_summarize_paper_1
+    step_summarize_paper_1 --> event_PaperSummarized_77
+    external_step --> event_PaperSummarized_77
+    event_PaperParsed_52 --> step_index_paper_2
+    step_index_paper_2 --> event_PaperIndexed_78
+    external_step --> event_PaperIndexed_78
+    event_PaperIndexed_78 --> step_summarize_paper_2
+    step_summarize_paper_2 --> event_PaperSummarized_79
+    external_step --> event_PaperSummarized_79
+    event_PaperParsed_53 --> step_index_paper_3
+    step_index_paper_3 --> event_PaperIndexed_80
+    external_step --> event_PaperIndexed_80
+    event_PaperIndexed_80 --> step_summarize_paper_3
+    step_summarize_paper_3 --> event_PaperSummarized_81
+    external_step --> event_PaperSummarized_81
+    event_PaperParsed_54 --> step_index_paper_4
+    step_index_paper_4 --> event_PaperIndexed_82
+    external_step --> event_PaperIndexed_82
+    event_PaperIndexed_82 --> step_summarize_paper_4
+    step_summarize_paper_4 --> event_PaperSummarized_83
+    external_step --> event_PaperSummarized_83
+    event_PaperParsed_55 --> step_index_paper_5
+    step_index_paper_5 --> event_PaperIndexed_84
+    external_step --> event_PaperIndexed_84
+    event_PaperIndexed_84 --> step_summarize_paper_5
+    step_summarize_paper_5 --> event_PaperSummarized_85
+    external_step --> event_PaperSummarized_85
+    event_PaperParsed_56 --> step_index_paper_6
+    step_index_paper_6 --> event_PaperIndexed_86
+    external_step --> event_PaperIndexed_86
+    event_PaperIndexed_86 --> step_summarize_paper_6
+    step_summarize_paper_6 --> event_PaperSummarized_87
+    external_step --> event_PaperSummarized_87
+    event_PaperParsed_57 --> step_index_paper_7
+    step_index_paper_7 --> event_PaperIndexed_88
+    external_step --> event_PaperIndexed_88
+    event_PaperIndexed_88 --> step_summarize_paper_7
+    step_summarize_paper_7 --> event_PaperSummarized_89
+    external_step --> event_PaperSummarized_89
+    event_PaperParsed_58 --> step_index_paper_8
+    step_index_paper_8 --> event_PaperIndexed_90
+    external_step --> event_PaperIndexed_90
+    event_PaperIndexed_90 --> step_summarize_paper_8
+    step_summarize_paper_8 --> event_PaperSummarized_91
+    external_step --> event_PaperSummarized_91
+    event_PaperParsed_59 --> step_index_paper_9
+    step_index_paper_9 --> event_PaperIndexed_92
+    external_step --> event_PaperIndexed_92
+    event_PaperIndexed_92 --> step_summarize_paper_9
+    step_summarize_paper_9 --> event_PaperSummarized_93
+    external_step --> event_PaperSummarized_93
+    event_PaperParsed_60 --> step_index_paper_10
+    step_index_paper_10 --> event_PaperIndexed_94
+    external_step --> event_PaperIndexed_94
+    event_PaperIndexed_94 --> step_summarize_paper_10
+    step_summarize_paper_10 --> event_PaperSummarized_95
+    external_step --> event_PaperSummarized_95
+    event_PaperParsed_61 --> step_index_paper_11
+    step_index_paper_11 --> event_PaperIndexed_96
+    external_step --> event_PaperIndexed_96
+    event_PaperIndexed_96 --> step_summarize_paper_11
+    step_summarize_paper_11 --> event_PaperSummarized_97
+    external_step --> event_PaperSummarized_97
+    event_PaperParsed_62 --> step_index_paper_12
+    step_index_paper_12 --> event_PaperIndexed_98
+    external_step --> event_PaperIndexed_98
+    event_PaperIndexed_98 --> step_summarize_paper_12
+    step_summarize_paper_12 --> event_PaperSummarized_99
+    external_step --> event_PaperSummarized_99
+    event_PaperParsed_63 --> step_index_paper_13
+    step_index_paper_13 --> event_PaperIndexed_100
+    external_step --> event_PaperIndexed_100
+    event_PaperIndexed_100 --> step_summarize_paper_13
+    step_summarize_paper_13 --> event_PaperSummarized_101
+    external_step --> event_PaperSummarized_101
+    event_PaperParsed_64 --> step_index_paper_14
+    step_index_paper_14 --> event_PaperIndexed_102
+    external_step --> event_PaperIndexed_102
+    event_PaperIndexed_102 --> step_summarize_paper_14
+    step_summarize_paper_14 --> event_PaperSummarized_103
+    external_step --> event_PaperSummarized_103
+    event_PaperParsed_65 --> step_index_paper_15
+    step_index_paper_15 --> event_PaperIndexed_104
+    external_step --> event_PaperIndexed_104
+    event_PaperIndexed_104 --> step_summarize_paper_15
+    step_summarize_paper_15 --> event_PaperSummarized_105
+    external_step --> event_PaperSummarized_105
+    event_PaperParsed_66 --> step_index_paper_16
+    step_index_paper_16 --> event_PaperIndexed_106
+    external_step --> event_PaperIndexed_106
+    event_PaperIndexed_106 --> step_summarize_paper_16
+    step_summarize_paper_16 --> event_PaperSummarized_107
+    external_step --> event_PaperSummarized_107
+    event_PaperParsed_67 --> step_index_paper_17
+    step_index_paper_17 --> event_PaperIndexed_108
+    external_step --> event_PaperIndexed_108
+    event_PaperIndexed_108 --> step_summarize_paper_17
+    step_summarize_paper_17 --> event_PaperSummarized_109
+    external_step --> event_PaperSummarized_109
+    event_PaperParsed_68 --> step_index_paper_18
+    step_index_paper_18 --> event_PaperIndexed_110
+    external_step --> event_PaperIndexed_110
+    event_PaperIndexed_110 --> step_summarize_paper_18
+    step_summarize_paper_18 --> event_PaperSummarized_111
+    external_step --> event_PaperSummarized_111
+    event_PaperParsed_69 --> step_index_paper_19
+    step_index_paper_19 --> event_PaperIndexed_112
+    external_step --> event_PaperIndexed_112
+    event_PaperIndexed_112 --> step_summarize_paper_19
+    step_summarize_paper_19 --> event_PaperSummarized_113
+    external_step --> event_PaperSummarized_113
+    event_PaperParsed_70 --> step_index_paper_20
+    step_index_paper_20 --> event_PaperIndexed_114
+    external_step --> event_PaperIndexed_114
+    event_PaperIndexed_114 --> step_summarize_paper_20
+    step_summarize_paper_20 --> event_PaperSummarized_115
+    external_step --> event_PaperSummarized_115
+    event_PaperParsed_71 --> step_index_paper_21
+    step_index_paper_21 --> event_PaperIndexed_116
+    external_step --> event_PaperIndexed_116
+    event_PaperIndexed_116 --> step_summarize_paper_21
+    step_summarize_paper_21 --> event_PaperSummarized_117
+    external_step --> event_PaperSummarized_117
+    event_PaperParsed_72 --> step_index_paper_22
+    step_index_paper_22 --> event_PaperIndexed_118
+    external_step --> event_PaperIndexed_118
+    event_PaperIndexed_118 --> step_summarize_paper_22
+    step_summarize_paper_22 --> event_PaperSummarized_119
+    external_step --> event_PaperSummarized_119
+    event_PaperParsed_73 --> step_index_paper_23
+    step_index_paper_23 --> event_PaperIndexed_120
+    external_step --> event_PaperIndexed_120
+    event_PaperIndexed_120 --> step_summarize_paper_23
+    step_summarize_paper_23 --> event_PaperSummarized_121
+    external_step --> event_PaperSummarized_121
+    event_PaperParsed_74 --> step_index_paper_24
+    step_index_paper_24 --> event_PaperIndexed_122
+    external_step --> event_PaperIndexed_122
+    event_PaperIndexed_122 --> step_summarize_paper_24
+    step_summarize_paper_24 --> event_PaperSummarized_123
+    external_step --> event_PaperSummarized_123
+    event_PaperParsed_75 --> step_index_paper_25
+    step_index_paper_25 --> event_PaperIndexed_124
+    external_step --> event_PaperIndexed_124
+    event_PaperIndexed_124 --> step_summarize_paper_25
+    step_summarize_paper_25 --> event_PaperSummarized_125
+    external_step --> event_PaperSummarized_125
+    event_CollectionReleaseEvent_126 --> step_persist_1
+    step_persist_1 --> event_IngestReport_127
+    classDef stepStyle fill:#ADD8E6,color:#000000,line-height:1.2
+    classDef externalStyle fill:#BEDAE4,color:#000000,line-height:1.2
+    classDef resourceStyle fill:#DDA0DD,color:#000000,line-height:1.2
+    classDef resourceConfigStyle fill:#B2DFDB,color:#000000,line-height:1.2
+    classDef startEventStyle fill:#E27AFF,color:#000000
+    classDef stopEventStyle fill:#FFA07A,color:#000000
+    classDef defaultEventStyle fill:#90EE90,color:#000000
+    classDef reactAgentStyle fill:#E27AFF,color:#000000
+    classDef codeActAgentStyle fill:#66ccff,color:#000000
+    classDef defaultAgentStyle fill:#90EE90,color:#000000
+    classDef toolStyle fill:#ff9966,color:#000000
+    classDef workflowBaseStyle fill:#90EE90,color:#000000
+    classDef workflowAgentStyle fill:#66ccff,color:#000000
+    classDef workflowToolStyle fill:#ff9966,color:#000000
+    classDef workflowHandoffStyle fill:#E27AFF,color:#000000

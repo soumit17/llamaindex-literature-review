@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2511.20639",
+  "title": "Latent Collaboration in Multi-Agent Systems",
+  "summary": "The paper addresses whether LLM-based multi-agent systems (MAS) can collaborate purely in continuous latent space rather than through natural-language text, which the authors identify as the usual medium for agent reasoning and communication. They propose LatentMAS, a training-free framework in which each agent generates auto-regressive latent thoughts from last-layer hidden embeddings instead of decoded text. Agents exchange information through a shared latent working memory stored in layer-wise KV caches, which holds each agent's input context and latent thoughts. The excerpt describes sequential and hierarchical MAS settings but does not specify agent roles or control-flow details beyond this. Across 9 benchmarks spanning math and science reasoning, commonsense understanding, and code generation, and five backbones from the Qwen3 and Llama3 families, LatentMAS reportedly improves accuracy by up to 14.6% over single-agent and text-based MAS baselines, reduces output token usage by 70.8% to 83.7%, and delivers 4\u00d7 to 4.3\u00d7 faster end-to-end inference. The provided text does not state limitations. The Impact Statement says only that no immediate negative societal impacts are anticipated beyond those common to capable language model systems.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 7975,
+  "created": "2026-10-30T05:59:44+00:00"
+}

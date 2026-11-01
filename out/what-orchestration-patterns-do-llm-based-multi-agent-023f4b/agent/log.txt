@@ -1,0 +1,27 @@
+plan: 5 sub-questions
+search: 'multi-agent debate voting sequential pipeline LLM agents topology' -> 5 passages
+search: 'LLM multi-agent orchestration patterns centralized decentralized hierarchical' -> 5 passages
+search: 'orchestrator controls agent routing and final decision in multi-agent LLM systems' -> 5 passages
+finding 1: 6 claims, 0 rejected
+finding 2: 4 claims, 0 rejected
+search: 'multi-agent debate cost high computational overhead long debate' -> 5 passages
+search: 'multi-agent LLM cost tokens latency number of LLM calls reduced orchestration' -> 5 passages
+finding 3: 5 claims, 0 rejected
+search: 'verification guardrails error recovery multi-agent LLM hallucination mitigation' -> 5 passages
+search: 'multi-agent LLM robustness faulty adversarial agent error propagation' -> 5 passages
+finding 4: 6 claims, 0 rejected
+search: 'benchmark evaluating multi-agent coordination topologies limitations confounds compute budget' -> 5 passages
+search: 'ForestBench graph framework evaluating multi-agent collaboration results' -> 5 passages
+finding 5: 5 claims, 0 rejected
+outline attempt 1: approve
+section 0: 128 words, 0 invented markers
+section 1: 184 words, 0 invented markers
+section 2: 191 words, 0 invented markers
+section 3: 204 words, 0 invented markers
+section 4: 194 words, 0 invented markers
+section 5: 224 words, 0 invented markers
+section 6: 186 words, 0 invented markers
+check 1: 1 issues
+revision requested for 5: The sentence "Its results show a narrow accuracy range of 0.038 across methods, while the structural differences are wider." has no citation. Add the marker [5.4], which records this ForestBench claim, or remove the specific number.
+section 5: 225 words, 0 invented markers
+check 2: 0 issues

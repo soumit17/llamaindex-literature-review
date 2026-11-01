@@ -1,0 +1,449 @@
+[
+  {
+    "idx": 1,
+    "sub_question": "How do centralized orchestrator agents select the next acting agent, and what routing signals (LLM planner output, learned router, rule-based dispatch) do the papers use to make that choice?",
+    "claims": [
+      {
+        "claim_id": "1.1",
+        "statement": "In the Evolving Orchestration paper, a centralized orchestrator selects a single agent at each time step conditioned on the current global system state and task specification.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#005/1",
+          "page": 3,
+          "quote": "the orchestrator selects a single agent at \u2208A to activate, conditioned on the current global system state St and the task specification \u03c4",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.2",
+        "statement": "The selection policy is described as a function mapping the observable context to a distribution over candidate agents, realized via neural scoring, embedding-based models, or Bradley-Terry style approaches.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#005/1",
+          "page": 3,
+          "quote": "e.g., via neural scoring, embeddingbased models, or Bradley-Terry style approaches [68]",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.3",
+        "statement": "The orchestrator re-selects the next agent at each step using the policy conditioned only on the updated state and task, which the paper states satisfies the Markov property.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#005/1",
+          "page": 3,
+          "quote": "again using the policy \u03c0 conditioned only on St+1 and \u03c4",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.4",
+        "statement": "The centralized orchestrator decouples agent selection from internal agent behaviors, dynamically selecting which agents to activate based on the dynamic task state.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#005/0",
+          "page": 3,
+          "quote": "This orchestrator dynamically selects which agents to activate in each step, based on the dynamic task state",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.5",
+        "statement": "In the Structure-Guided Orchestration paper, actions are chosen by a policy conditioned on the state and guided by a directed interaction graph structure G.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#006/0",
+          "page": 3,
+          "quote": "The action selection process is guided by the structure G, i.e., at \u223c\u03c0(\u00b7 | st; G)",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.6",
+        "statement": "In the Difficulty-Aware paper, operators are activated sequentially in descending score order until cumulative evidence exceeds a threshold, and a separate LLM router pairs each chosen operator with an LLM via a temperature-scaled softmax over candidates.",
+        "citation": {
+          "arxiv_id": "2509.11079",
+          "node_id": "2509.11079#011/0",
+          "page": 5,
+          "quote": "For each selected operator, we define a temperature-scaled softmax over LLM candidates indexed by \ud835\udc5a",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "1.7",
+        "statement": "The Reward Modeling paper describes an LLM-based controller that dynamically plans workflow structure and agent interactions, and trains a Bradley-Terry reward model on win-lose orchestration trajectory pairs to evaluate orchestration quality.",
+        "citation": {
+          "arxiv_id": "2606.13598",
+          "node_id": "2606.13598#002/0",
+          "page": 2,
+          "quote": "train a Bradley-Terry reward model [36]",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not describe a rule-based dispatch mechanism, do not specify the exact LLM planner prompt or output format, and do not detail how the Bradley-Terry reward model is used at routing time rather than for training evaluation.",
+    "error": null
+  },
+  {
+    "idx": 2,
+    "sub_question": "How do decentralized or peer-to-peer multi-agent systems decide turn-taking, such as through broadcast, bidding, or self-selection by agents, and what coordination failures do they exhibit?",
+    "claims": [
+      {
+        "claim_id": "2.1",
+        "statement": "In decentralized systems, agents autonomously detect agreement based on generated predictions and terminate discussion once consensus emerges.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#013/0",
+          "page": 4,
+          "quote": "Agents autonomously detect agreement based on the generated prediction and terminate discussions once consensus emerges.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.2",
+        "statement": "If consensus is not reached within a predefined maximum round limit, decentralized agents trigger majority voting to force a decision.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#013/0",
+          "page": 4,
+          "quote": "if consensus is not reached within a predefined maximum round limit, agents trigger majority voting to force a decision.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.3",
+        "statement": "In centralized systems, an instructor agent decides when to finalize the discussion by evaluating progress against predefined criteria.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#013/0",
+          "page": 4,
+          "quote": "the instructor agent determines when to finalize the discussion. The instructor evaluates the discussion progress against predefined criteria",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.4",
+        "statement": "In the Simultaneous Talk pattern, all agents respond simultaneously and independently within the same round, broadcasting outputs to all peers.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#011/0",
+          "page": 4,
+          "quote": "All agents generate their responses simultaneously and independently within the same round, broadcasting their outputs to all peers.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.5",
+        "statement": "Simultaneous Talk carries the risk of conflicting or redundant output.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#011/0",
+          "page": 4,
+          "quote": "it also carries the risk of conflicting or redundant output.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.6",
+        "statement": "In Selective Point-to-Point interaction, agents autonomously decide whom to address, which optimizes relevance but risks fragmented context.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#011/0",
+          "page": 4,
+          "quote": "Agents autonomously decide whom to address, limiting communication to peers they deem relevant.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.7",
+        "statement": "Randomized one-by-one speaking order mitigates ordering biases and prevents dominant agents from monopolizing discussions.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#011/0",
+          "page": 4,
+          "quote": "introduces stochasticity to mitigate ordering biases, which prevents dominant agents from monopolizing discussions.",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "2.8",
+        "statement": "Agreement on a single leader among agents is a leader election problem, and reaching consensus on a solution is a fundamental requirement in fault-tolerant distributed computing.",
+        "citation": {
+          "arxiv_id": "2507.08616",
+          "node_id": "2507.08616#003/0",
+          "page": 2,
+          "quote": "agents must necessarily be able to reach an agreement on the solution, a problem known in faulttolerant distributed computing as consensus",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not describe bidding or self-selection mechanisms for turn-taking, nor detail specific coordination failures beyond redundancy, conflicting output, and fragmented context.",
+    "error": null
+  },
+  {
+    "idx": 3,
+    "sub_question": "What token, latency, and monetary costs do the reported orchestration patterns incur per decision step, and how do these costs scale with the number of agents and conversation rounds?",
+    "claims": [
+      {
+        "claim_id": "3.1",
+        "statement": "Puppeteer-Mono token consumption on MMLU-Pro consistently decreases over the course of learning across almost all settings.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#013/0",
+          "page": 7,
+          "quote": "the token metric consistently decreases over the course of learning across almost all settings",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.2",
+        "statement": "In the Titan setting, the number of active agents notably decreases over training as the orchestrator learns to terminate reasoning earlier.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#013/0",
+          "page": 7,
+          "quote": "in the Titan setting, the number of active agents notably decreases over the course of learning",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.3",
+        "statement": "In MARCO, Claude-3-sonnet is reported as 30% faster and 60% cheaper than claude-v2.1 for MARS costs assuming 5000 requests.",
+        "citation": {
+          "arxiv_id": "2410.21784",
+          "node_id": "2410.21784#014/0",
+          "page": 6,
+          "quote": "Sonnet is also 30% faster and 60% cheaper than claudev2.1",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.4",
+        "statement": "The MARCO Intent Classifier using claude-v3-sonnet has a reported latency of 1.98 seconds.",
+        "citation": {
+          "arxiv_id": "2410.21784",
+          "node_id": "2410.21784#014/0",
+          "page": 6,
+          "quote": "with a latency of 1.98 seconds",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.5",
+        "statement": "Orch-RM reduces verification cost on BrowseComp+ from 142.80M to 8.26M tokens compared with the strongest trajectory-level LLM judge.",
+        "citation": {
+          "arxiv_id": "2606.13598",
+          "node_id": "2606.13598#015/1",
+          "page": 8,
+          "quote": "reducing verification cost from 142.80M to 8.26M tokens",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.6",
+        "statement": "AFlow incurs a training cost of $22.50 and an inference cost of $1.66, totaling $24.16.",
+        "citation": {
+          "arxiv_id": "2509.11079",
+          "node_id": "2509.11079#013/1",
+          "page": 5,
+          "quote": "AFlow incurs a substantial training cost of $22.50 and inference cost of $1.66, totaling $24.16",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.7",
+        "statement": "The difficulty-aware method reports training cost of $2.34 and inference cost of $0.27.",
+        "citation": {
+          "arxiv_id": "2509.11079",
+          "node_id": "2509.11079#013/1",
+          "page": 5,
+          "quote": "reduces these costs to $2.34 for training and $0.27 for inference",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "3.8",
+        "statement": "The excerpts do not report how costs scale with the number of agents or conversation rounds, and do not give a per-decision-step breakdown of latency or cost.",
+        "citation": {
+          "arxiv_id": "2505.12467",
+          "node_id": "2505.12467#017/3",
+          "page": 7,
+          "quote": "Token costs also follow a similar pattern to the PDDP task",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts give no systematic analysis of how token, latency, or monetary costs scale with number of agents or conversation rounds; costs are reported as aggregate totals or per-setting figures, not per decision step. Excerpt 5 is only partially relevant and does not state numeric costs.",
+    "error": null
+  },
+  {
+    "idx": 4,
+    "sub_question": "What trade-offs between task success rate and orchestration overhead do the papers report when comparing next-agent selection strategies on shared benchmarks?",
+    "claims": [
+      {
+        "claim_id": "4.1",
+        "statement": "The Multi-Agent Collaboration via Evolving Orchestration paper defines a terminal reward that subtracts a cost term weighted by \u03bb, where \u03bb controls the trade-off between accuracy and efficiency.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#007/1",
+          "page": 4,
+          "quote": "\u03bb controls the trade-off between accuracy and efficiency",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.2",
+        "statement": "The Evolving Orchestration paper reports that token consumption decreased over training across almost all settings while performance improved, which it describes as simultaneous gains in effectiveness and efficiency.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#013/0",
+          "page": 7,
+          "quote": "our approach achieves simultaneous advances in both effectiveness and efficiency",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.3",
+        "statement": "In the Evolving Orchestration paper, higher values of \u03bb place greater emphasis on minimizing cost, enabling adaptable trade-offs for different application needs.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#013/0",
+          "page": 7,
+          "quote": "with higher values of \u03bb indicating a greater emphasis on minimizing cost",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.4",
+        "statement": "The Evolving Orchestration paper notes that omitting the efficiency factor from the reward would degenerate the system into a large collaborative framework, potentially with further performance improvements.",
+        "citation": {
+          "arxiv_id": "2505.19591",
+          "node_id": "2505.19591#013/0",
+          "page": 7,
+          "quote": "albeit with potentially further improvements in performance",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.5",
+        "statement": "The Structure-Guided Orchestration paper reports that removing the GraphSpec prior produced distinct accuracy degradation and increased overhead, indicating the joint effect of agents and interaction patterns matters.",
+        "citation": {
+          "arxiv_id": "2605.25746",
+          "node_id": "2605.25746#014/0",
+          "page": 7,
+          "quote": "tinct accuracy degradation and increased overhead",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "4.6",
+        "statement": "The Orch-RM paper reports that its orchestration-level reward modeling consistently improves the performance-efficiency tradeoff when applied to test-time scaling and orchestrator training.",
+        "citation": {
+          "arxiv_id": "2606.13598",
+          "node_id": "2606.13598#018/0",
+          "page": 9,
+          "quote": "consistently improving the performance-efficiency tradeoff while operating entirely at the orchestration level",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not give a direct head-to-head comparison of next-agent selection strategies on shared benchmarks with numeric success rates and overhead values; the Structure-Guided paper's figure data is garbled and no specific numbers are stated.",
+    "error": null
+  },
+  {
+    "idx": 5,
+    "sub_question": "Which evaluation setups, models, and benchmarks do the papers use to compare selection strategies, and where do their results conflict or lack controls?",
+    "claims": [
+      {
+        "claim_id": "5.1",
+        "statement": "The Collaborate, Deliberate, Evaluate paper argues that fixed datasets and offline multi-turn benchmarks like MT-Bench make fair comparison of interventions impossible because subsequent dialogue diverges after each intervention.",
+        "citation": {
+          "arxiv_id": "2509.05882",
+          "node_id": "2509.05882#009/0",
+          "page": 5,
+          "quote": "making fair comparison under identical conditions impossible",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.2",
+        "statement": "That paper's evaluation used a roleplay setup in which each collaborator was simulated by a distinct GPT-4o-mini instance at temperature 0, with friction interventions generated by the aligned model being evaluated.",
+        "citation": {
+          "arxiv_id": "2509.05882",
+          "node_id": "2509.05882#009/0",
+          "page": 5,
+          "quote": "each collaborator was simulated by a distinct instance of a high-capacity LLM",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.3",
+        "statement": "ForestBench evaluates candidate multi-agent methods against a query-specific reference forest of verified-success collaboration graphs, using a headline metric called Forest Match.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#003/1",
+          "page": 2,
+          "quote": "The headline metric, Forest Match, measures the structural alignment of a candidate graph with a query-specific reference forest",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.4",
+        "statement": "ForestBench is built from 844 collaboration-necessary queries drawn from seven public datasets and evaluates six MAS methods with diverse backbone LLMs.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#003/1",
+          "page": 2,
+          "quote": "filtering 844 collaboration-necessary queries from seven public datasets",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.5",
+        "statement": "A survey notes that multi-agent system evaluations are often run in narrow scenarios with different configurations, producing inconsistent and incomparable results.",
+        "citation": {
+          "arxiv_id": "2501.06322",
+          "node_id": "2501.06322#039/0",
+          "page": 29,
+          "quote": "leading to inconsistent and incomparable results",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.6",
+        "statement": "ForestBench reports being about 2,900 times faster than LLM-as-Judge with zero inference tokens per 1k traces, while the paper itself states LLM-as-judge results remain rubric-sensitive.",
+        "citation": {
+          "arxiv_id": "2608.08605",
+          "node_id": "2608.08605#024/0",
+          "page": 8,
+          "quote": "ForestBench is \u22482,900\u00d7 faster and uses zero inference tokens per 1k traces",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.7",
+        "statement": "The Collaborate, Deliberate, Evaluate paper's human validation used two annotators on 50 pairs per task, with reported Cohen's kappa of 0.92 on DeliData but only 0.58 on the Weights Task, and the preference labels came from GPT-4o.",
+        "citation": {
+          "arxiv_id": "2509.05882",
+          "node_id": "2509.05882#007/3",
+          "page": 4,
+          "quote": "Cohen\u2019s \ud835\udf05= 0.92 on DeliData sample and \ud835\udf05= 0.58 on Weights Task samples",
+          "quote_verified": true
+        }
+      },
+      {
+        "claim_id": "5.8",
+        "statement": "The excerpts do not report a head-to-head numerical comparison of selection strategies on shared benchmarks, nor controls for the backbone or judge sensitivity in the Collaborate, Deliberate, Evaluate paper's own evaluation.",
+        "citation": {
+          "arxiv_id": "2509.05882",
+          "node_id": "2509.05882#009/0",
+          "page": 5,
+          "quote": "critically examine the evaluation claims made in prior work",
+          "quote_verified": true
+        }
+      }
+    ],
+    "gap": "The excerpts do not give concrete selection-strategy results, a unified list of models and benchmarks across papers, or the outcomes of the rubric-sensitivity and cost analyses; claims about conflicts rest on limited quotes.",
+    "error": null
+  }
+]

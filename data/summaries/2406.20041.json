@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2406.20041",
+  "title": "BMW Agents -- A Framework For Task Automation Through Multi-Agent Collaboration",
+  "summary": "The paper addresses the limited industrial use of standalone LLMs, which lack access to confidential, proprietary business data, and the drawbacks of fine-tuning on company data. It proposes an enterprise agent engineering framework that automates complex processes through multi-agent collaboration across mixed modern and legacy IT systems. A Planner Agent decomposes a user request into tasks on a Task Queue. Narrowly scoped agents are coordinated by a conversational strategy, ConvPlanReAct, in which a Semantic Matcher selects the best agent for each task and a Mention Matcher handles explicit message passing. In the software development example, a Coder (File I/O tool), Architect (Web Search tool), and Tester (Code Execution tool) iterate as an Agent Unit, and a Verifier Agent checks the final output against the original request. Other mechanisms include tool-list refinement with implicit schemas, episodic memory, human feedback, and pause-and-resume of workflows.\n\nThe excerpt reports no quantitative results. The software development workflow appears only as a qualitative illustration (Figure 16), with no metrics on output quality, task success, or efficiency.\n\nThe excerpt does not state limitations explicitly. The conclusion says the framework addresses gaps in existing agent frameworks, but the",
+  "model": "claude-haiku-5-5",
+  "input_chars": 11317,
+  "created": "2026-10-30T05:58:51+00:00"
+}

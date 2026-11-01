@@ -1,0 +1,636 @@
+[
+  {
+    "arxiv_id": "2505.19591",
+    "version": 2,
+    "title": "Multi-Agent Collaboration via Evolving Orchestration",
+    "authors": [
+      "Yufan Dang",
+      "Chen Qian",
+      "Xueheng Luo",
+      "Jingru Fan",
+      "Zihao Xie",
+      "Ruijie Shi",
+      "Weize Chen",
+      "Cheng Yang",
+      "Xiaoyin Che",
+      "Ye Tian",
+      "Xuantang Xiong",
+      "Lei Han",
+      "Zhiyuan Liu",
+      "Maosong Sun"
+    ],
+    "year": 2025,
+    "published": "2025-05-26",
+    "abstract": "Large language models (LLMs) have achieved remarkable results across diverse downstream tasks, but their monolithic nature restricts scalability and efficiency in complex problem-solving. While recent research explores multi-agent collaboration among LLMs, most approaches rely on static organizational structures that struggle to adapt as task complexity and agent numbers grow, resulting in coordination overhead and inefficiencies. To this end, we propose a puppeteer-style paradigm for LLM-based multi-agent collaboration, where a centralized orchestrator (\"puppeteer\") dynamically directs agents (\"puppets\") in response to evolving task states. This orchestrator is trained via reinforcement learning to adaptively sequence and prioritize agents, enabling flexible and evolvable collective reasoning. Experiments on closed- and open-domain scenarios show that this method achieves superior performance with reduced computational costs. Analyses further reveal that the key improvements consistently stem from the emergence of more compact, cyclic reasoning structures under the orchestrator's evolution. Our code is available at https://github.com/OpenBMB/ChatDev/tree/puppeteer.",
+    "categories": [
+      "cs.CL",
+      "cs.AI",
+      "cs.MA"
+    ],
+    "primary_category": "cs.CL",
+    "abs_url": "https://arxiv.org/abs/2505.19591v2",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2406.08979",
+    "version": 2,
+    "title": "Multi-Agent Collaboration via Cross-Team Orchestration",
+    "authors": [
+      "Zhuoyun Du",
+      "Chen Qian",
+      "Wei Liu",
+      "Zihao Xie",
+      "YiFei Wang",
+      "Rennai Qiu",
+      "Yufan Dang",
+      "Weize Chen",
+      "Cheng Yang",
+      "Ye Tian",
+      "Xuantang Xiong",
+      "Lei Han"
+    ],
+    "year": 2024,
+    "published": "2024-06-13",
+    "abstract": "Large Language Models (LLMs) have significantly impacted various domains, especially through organized LLM-driven autonomous agents. A representative scenario is in software development, where agents can collaborate in a team like humans, following predefined phases to complete sub-tasks sequentially. However, for an agent team, each phase yields only one possible outcome. This results in the completion of only one development chain, thereby losing the opportunity to explore multiple potential decision paths within the solution space. Consequently leading to suboptimal results or extensive trial and error. To address this, we introduce Cross-Team Orchestration (Croto), a scalable multi-team framework that enables orchestrated teams to jointly propose various task-oriented solutions and interact with their insights in a self-independence while cross-team collaboration environment for superior solutions generation. Experiments reveal a notable increase in software quality compared to state-of-the-art baselines. We further tested our framework on story generation tasks, which demonstrated a promising generalization ability of our framework in other domains. The code and data is available at https://github.com/OpenBMB/ChatDev/tree/macnet",
+    "categories": [
+      "cs.CL",
+      "cs.AI",
+      "cs.MA",
+      "cs.SE"
+    ],
+    "primary_category": "cs.CL",
+    "abs_url": "https://arxiv.org/abs/2406.08979v2",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2605.25746",
+    "version": 1,
+    "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+    "authors": [
+      "Haoran Li",
+      "Shulun Chen",
+      "Shaoyuan Sun",
+      "Hanchen Wang"
+    ],
+    "year": 2026,
+    "published": "2026-05-25",
+    "abstract": "As large language model (LLM)-based multi-agent systems scale to handle increasingly complex tasks, balancing structural stability and dynamic adaptability becomes increasingly challenging. Existing systems typically adopt either structure-centric methods, committing to structures determined upfront that limit fine-grained control, or orchestration-centric methods, adapting decisions dynamically while leaving coordination structure implicit and unstable. To address this challenge, we revisit multi-agent coordination from a probabilistic perspective, casting it as posterior inference over the joint distribution of structure and orchestration. We introduce MACA, an automated coordination framework that learns a task- and budget-conditioned structural prior over agent participation and interactions. This prior guides a policy-based orchestration as an approximation to posterior inference, enabling efficient solutions with fine-grained control. Across benchmarks, MACA outperforms adaptive multi-agent baselines by an average of 8.42% while using 43.19% fewer tokens. Further investigation reveals that joint adaptation of structure and orchestration suppresses redundant interactions, converging coordination toward task-effective execution.",
+    "categories": [
+      "cs.MA",
+      "cs.AI"
+    ],
+    "primary_category": "cs.MA",
+    "abs_url": "https://arxiv.org/abs/2605.25746v1",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2511.18413",
+    "version": 3,
+    "title": "Multi-Agent Collaborative Filtering: Orchestrating Users and Items for Agentic Recommendations",
+    "authors": [
+      "Yu Xia",
+      "Sungchul Kim",
+      "Tong Yu",
+      "Ryan A. Rossi",
+      "Julian McAuley"
+    ],
+    "year": 2025,
+    "published": "2025-11-23",
+    "abstract": "Agentic recommendations cast recommenders as large language model (LLM) agents that can plan, reason, use tools, and interact with users of varying preferences in web applications. However, most existing agentic recommender systems focus on generic single-agent plan-execute workflows or multi-agent task decomposition pipelines. Without recommendation-oriented design, they often underuse the collaborative signals in the user-item interaction history, leading to unsatisfying recommendation results. To address this, we propose the Multi-Agent Collaborative Filtering (MACF) framework for agentic recommendations, drawing an analogy between traditional collaborative filtering algorithms and LLM-based multi-agent collaboration. Specifically, given a target user and query, we instantiate similar users and relevant items as LLM agents with unique profiles. Each agent is able to call retrieval tools, suggest candidate items, and interact with other agents. Different from the static preference aggregation in traditional collaborative filtering, MACF employs a central orchestrator agent to adaptively manage the collaboration between user and item agents via dynamic agent recruitment and personalized collaboration instruction. Experimental results on datasets from three different domains show the advantages of our MACF framework compared to strong agentic recommendation baselines.",
+    "categories": [
+      "cs.CL",
+      "cs.IR"
+    ],
+    "primary_category": "cs.CL",
+    "abs_url": "https://arxiv.org/abs/2511.18413v3",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2308.00352",
+    "version": 7,
+    "title": "MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework",
+    "authors": [
+      "Sirui Hong",
+      "Mingchen Zhuge",
+      "Jiaqi Chen",
+      "Xiawu Zheng",
+      "Yuheng Cheng",
+      "Ceyao Zhang",
+      "Jinlin Wang",
+      "Zili Wang",
+      "Steven Ka Shing Yau",
+      "Zijuan Lin",
+      "Liyang Zhou",
+      "Chenyu Ran",
+      "Lingfeng Xiao",
+      "Chenglin Wu",
+      "J\u00fcrgen Schmidhuber"
+    ],
+    "year": 2023,
+    "published": "2023-08-01",
+    "abstract": "Remarkable progress has been made on automated problem solving through societies of agents based on large language models (LLMs). Existing LLM-based multi-agent systems can already solve simple dialogue tasks. Solutions to more complex tasks, however, are complicated through logic inconsistencies due to cascading hallucinations caused by naively chaining LLMs. Here we introduce MetaGPT, an innovative meta-programming framework incorporating efficient human workflows into LLM-based multi-agent collaborations. MetaGPT encodes Standardized Operating Procedures (SOPs) into prompt sequences for more streamlined workflows, thus allowing agents with human-like domain expertise to verify intermediate results and reduce errors. MetaGPT utilizes an assembly line paradigm to assign diverse roles to various agents, efficiently breaking down complex tasks into subtasks involving many agents working together. On collaborative software engineering benchmarks, MetaGPT generates more coherent solutions than previous chat-based multi-agent systems. Our project can be found at https://github.com/geekan/MetaGPT",
+    "categories": [
+      "cs.AI",
+      "cs.MA"
+    ],
+    "primary_category": "cs.AI",
+    "abs_url": "https://arxiv.org/abs/2308.00352v7",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2501.06322",
+    "version": 1,
+    "title": "Multi-Agent Collaboration Mechanisms: A Survey of LLMs",
+    "authors": [
+      "Khanh-Tung Tran",
+      "Dung Dao",
+      "Minh-Duong Nguyen",
+      "Quoc-Viet Pham",
+      "Barry O'Sullivan",
+      "Hoang D. Nguyen"
+    ],
+    "year": 2025,
+    "published": "2025-01-10",
+    "abstract": "With recent advances in Large Language Models (LLMs), Agentic AI has become phenomenal in real-world applications, moving toward multiple LLM-based agents to perceive, learn, reason, and act collaboratively. These LLM-based Multi-Agent Systems (MASs) enable groups of intelligent agents to coordinate and solve complex tasks collectively at scale, transitioning from isolated models to collaboration-centric approaches. This work provides an extensive survey of the collaborative aspect of MASs and introduces an extensible framework to guide future research. Our framework characterizes collaboration mechanisms based on key dimensions: actors (agents involved), types (e.g., cooperation, competition, or coopetition), structures (e.g., peer-to-peer, centralized, or distributed), strategies (e.g., role-based or model-based), and coordination protocols. Through a review of existing methodologies, our findings serve as a foundation for demystifying and advancing LLM-based MASs toward more intelligent and collaborative solutions for complex, real-world use cases. In addition, various applications of MASs across diverse domains, including 5G/6G networks, Industry 5.0, question answering, and social and cultural settings, are also investigated, demonstrating their wider adoption and broader impacts. Finally, we identify key lessons learned, open challenges, and potential research directions of MASs towards artificial collective intelligence.",
+    "categories": [
+      "cs.AI"
+    ],
+    "primary_category": "cs.AI",
+    "abs_url": "https://arxiv.org/abs/2501.06322v1",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2410.21784",
+    "version": 1,
+    "title": "MARCO: Multi-Agent Real-time Chat Orchestration",
+    "authors": [
+      "Anubhav Shrimal",
+      "Stanley Kanagaraj",
+      "Kriti Biswas",
+      "Swarnalatha Raghuraman",
+      "Anish Nediyanchath",
+      "Yi Zhang",
+      "Promod Yenigalla"
+    ],
+    "year": 2024,
+    "published": "2024-10-29",
+    "abstract": "Large language model advancements have enabled the development of multi-agent frameworks to tackle complex, real-world problems such as to automate tasks that require interactions with diverse tools, reasoning, and human collaboration. We present MARCO, a Multi-Agent Real-time Chat Orchestration framework for automating tasks using LLMs. MARCO addresses key challenges in utilizing LLMs for complex, multi-step task execution. It incorporates robust guardrails to steer LLM behavior, validate outputs, and recover from errors that stem from inconsistent output formatting, function and parameter hallucination, and lack of domain knowledge. Through extensive experiments we demonstrate MARCO's superior performance with 94.48% and 92.74% accuracy on task execution for Digital Restaurant Service Platform conversations and Retail conversations datasets respectively along with 44.91% improved latency and 33.71% cost reduction. We also report effects of guardrails in performance gain along with comparisons of various LLM models, both open-source and proprietary. The modular and generic design of MARCO allows it to be adapted for automating tasks across domains and to execute complex usecases through multi-turn interactions.",
+    "categories": [
+      "cs.AI",
+      "cs.CL",
+      "cs.LG",
+      "cs.MA"
+    ],
+    "primary_category": "cs.AI",
+    "abs_url": "https://arxiv.org/abs/2410.21784v1",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2507.08616",
+    "version": 1,
+    "title": "AgentsNet: Coordination and Collaborative Reasoning in Multi-Agent LLMs",
+    "authors": [
+      "Florian Gr\u00f6tschla",
+      "Luis M\u00fcller",
+      "Jan T\u00f6nshoff",
+      "Mikhail Galkin",
+      "Bryan Perozzi"
+    ],
+    "year": 2025,
+    "published": "2025-07-11",
+    "abstract": "Large-language models (LLMs) have demonstrated powerful problem-solving capabilities, in particular when organized in multi-agent systems. However, the advent of such systems also raises several questions on the ability of a complex network of agents to effectively self-organize and collaborate. While measuring performance on standard reasoning benchmarks indicates how well multi-agent systems can solve reasoning tasks, it is unclear whether these systems are able to leverage their topology effectively. Here, we propose AgentsNet, a new benchmark for multi-agent reasoning. By drawing inspiration from classical problems in distributed systems and graph theory, AgentsNet measures the ability of multi-agent systems to collaboratively form strategies for problem-solving, self-organization, and effective communication given a network topology. We evaluate a variety of baseline methods on AgentsNet including homogeneous networks of agents which first have to agree on basic protocols for organization and communication. We find that some frontier LLMs are already demonstrating strong performance for small networks but begin to fall off once the size of the network scales. While existing multi-agent benchmarks cover at most 2-5 agents, AgentsNet is practically unlimited in size and can scale with new generations of LLMs. As such, we also probe frontier models in a setup with up to 100 agents.",
+    "categories": [
+      "cs.MA",
+      "cs.LG"
+    ],
+    "primary_category": "cs.MA",
+    "abs_url": "https://arxiv.org/abs/2507.08616v1",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2508.00032",
+    "version": 2,
+    "title": "Strategic Communication and Language Bias in Multi-Agent LLM Coordination",
+    "authors": [
+      "Alessio Buscemi",
+      "Daniele Proverbio",
+      "Alessandro Di Stefano",
+      "The Anh Han",
+      "German Castignani",
+      "Pietro Li\u00f2"
+    ],
+    "year": 2025,
+    "published": "2025-07-30",
+    "abstract": "Large Language Model (LLM)-based agents are increasingly deployed in multi-agent scenarios where coordination is crucial but not always assured. Research shows that the way strategic scenarios are framed linguistically can affect cooperation. This paper explores whether allowing agents to communicate amplifies these language-driven effects. Leveraging FAIRGAME, we simulate one-shot and repeated games across different languages and models, both with and without communication. Our experiments, conducted with two advanced LLMs-GPT-4o and Llama 4 Maverick-reveal that communication significantly influences agent behavior, though its impact varies by language, personality, and game structure. These findings underscore the dual role of communication in fostering coordination and reinforcing biases.",
+    "categories": [
+      "cs.MA"
+    ],
+    "primary_category": "cs.MA",
+    "abs_url": "https://arxiv.org/abs/2508.00032v2",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2310.08067",
+    "version": 2,
+    "title": "GameGPT: Multi-agent Collaborative Framework for Game Development",
+    "authors": [
+      "Dake Chen",
+      "Haoyang Zhang",
+      "Hanbin Wang",
+      "Yunhao Huo",
+      "Yuzhao Li",
+      "Junjie Wang"
+    ],
+    "year": 2023,
+    "published": "2023-10-12",
+    "abstract": "The large language model (LLM) based agents have demonstrated their capacity to automate and expedite software development processes. In this paper, we focus on game development and propose a multi-agent collaborative framework, dubbed GameGPT, to automate game development. While many studies have pinpointed hallucination as a primary roadblock for deploying LLMs in production, we identify another concern: redundancy. Our framework presents a series of methods to mitigate both concerns. These methods include dual collaboration and layered approaches with several in-house lexicons, to mitigate the hallucination and redundancy in the planning, task identification, and implementation phases. Furthermore, a decoupling approach is also introduced to achieve code generation with better precision.",
+    "categories": [
+      "cs.AI"
+    ],
+    "primary_category": "cs.AI",
+    "abs_url": "https://arxiv.org/abs/2310.08067v2",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2604.00249",
+    "version": 1,
+    "title": "A Safety-Aware Role-Orchestrated Multi-Agent LLM Framework for Behavioral Health Communication Simulation",
+    "authors": [
+      "Ha Na Cho"
+    ],
+    "year": 2026,
+    "published": "2026-03-31",
+    "abstract": "Single-agent large language model (LLM) systems struggle to simultaneously support diverse conversational functions and maintain safety in behavioral health communication. We propose a safety-aware, role-orchestrated multi-agent LLM framework designed to simulate supportive behavioral health dialogue through coordinated, role-differentiated agents. Conversational responsibilities are decomposed across specialized agents, including empathy-focused, action-oriented, and supervisory roles, while a prompt-based controller dynamically activates relevant agents and enforces continuous safety auditing. Using semi-structured interview transcripts from the DAIC-WOZ corpus, we evaluate the framework with scalable proxy metrics capturing structural quality, functional diversity, and computational characteristics. Results illustrate clear role differentiation, coherent inter-agent coordination, and predictable trade-offs between modular orchestration, safety oversight, and response latency when compared to a single-agent baseline. This work emphasizes system design, interpretability, and safety, positioning the framework as a simulation and analysis tool for behavioral health informatics and decision-support research rather than a clinical intervention.",
+    "categories": [
+      "cs.AI",
+      "cs.MA"
+    ],
+    "primary_category": "cs.AI",
+    "abs_url": "https://arxiv.org/abs/2604.00249v1",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2502.14743",
+    "version": 2,
+    "title": "Multi-Agent Coordination across Diverse Applications: A Survey",
+    "authors": [
+      "Lijun Sun",
+      "Yijun Yang",
+      "Qiqi Duan",
+      "Yuhui Shi",
+      "Chao Lyu",
+      "Yu-Cheng Chang",
+      "Chin-Teng Lin",
+      "Yang Shen"
+    ],
+    "year": 2025,
+    "published": "2025-02-20",
+    "abstract": "Multi-agent coordination studies the underlying mechanism enabling the trending spread of diverse multi-agent systems (MAS) and has received increasing attention, driven by the expansion of emerging applications and rapid AI advances. This survey outlines the current state of coordination research across applications through a unified understanding that answers four fundamental coordination questions: (1) what is coordination; (2) why coordination; (3) who to coordinate with; and (4) how to coordinate. Our purpose is to explore existing ideas and expertise in coordination and their connections across diverse applications, while identifying and highlighting emerging and promising research directions. First, general coordination problems that are essential to varied applications are identified and analyzed. Second, a number of MAS applications are surveyed, ranging from widely studied domains, e.g., search and rescue, warehouse automation and logistics, and transportation systems, to emerging fields including humanoid and anthropomorphic robots, satellite systems, and large language models (LLMs). Finally, open challenges about the scalability, heterogeneity, and learning mechanisms of MAS are analyzed and discussed. In particular, we identify the hybridization of hierarchical and decentralized coordination, human-MAS coordination, and LLM-based MAS as promising future directions.",
+    "categories": [
+      "cs.MA",
+      "cs.AI"
+    ],
+    "primary_category": "cs.MA",
+    "abs_url": "https://arxiv.org/abs/2502.14743v2",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2406.20041",
+    "version": 3,
+    "title": "BMW Agents -- A Framework For Task Automation Through Multi-Agent Collaboration",
+    "authors": [
+      "Noel Crawford",
+      "Edward B. Duffy",
+      "Iman Evazzade",
+      "Torsten Foehr",
+      "Gregory Robbins",
+      "Debbrata Kumar Saha",
+      "Jiya Varma",
+      "Marcin Ziolkowski"
+    ],
+    "year": 2024,
+    "published": "2024-06-28",
+    "abstract": "Autonomous agents driven by Large Language Models (LLMs) offer enormous potential for automation. Early proof of this technology can be found in various demonstrations of agents solving complex tasks, interacting with external systems to augment their knowledge, and triggering actions. In particular, workflows involving multiple agents solving complex tasks in a collaborative fashion exemplify their capacity to operate in less strict and less well-defined environments. Thus, a multi-agent approach has great potential for serving as a backbone in many industrial applications, ranging from complex knowledge retrieval systems to next generation robotic process automation. Given the reasoning abilities within the current generation of LLMs, complex processes require a multi-step approach that includes a plan of well-defined and modular tasks. Depending on the level of complexity, these tasks can be executed either by a single agent or a group of agents. In this work, we focus on designing a flexible agent engineering framework with careful attention to planning and execution, capable of handling complex use case applications across various domains. The proposed framework provides reliability in industrial applications and presents techniques to ensure a scalable, flexible, and collaborative workflow for multiple autonomous agents working together towards solving tasks.",
+    "categories": [
+      "cs.MA",
+      "cs.AI"
+    ],
+    "primary_category": "cs.MA",
+    "abs_url": "https://arxiv.org/abs/2406.20041v3",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2606.13598",
+    "version": 1,
+    "title": "Reward Modeling for Multi-Agent Orchestration",
+    "authors": [
+      "King Yeung Tsang",
+      "Zihao Zhao",
+      "Vishal Venkataramani",
+      "Haizhou Shi",
+      "Zixuan Ke",
+      "Semih Yavuz",
+      "Shafiq Joty",
+      "Hao Wang"
+    ],
+    "year": 2026,
+    "published": "2026-06-11",
+    "abstract": "Multi-Agent Systems (MAS) built on Large Language Models (LLMs) require effective orchestration to coordinate specialized agents, yet training such orchestrators is hindered by limited supervision and high computational cost. We propose Orchestration Reward Modeling (OrchRM), a self-supervised framework for evaluating orchestration quality without human annotations. OrchRM leverages intermediate artifacts from multi-agent executions to construct win-lose pairs for Bradley-Terry reward model training. Unlike existing MAS test-time scaling and orchestrator training frameworks that rely on costly sub-agent rollouts, OrchRM operates directly at the orchestration level, enabling efficient and high-performing reward-guided orchestrator training and MAS test-time scaling. OrchRM improves training efficiency by up to 10x in token usage while improving MAS test-time scaling performance by up to 8% in accuracy. These gains consistently transfer across multiple domains, including mathematical reasoning, web-based question answering, and multi-hop reasoning, demonstrating orchestration-level reward modeling as a scalable direction for robust multi-agent orchestration. Code will be available at https://github.com/Wang-ML-Lab/OrchRM.",
+    "categories": [
+      "cs.AI",
+      "cs.CL",
+      "cs.LG",
+      "cs.MA"
+    ],
+    "primary_category": "cs.AI",
+    "abs_url": "https://arxiv.org/abs/2606.13598v1",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2605.13110",
+    "version": 1,
+    "title": "A Multi-Agent Orchestration Framework for Venture Capital Due Diligence",
+    "authors": [
+      "Grigorios Alexandrou",
+      "Katerina Pramatari"
+    ],
+    "year": 2026,
+    "published": "2026-05-13",
+    "abstract": "We present a fully automated multi-agent framework for corporate due diligence and market analysis in venture capital. The system runs on an event-driven orchestration architecture, combining Large Language Models (LLMs) with real-time web retrieval to synthesize unstructured data into structured investment intelligence. A central technical contribution is a programmatic extraction pipeline that reverse-engineers the frontend-to-backend communication of the Greek Business Registry ($\u0393$.E.MH.), querying dynamic endpoints to retrieve official financial filings that are then parsed using a layout-aware OCR extractor. A structural fallback mechanism explicitly flags data absence rather than generating unverified figures, directly targeting hallucination in financial contexts. All workflow artifacts are publicly available to support replication.",
+    "categories": [
+      "cs.MA",
+      "cs.AI",
+      "cs.IR"
+    ],
+    "primary_category": "cs.MA",
+    "abs_url": "https://arxiv.org/abs/2605.13110v1",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2509.11079",
+    "version": 5,
+    "title": "Difficulty-Aware Agentic Orchestration for Query-Specific Multi-Agent Workflows",
+    "authors": [
+      "Jinwei Su",
+      "Qizhen Lan",
+      "Yinghui Xia",
+      "Lifan Sun",
+      "Weiyou Tian",
+      "Tianyu Shi",
+      "Xinyuan Song",
+      "Lewei He",
+      "Yang Jingsong"
+    ],
+    "year": 2025,
+    "published": "2025-09-14",
+    "abstract": "Large Language Model (LLM)-based agentic systems have shown strong capabilities across various tasks. However, existing multi-agent frameworks often rely on static or task-level workflows, which either over-process simple queries or underperform on complex ones, while also neglecting the efficiency-performance trade-offs across heterogeneous LLMs. To address these limitations, we propose Difficulty-Aware Agentic Orchestration (DAAO), which can dynamically generate query-specific multi-agent workflows guided by predicted query difficulty. DAAO comprises three interdependent modules: a variational autoencoder (VAE) for difficulty estimation, a modular operator allocator, and a cost- and performance-aware LLM router. A self-adjusting policy updates difficulty estimates based on workflow success, enabling simpler workflows for easy queries and more complex strategies for harder ones. Experiments on six benchmarks demonstrate that DAAO surpasses prior multi-agent systems in both accuracy and inference efficiency, validating its effectiveness for adaptive, difficulty-aware reasoning.",
+    "categories": [
+      "cs.AI"
+    ],
+    "primary_category": "cs.AI",
+    "abs_url": "https://arxiv.org/abs/2509.11079v5",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2509.05882",
+    "version": 2,
+    "title": "Collaborate, Deliberate, Evaluate: How LLM Alignment Affects Coordinated Multi-Agent Outcomes",
+    "authors": [
+      "Abhijnan Nath",
+      "Carine Graff",
+      "Nikhil Krishnaswamy"
+    ],
+    "year": 2025,
+    "published": "2025-09-07",
+    "abstract": "As Large Language Models (LLMs) get integrated into diverse workflows, they are increasingly being regarded as \"collaborators\" with humans, and required to work in coordination with other AI systems. If such AI collaborators are to reliably coordinate their actions and behaviors with humans or other AIs, their properties and behaviors over multi-turn interactions must be known and predictable. This paper examines how different alignment methods affect LLM agents' effectiveness as partners in multi-turn, multi-party collaborations. We study this question through the lens of intervention agents that insert themselves into group dialogues not to provide answers, but to encourage the collaborative group to slow down and reflect upon their reasoning for deliberative decision-making. Common alignment techniques are typically developed under simplified single-user settings and assume the optimality of the underlying token MDP. Using the theoretical lens of the modified-action MDP, we show how they do not account for the dynamics of long-horizon multi-party interactions. We present a novel roleplay simulation methodology, where we align LLMs according to different methods and then deploy them in collaborative task dialogues to quantify how interventions affect the trajectory of group collaboration, belief alignment, and coordination. Our results show that an intervention agent that is robust to action modification significantly outperforms common alignment baselines in supporting correct task outcomes.",
+    "categories": [
+      "cs.CL",
+      "cs.AI",
+      "cs.LG"
+    ],
+    "primary_category": "cs.CL",
+    "abs_url": "https://arxiv.org/abs/2509.05882v2",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2608.08605",
+    "version": 2,
+    "title": "ForestBench: A Unified Graph Framework for Evaluating Multi-Agent Collaboration",
+    "authors": [
+      "Guo Chen",
+      "Ziwen Li",
+      "Reed Li",
+      "Yu Lu",
+      "Haibo Shi",
+      "Bingbing Xu",
+      "Junjie Huang"
+    ],
+    "year": 2026,
+    "published": "2026-08-09",
+    "abstract": "Multi-agent systems (MAS) built on Large Language Models (LLMs) are proliferating rapidly, but their heterogeneous execution traces provide no common basis for evaluation across methods. Outcome-only benchmarks discard collaborations, whereas LLM-as-Judge evaluation requires additional, model-dependent inference and can vary with the LLM and rubric. We introduce a generalizable evaluation framework that maps native MAS traces into a shared space of unified collaboration graphs, enabling different methods to be evaluated under the same representation, reference set, and metric panel. Candidate graphs are compared with a query-specific reference forest. Each forest is a benchmark-provided collection of verified-success graphs: it records diverse ways in which representative MAS methods can complete the task, rather than prescribing a unique optimal process. Instantiating the framework as ForestBench, we filter $844$ collaboration-necessary queries from seven public datasets, precompute ten successful target-conditioned reference graphs per query, and evaluate six representative MAS frameworks. Controlled backbone, reference-construction, and perturbation studies test the stability and scope of evaluation. Once the benchmark forests are built, ForestBench scores a trace in milliseconds without further LLM inference, providing a reusable structural basis for comparing diverse MAS collaboration traces.",
+    "categories": [
+      "cs.AI"
+    ],
+    "primary_category": "cs.AI",
+    "abs_url": "https://arxiv.org/abs/2608.08605v2",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2405.14314",
+    "version": 4,
+    "title": "Towards Efficient LLM Grounding for Embodied Multi-Agent Collaboration",
+    "authors": [
+      "Yang Zhang",
+      "Shixin Yang",
+      "Chenjia Bai",
+      "Fei Wu",
+      "Xiu Li",
+      "Zhen Wang",
+      "Xuelong Li"
+    ],
+    "year": 2024,
+    "published": "2024-05-23",
+    "abstract": "Grounding the reasoning ability of large language models (LLMs) for embodied tasks is challenging due to the complexity of the physical world. Especially, LLM planning for multi-agent collaboration requires communication of agents or credit assignment as the feedback to re-adjust the proposed plans and achieve effective coordination. However, existing methods that overly rely on physical verification or self-reflection suffer from excessive and inefficient querying of LLMs. In this paper, we propose a novel framework for multi-agent collaboration that introduces Reinforced Advantage feedback (ReAd) for efficient self-refinement of plans. Specifically, we perform critic regression to learn a sequential advantage function from LLM-planned data, and then treat the LLM planner as an optimizer to generate actions that maximize the advantage function. It endows the LLM with the foresight to discern whether the action contributes to accomplishing the final task. We provide theoretical analysis by extending advantage-weighted regression in reinforcement learning to multi-agent systems. Experiments on Overcooked-AI and a difficult variant of RoCoBench show that ReAd surpasses baselines in success rate, and also significantly decreases the interaction steps of agents and query rounds of LLMs, demonstrating its high efficiency for grounding LLMs. More results are given at https://embodied-read.github.io",
+    "categories": [
+      "cs.AI",
+      "cs.CL",
+      "cs.LG",
+      "cs.MA",
+      "cs.RO"
+    ],
+    "primary_category": "cs.AI",
+    "abs_url": "https://arxiv.org/abs/2405.14314v4",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2511.20639",
+    "version": 4,
+    "title": "Latent Collaboration in Multi-Agent Systems",
+    "authors": [
+      "Jiaru Zou",
+      "Ruizhong Qiu",
+      "Gaotang Li",
+      "Xiyuan Yang",
+      "Katherine Tieu",
+      "Pan Lu",
+      "Ke Shen",
+      "Hanghang Tong",
+      "Yejin Choi",
+      "Jingrui He",
+      "James Zou",
+      "Mengdi Wang",
+      "Ling Yang"
+    ],
+    "year": 2025,
+    "published": "2025-11-25",
+    "abstract": "Multi-agent systems (MAS) extend large language models (LLMs) from independent single-model reasoning to coordinative system-level intelligence. While existing LLM agents depend on text-based mediation for reasoning and communication, we take a step forward by enabling models to collaborate directly within the continuous latent space. We introduce LatentMAS, an end-to-end training-free framework that enables pure latent collaboration among LLM agents. In LatentMAS, each agent first performs auto-regressive latent thoughts generation through last-layer hidden embeddings instead of text. Then, a shared latent working memory preserves and transfers each agent's internal representations and latent thoughts, ensuring lossless information exchange without re-encoding. We provide detailed theoretical analyses showing that LatentMAS achieves higher expressiveness and lossless information preservation with lower overall complexity than standard text-based MAS. In addition, empirical evaluations across 9 comprehensive benchmarks spanning math and science reasoning, commonsense understanding, and code generation show that LatentMAS outperforms advanced single agents and text-based MAS baselines, achieving up to 14.6% higher accuracy, reducing output token usage by 70.8%-83.7%, and providing 4$\\times$-4.3$\\times$ faster end-to-end inference. Code and data are fully open-sourced at https://github.com/Gen-Verse/LatentMAS.",
+    "categories": [
+      "cs.CL",
+      "cs.AI",
+      "cs.LG"
+    ],
+    "primary_category": "cs.CL",
+    "abs_url": "https://arxiv.org/abs/2511.20639v4",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2508.15876",
+    "version": 1,
+    "title": "DeepMEL: A Multi-Agent Collaboration Framework for Multimodal Entity Linking",
+    "authors": [
+      "Fang Wang",
+      "Tianwei Yan",
+      "Zonghao Yang",
+      "Minghao Hu",
+      "Jun Zhang",
+      "Zhunchen Luo",
+      "Xiaoying Bai"
+    ],
+    "year": 2025,
+    "published": "2025-08-21",
+    "abstract": "Multimodal Entity Linking (MEL) aims to associate textual and visual mentions with entities in a multimodal knowledge graph. Despite its importance, current methods face challenges such as incomplete contextual information, coarse cross-modal fusion, and the difficulty of jointly large language models (LLMs) and large visual models (LVMs). To address these issues, we propose DeepMEL, a novel framework based on multi-agent collaborative reasoning, which achieves efficient alignment and disambiguation of textual and visual modalities through a role-specialized division strategy. DeepMEL integrates four specialized agents, namely Modal-Fuser, Candidate-Adapter, Entity-Clozer and Role-Orchestrator, to complete end-to-end cross-modal linking through specialized roles and dynamic coordination. DeepMEL adopts a dual-modal alignment path, and combines the fine-grained text semantics generated by the LLM with the structured image representation extracted by the LVM, significantly narrowing the modal gap. We design an adaptive iteration strategy, combines tool-based retrieval and semantic reasoning capabilities to dynamically optimize the candidate set and balance recall and precision. DeepMEL also unifies MEL tasks into a structured cloze prompt to reduce parsing complexity and enhance semantic comprehension. Extensive experiments on five public benchmark datasets demonstrate that DeepMEL achieves state-of-the-art performance, improving ACC by 1%-57%. Ablation studies verify the effectiveness of all modules.",
+    "categories": [
+      "cs.CL",
+      "cs.AI",
+      "cs.MA"
+    ],
+    "primary_category": "cs.CL",
+    "abs_url": "https://arxiv.org/abs/2508.15876v1",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2306.03314",
+    "version": 1,
+    "title": "Multi-Agent Collaboration: Harnessing the Power of Intelligent LLM Agents",
+    "authors": [
+      "Yashar Talebirad",
+      "Amirhossein Nadiri"
+    ],
+    "year": 2023,
+    "published": "2023-06-05",
+    "abstract": "In this paper, we present a novel framework for enhancing the capabilities of large language models (LLMs) by leveraging the power of multi-agent systems. Our framework introduces a collaborative environment where multiple intelligent agent components, each with distinctive attributes and roles, work together to handle complex tasks more efficiently and effectively. We demonstrate the practicality and versatility of our framework through case studies in artificial general intelligence (AGI), specifically focusing on the Auto-GPT and BabyAGI models. We also examine the \"Gorilla\" model, which integrates external APIs into the LLM. Our framework addresses limitations and challenges such as looping issues, security risks, scalability, system evaluation, and ethical considerations. By modeling various domains such as courtroom simulations and software development scenarios, we showcase the potential applications and benefits of our proposed multi-agent system. Our framework provides an avenue for advancing the capabilities and performance of LLMs through collaboration and knowledge exchange among intelligent agents.",
+    "categories": [
+      "cs.AI",
+      "cs.LG",
+      "cs.MA"
+    ],
+    "primary_category": "cs.AI",
+    "abs_url": "https://arxiv.org/abs/2306.03314v1",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2505.12467",
+    "version": 1,
+    "title": "Beyond Frameworks: Unpacking Collaboration Strategies in Multi-Agent Systems",
+    "authors": [
+      "Haochun Wang",
+      "Sendong Zhao",
+      "Jingbo Wang",
+      "Zewen Qiang",
+      "Bing Qin",
+      "Ting Liu"
+    ],
+    "year": 2025,
+    "published": "2025-05-18",
+    "abstract": "Multi-agent collaboration has emerged as a pivotal paradigm for addressing complex, distributed tasks in large language model (LLM)-driven applications. While prior research has focused on high-level architectural frameworks, the granular mechanisms governing agents, critical to performance and scalability, remain underexplored. This study systematically investigates four dimensions of collaboration strategies: (1) agent governance, (2) participation control, (3) interaction dynamics, and (4) dialogue history management. Through rigorous experimentation under two context-dependent scenarios: Distributed Evidence Integration (DEI) and Structured Evidence Synthesis (SES), we quantify the impact of these strategies on both task accuracy and computational efficiency. Our findings reveal that centralized governance, instructor-led participation, ordered interaction patterns, and instructor-curated context summarization collectively optimize the trade-off between decision quality and resource utilization with the support of the proposed Token-Accuracy Ratio (TAR). This work establishes a foundation for designing adaptive, scalable multi-agent systems, shifting the focus from structural novelty to strategic interaction mechanics.",
+    "categories": [
+      "cs.MA",
+      "cs.AI"
+    ],
+    "primary_category": "cs.MA",
+    "abs_url": "https://arxiv.org/abs/2505.12467v1",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2505.11765",
+    "version": 5,
+    "title": "OMAC: A Holistic Optimization Framework for LLM-Based Multi-Agent Collaboration",
+    "authors": [
+      "Shijun Li",
+      "Hilaf Hasson",
+      "Joydeep Ghosh"
+    ],
+    "year": 2025,
+    "published": "2025-05-17",
+    "abstract": "Agents powered by advanced large language models (LLMs) have demonstrated impressive capabilities across diverse complex applications. Recently, Multi-Agent Systems (MAS), wherein multiple agents collaborate and communicate with each other, have exhibited enhanced capabilities in complex tasks, such as high-quality code generation and arithmetic reasoning. However, the development of such systems often relies on handcrafted methods, and the literature on systematic design and optimization of LLM-based MAS remains limited. In this work, we introduce \\textbf{OMAC}, a general framework designed for holistic optimization of LLM-based MAS. Specifically, we identify five key optimization dimensions for MAS, encompassing both agent functionality and collaboration structure. Building upon these dimensions, we first propose a general algorithm, utilizing two actors termed the Semantic Initializer and the Contrastive Comparator, to optimize any single dimension. Then, we present an algorithm for joint optimization across multiple dimensions. Extensive experiments demonstrate the superior performance of OMAC on diverse tasks against recent approaches.",
+    "categories": [
+      "cs.MA",
+      "cs.AI",
+      "cs.LG"
+    ],
+    "primary_category": "cs.MA",
+    "abs_url": "https://arxiv.org/abs/2505.11765v5",
+    "doi": null,
+    "journal_ref": null
+  },
+  {
+    "arxiv_id": "2404.01663",
+    "version": 6,
+    "title": "CMAT: A Multi-Agent Collaboration Tuning Framework for Enhancing Small Language Models",
+    "authors": [
+      "Xuechen Liang",
+      "Yangfan He",
+      "Meiling Tao",
+      "Yinghui Xia",
+      "Jianhui Wang",
+      "Tianyu Shi",
+      "Jun Wang",
+      "JingSong Yang"
+    ],
+    "year": 2024,
+    "published": "2024-04-02",
+    "abstract": "Open large language models (LLMs) have significantly advanced the field of natural language processing, showcasing impressive performance across various tasks.Despite the significant advancements in LLMs, their effective operation still relies heavily on human input to accurately guide the dialogue flow, with agent tuning being a crucial optimization technique that involves human adjustments to the model for better response to such guidance.Addressing this dependency, our work introduces the TinyAgent model, trained on a meticulously curated high-quality dataset. We also present the Collaborative Multi-Agent Tuning (CMAT) framework, an innovative system designed to augment language agent capabilities through adaptive weight updates based on environmental feedback. This framework fosters collaborative learning and real-time adaptation among multiple intelligent agents, enhancing their context-awareness and long-term memory. In this research, we propose a new communication agent framework that integrates multi-agent systems with environmental feedback mechanisms, offering a scalable method to explore cooperative behaviors. Notably, our TinyAgent-7B model exhibits performance on par with GPT-3.5, despite having fewer parameters, signifying a substantial improvement in the efficiency and effectiveness of LLMs.",
+    "categories": [
+      "cs.CL",
+      "cs.AI",
+      "cs.CC"
+    ],
+    "primary_category": "cs.CL",
+    "abs_url": "https://arxiv.org/abs/2404.01663v6",
+    "doi": null,
+    "journal_ref": null
+  }
+]

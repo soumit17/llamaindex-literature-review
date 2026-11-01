@@ -1,0 +1,8 @@
+{
+  "arxiv_id": "2509.11079",
+  "title": "Difficulty-Aware Agentic Orchestration for Query-Specific Multi-Agent Workflows",
+  "summary": "Existing multi-agent LLM frameworks use static or task-level workflows that over-process simple queries or underperform on complex ones, and they overlook efficiency-performance trade-offs across heterogeneous LLMs. DAAO generates query-specific workflows guided by predicted query difficulty. Its three interdependent modules are a variational autoencoder that estimates difficulty, a modular operator allocator, and a cost- and performance-aware LLM router that assigns heterogeneous models to workflow components. A self-adjusting policy lowers a query's predicted difficulty after a successful workflow and raises it after a failure. A controller network samples architectures from a continuous \"agentic net\" conditioned on the query. The excerpt does not specify agent roles or communication topology in detail. On six benchmarks (HumanEval, MBPP, GSM8K, MATH, MMLU, GAIA), DAAO reportedly surpasses automated orchestration methods by 3.5% to 15.2% and LLM routing methods by 3.2% to 10.2%. Compared with MasRouter on MATH, it uses 65% of the training cost and 41% of the inference cost. The conclusion reports up to 11.21% higher accuracy with up to 36% lower cost. The excerpt contains no dedicated limitations section. The only stated future work is extending DAAO to multi-modal queries and incorporating real-time feedback.",
+  "model": "claude-haiku-5-5",
+  "input_chars": 8194,
+  "created": "2026-10-30T05:59:01+00:00"
+}
