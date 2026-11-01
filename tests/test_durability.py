@@ -99,3 +99,36 @@ async def test_chunk_ids_are_deterministic(corpus, checkpoint):
     await run_checkpointed(await make_workflow(ScriptedLLM(default="s")), IngestRequest(), checkpoint, STEPS)
     ids = json.loads((corpus.root / "storage" / "docstore.json").read_text())["docstore/data"].keys()
     assert all(i.startswith(tuple(IDS)) and "/" in i for i in ids)  # "<arxiv_id>#<segment>/<chunk>"
+
+
+def test_storage_forgets_documents_the_index_lacks(tmp_path):
+    """The mixed state a concurrent writer can leave: pipeline says "seen", index doesn't have it."""
+    import shutil
+
+    from llama_index.core import Document
+
+    from litreview.retrieval.pipeline import SplitterConfig, Storage, ensure_nltk_data, make_splitter
+
+    ensure_nltk_data(tmp_path / "cache")
+    embed = CountingEmbedding.make()
+
+    def storage() -> Storage:
+        return Storage(
+            tmp_path / "storage", tmp_path / "cache", make_splitter(SplitterConfig(), embed), embed
+        )
+
+    first = [Document(text=f"segment {i} about hub agents", id_=f"p1#{i:03d}") for i in range(2)]
+    second = [Document(text="segment about ring agents", id_="p2#000")]
+    s = storage()
+    s.ingest(first)
+    s.persist()
+    old_index = tmp_path / "old_index"
+    shutil.copytree(tmp_path / "storage", old_index, ignore=shutil.ignore_patterns("pipeline"))
+    s.ingest(second)
+    s.persist()
+    for f in old_index.glob("*.json"):  # index files from before p2, pipeline docstore from after
+        shutil.copy(f, tmp_path / "storage" / f.name)
+
+    reloaded = storage()
+    assert reloaded.repaired == 1  # p2#000 was claimed but not indexed
+    assert reloaded.ingest(second) > 0 and reloaded.ingest(first) == 0

@@ -1,5 +1,5 @@
 """`litreview` command line. M0: hello, tiny, smoke, draw, cost. M2: ingest. M4: review.
-M5: pending, approve."""
+M5: pending, approve. M6: agent-review."""
 
 from __future__ import annotations
 
@@ -122,6 +122,22 @@ def draw(out_dir: Path = typer.Option(PROJECT_ROOT / "docs")) -> None:
         )
         (out_dir / f"{name}_flow.mermaid").unlink(missing_ok=True)
         console.print(f"wrote {html} and {name}_flow.md")
+
+    # Workflow 3: agents, their tools and who may hand off to whom (placeholder deps: drawing only).
+    from llama_index.core.llms import MockLLM
+    from llama_index.utils.workflow import draw_agent_workflow_mermaid
+
+    from litreview.workflows.agent_review import AgentDeps, build_agent_review
+
+    deps = AgentDeps(engine=None, storage=None, llm=MockLLM(), writer_llm=MockLLM(), papers={}, summaries={})  # type: ignore[arg-type]
+    mermaid = draw_agent_workflow_mermaid(
+        build_agent_review(deps, "drawing"), filename=str(out_dir / "agent_flow.mermaid")
+    )
+    (out_dir / "agent_flow.md").write_text(
+        f"# agent workflow: agents, tools, handoffs\n\n```mermaid\n{mermaid}\n```\n"
+    )
+    (out_dir / "agent_flow.mermaid").unlink(missing_ok=True)
+    console.print("wrote agent_flow.md")
 
 
 @app.command()
@@ -436,6 +452,35 @@ def approve(
     else:
         decision = Clarified(refined_question=answer or (waiting.suggestions or [waiting.question])[0])
     mode = "auto" if yes else "ask" if interactive else "detach"
+    console.print(
+        f"restoring {run_id} ({pending_run.workflow}) and sending: "
+        f"{type(decision).__name__}({decision.model_dump(exclude_none=True)})"
+    )
+    if pending_run.workflow == "agent_review":
+        from functools import partial
+
+        from litreview.workflows.agent_review import attach_memory, build_agent_review, production_deps
+
+        agent_ui = _AgentUI(mode, debug_steps)
+        session = (pending_run.extra or {}).get("session", run_id)
+
+        async def start_agents():
+            wf = build_agent_review(await production_deps(), pending_run.question)
+            result = await resume_pending(
+                store,
+                run_id,
+                wf,
+                decision,
+                agent_ui.responder(),
+                agent_ui.on_event,
+                debug_steps,
+                on_start=agent_ui.handlers.append,
+                after_start=partial(attach_memory, session_id=session),  # the conversation lives in SQLite
+            )
+            return await agent_ui.collect(result)
+
+        agent_ui.finish(asyncio.run(start_agents()))
+        return
     ui = _ReviewUI(mode, False, False, debug_steps)
 
     async def start(respond, on_event):
@@ -450,10 +495,113 @@ def approve(
             on_start=ui.handlers.append,
         )
 
-    console.print(
-        f"restoring {run_id} and sending: {type(decision).__name__}({decision.model_dump(exclude_none=True)})"
-    )
     ui.finish(asyncio.run(ui.run(start)))
+
+
+class _AgentUI:
+    """Terminal trace for the agent workflow: who is acting, which tool it calls, what came back."""
+
+    def __init__(self, mode: str, debug_steps: bool) -> None:
+        from litreview.review_view import ledger_spent
+
+        self.mode, self.debug_steps = mode, debug_steps
+        self.ledger = get_settings().p2_runs_dir / "costs.jsonl"
+        self.cost_at_start = ledger_spent(self.ledger)
+        self.handlers: list = []
+        self.current = ""
+
+    def on_event(self, ev) -> None:
+        from llama_index.core.agent.workflow import AgentInput, ToolCall, ToolCallResult
+
+        if isinstance(ev, AgentInput) and ev.current_agent_name != self.current:
+            self.current = ev.current_agent_name
+            console.rule(f"[bold]{self.current}")
+        elif isinstance(ev, ToolCall) and not isinstance(ev, ToolCallResult):
+            args = json.dumps(ev.tool_kwargs, default=str)
+            console.print(f"  [cyan]→ {ev.tool_name}[/]({args[:160]}{'…' if len(args) > 160 else ''})")
+        elif isinstance(ev, ToolCallResult):
+            first = str(ev.tool_output.content).strip().splitlines()[:1]
+            style = "red" if ev.tool_output.is_error else "dim"
+            console.print(f"    [{style}]← {(first[0] if first else '')[:160]}[/]")
+        elif isinstance(ev, StepStateChanged) and self.debug_steps:
+            console.print(f"  [dim]{ev.name:<24} {ev.step_state.value}[/dim]")
+
+    def responder(self):
+        from litreview.hitl import auto_responder, detach_responder, interactive_responder
+
+        return {"auto": auto_responder, "detach": detach_responder, "ask": interactive_responder(console)}[
+            self.mode
+        ]
+
+    async def collect(self, result):
+        """Read the review the agents wrote, while the run's event loop is still alive."""
+        from litreview.hitl import Detached
+        from litreview.workflows.agent_review import agent_result
+
+        if isinstance(result, Detached) or not self.handlers:
+            return result, None
+        return result, await agent_result(self.handlers[-1].ctx)
+
+    def finish(self, outcome) -> None:
+        from litreview.hitl import Detached
+        from litreview.review_view import ledger_spent
+
+        result, review = outcome
+        spent = ledger_spent(self.ledger) - self.cost_at_start
+        if isinstance(result, Detached):
+            console.print(
+                f"\n[yellow]detached[/] agent run [bold]{result.run_id}[/] waits for the outline decision "
+                f"(cost so far ${spent:.4f}).\ncontinue with: uv run litreview approve {result.run_id} "
+                "[--edit | --reject TEXT]"
+            )
+            return
+        console.print(f"\n[green]agents said:[/] {result}")
+        if review is None:
+            console.print("[red]the agents stopped without calling finalize_review: no review written[/]")
+        else:
+            console.print(
+                f"[green]review[/] {review['markdown_path']}\n[green]citations[/] {review['n_citations']}   "
+                f"[yellow]sentences still flagged[/] {review['unsupported_claims']} after "
+                f"{review['citation_rounds']} check(s)"
+            )
+        console.print(f"[yellow]cost[/] ${spent:.4f}")
+
+
+@app.command("agent-review")
+def agent_review(
+    question: str = typer.Argument(None, help="Research question (default: topic.json default_question)."),
+    session: str = typer.Option(None, help="Memory session: reuse it for follow-up questions."),
+    final: bool = typer.Option(False, "--final", help="The Writer agent uses Sonnet."),
+    yes: bool = typer.Option(False, "--yes", "-y", help="Approve the outline automatically."),
+    detach: bool = typer.Option(
+        False, "--detach", help="Save the run at the outline and exit; see `approve`."
+    ),
+    debug_steps: bool = typer.Option(False, "--debug-steps", help="Show the AgentWorkflow's own steps."),
+) -> None:
+    """Workflow 3: the same review by four agents (Planner, Researcher, Writer, Reviewer) handing off."""
+    from litreview.config import CONFIG_DIR
+    from litreview.corpus import Topic
+    from litreview.hitl import PendingStore, drive, new_run_id
+    from litreview.workflows.agent_review import build_agent_review, production_deps, start_agent_review
+
+    _preflight(final)
+    question = question or Topic.load(CONFIG_DIR / "topic.json").default_question
+    run_id = new_run_id()
+    session = session or run_id
+    ui = _AgentUI("detach" if detach else "auto" if yes else "ask", debug_steps)
+    store = PendingStore(
+        get_settings().p2_runs_dir / "pending", workflow="agent_review", extra={"session": session}
+    )
+
+    async def go():
+        handler = start_agent_review(build_agent_review(await production_deps(), question), session)
+        ui.handlers.append(handler)
+        # expose_internal: AgentWorkflow streams AgentInput/ToolCall/... as normal events already.
+        result = await drive(handler, ui.responder(), ui.on_event, debug_steps, (store, run_id, question))
+        return await ui.collect(result)
+
+    console.print(f"[dim]run {run_id}, memory session {session!r}[/]")
+    ui.finish(asyncio.run(go()))
 
 
 @app.command()

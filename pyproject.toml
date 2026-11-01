@@ -57,6 +57,9 @@ addopts = "-q --disable-socket --allow-unix-socket"
 filterwarnings = [
     # Raised inside llama-index-readers-file (it imports `fitz`), not by our code.
     "ignore:The `fitz` API is deprecated:FutureWarning",
+    # Raised by llama-index's FunctionTool introspecting pydantic models (inspect.getmembers).
+    "ignore::pydantic.warnings.PydanticDeprecatedSince20",
+    "ignore::pydantic.warnings.PydanticDeprecatedSince211",
 ]
 
 [tool.pyright]

@@ -251,3 +251,49 @@ Verified against the docs MCP (human_in_the_loop, durable_workflows) and the ins
   imports (`tests/review_env.py`, `tests/restore_child.py`) must not import it, and the child asserts
   it is inside a pytest temp dir.
 - **Field named `items` on an Event** shadows `DictLikeModel.items()`; renamed (`JudgeBatch.entries`).
+
+## D11. M6 AgentWorkflow variant
+
+Verified against the docs MCP (agent human_in_the_loop, state) and the installed llama-index-core source
+(multi_agent_workflow.py, base_agent.py, function_tool.py, state_store.py).
+
+- **What is held equal for the comparison**: retrieval (same query engine), claim validation (the
+  Researcher may only cite node ids returned by its own `search_corpus` calls, with a quote that is found
+  in the chunk), the citation check (same child workflow), rendering (`render.py`, extracted from
+  `ReviewWorkflow.finalize` so both write identical artifacts, plus `draft.json` / `findings.json` for
+  re-checking). What differs is orchestration: the agents choose searches, outline, prose, revisions
+  and when to stop.
+- **Tools get dependencies by closure** (`AgentDeps` / `ReviewTools`), not Workflow Resources: the
+  AgentWorkflow's steps are LlamaIndex's own, so there is no step signature to annotate.
+  `production_deps()` resolves the same Resource factories through one ResourceManager.
+- **No `from __future__ import annotations` in agent_review.py.** `FunctionTool` detects the Context
+  parameter with `annotation == Context`; postponed annotations are strings, so tools were called
+  without `ctx`, and the agent retried the failing tool until max_iterations. (Found by the first probe.)
+- **max_iterations = 120** (default 20; a review is ~30 agent turns). Stored in the Context, so it
+  survives a restore.
+- **Shared data in `ctx.store["review"]`, not `["state"]`.** AgentWorkflow formats `state` into the first
+  prompt; findings and sections are read through tools instead.
+- **HITL pattern C**: `propose_outline` calls `ctx.wait_for_event(OutlineDecision,
+  waiter_event=OutlineApprovalRequired(...), waiter_id=f"outline-{attempt}")`. The tool is *replayed* when
+  the answer arrives, so it writes nothing before the wait. Same events and `hitl.drive` as Workflow 2,
+  so `--detach`, `pending`, `approve` work for both (the pending file records which workflow).
+- **Agent memory is outside the snapshot.** AgentWorkflow's `"memory"` key is on the state store's
+  known-unserializable list: `ctx.to_dict()` skips it with a warning. Fix: `Memory` with a SQLite session
+  (`runs/agent_memory.db`, `aiosqlite` already installed) and `attach_memory` after restore. Attaching
+  it *before* `run(ctx=...)` does not work: a restored Context's pre-run staging store is re-serialized
+  when the run starts, dropping it again; so `resume_pending(after_start=...)` sets it on the running
+  Context before the answer is sent. Verified by restoring in a separate process: the run continues
+  inside the paused `propose_outline` call, no re-planning, no re-search. The same session id across
+  runs (`--session`) is how follow-up questions reuse the conversation (spec "Memory for the Planner";
+  in AgentWorkflow the memory is shared by all agents).
+- **Test LLM**: `PolicyLLM` (a `MockFunctionCallingLLM` with a response generator) decides each tool call
+  from the conversation (agent name from the system prompt + tool results so far), so a restored run in a
+  fresh process continues correctly. The citation judge gets its own ScriptedLLM (`AgentDeps.check_llm`).
+- **Agent diagram** via `draw_agent_workflow_mermaid` (agents, tools, handoffs): `docs/agent_flow.md`.
+- **Storage self-repair on load** (found by a flaky resume test). An interrupted run's leftover thread
+  was still saving while the resumed run loaded: it read the *old* index files but the *new* pipeline
+  docstore, so it treated a paper as already ingested and skipped it for good. Real-world equivalent:
+  two `ingest` processes at once. `Storage` now forgets any document the pipeline docstore claims but
+  whose first chunk isn't in the loaded index, so it is re-ingested (an overwrite, thanks to deterministic
+  ids); saves take a process lock and a unique temp dir. Test builds that mixed state directly; the
+  flaky test passed 15/15 afterwards.

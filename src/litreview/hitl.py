@@ -139,6 +139,8 @@ class PendingRun:
     question: str
     waiting_for: InputRequiredEvent
     ctx: dict[str, Any]
+    workflow: str = "review"  # which workflow to rebuild on resume: "review" or "agent_review"
+    extra: dict[str, Any] | None = None  # e.g. the agent memory session id
 
 
 @dataclass
@@ -151,8 +153,12 @@ class Detached:
 class PendingStore:
     """runs/pending/<run_id>.json: the snapshot plus what the run is waiting for."""
 
-    def __init__(self, directory: Path) -> None:
+    def __init__(
+        self, directory: Path, workflow: str = "review", extra: dict[str, Any] | None = None
+    ) -> None:
         self.directory = directory
+        self.workflow = workflow
+        self.extra = extra or {}
 
     def path(self, run_id: str) -> Path:
         return self.directory / f"{run_id}.json"
@@ -162,6 +168,8 @@ class PendingStore:
             "run_id": run_id,
             "created": datetime.now(UTC).isoformat(timespec="seconds"),
             "question": question,
+            "workflow": self.workflow,
+            "extra": self.extra,
             "waiting_for": {"type": type(waiting_for).__name__, "data": waiting_for.model_dump(mode="json")},
             "ctx": ctx.to_dict(),  # everything the run needs, as JSON; fails loudly if anything isn't
         }
@@ -184,6 +192,8 @@ class PendingStore:
             question=r["question"],
             waiting_for=prompt_cls.model_validate(r["waiting_for"]["data"]),
             ctx=r["ctx"],
+            workflow=r.get("workflow", "review"),
+            extra=r.get("extra") or {},
         )
 
     def list(self) -> list[PendingRun]:
@@ -234,13 +244,20 @@ async def resume_pending(
     on_event: Callable[[Event], None] = lambda ev: None,
     expose_internal: bool = False,
     on_start: Callable[[WorkflowHandler], None] = lambda handler: None,
+    after_start: Callable[[Context[Any]], Awaitable[None]] | None = None,
 ):
     """Restore a detached run into `workflow`, send the human's answer, and drive it on. A later prompt
     goes to `respond` again (DETACH re-saves under the same run_id). The pending file is removed when
-    the run finishes."""
+    the run finishes. `after_start` gets the running Context before the answer is sent, to put back
+    anything the snapshot skipped."""
     pending = store.load(run_id)
+    store = PendingStore(store.directory, pending.workflow, pending.extra)  # a re-detach keeps both
     ctx = Context.from_dict(workflow, pending.ctx)
     handler = workflow.run(ctx=ctx)  # no start event: the run continues where the snapshot left it
+    if after_start is not None:
+        # Put back what the snapshot can't hold (agent memory). Not before run(): a restored Context's
+        # pre-run store is re-serialized when the run starts, which would drop it again.
+        await after_start(handler.ctx)
     on_start(handler)
     await handler.send_event(answer)
     result = await drive(handler, respond, on_event, expose_internal, (store, run_id, pending.question))

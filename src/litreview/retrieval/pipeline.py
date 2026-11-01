@@ -24,6 +24,8 @@ from __future__ import annotations
 import os
 import shutil
 import stat
+import tempfile
+import threading
 from pathlib import Path
 from typing import Literal
 
@@ -34,6 +36,8 @@ from llama_index.core.node_parser import NodeParser, SemanticSplitterNodeParser,
 from llama_index.core.schema import BaseNode
 from llama_index.core.storage.docstore import SimpleDocumentStore
 from pydantic import BaseModel
+
+_PERSIST_LOCK = threading.Lock()
 
 # Kept out of the embedded text: ids and numbers add noise to similarity. The LLM still sees them.
 EMBED_EXCLUDED_METADATA = ["arxiv_id", "page", "year", "heading"]
@@ -140,6 +144,25 @@ class Storage:
             # Explicit: without a vector store attached, "upserts" silently falls back to this anyway.
             docstore_strategy=DocstoreStrategy.DUPLICATES_ONLY,
         )
+        self.repaired = self._forget_unindexed_documents()
+
+    def _forget_unindexed_documents(self) -> int:
+        """Make "seen" (pipeline docstore) agree with "indexed" (index docstore).
+
+        The two are separate files. If they were read while another writer was mid-save (an interrupted
+        run's leftover thread, or a second `ingest` running), the pipeline could claim a document whose
+        chunks the loaded index lacks, and then skip it forever. Forgetting such documents makes the next
+        ingest re-add them; deterministic chunk ids make that an overwrite, never a duplicate.
+        """
+        indexed = self.index.docstore.docs
+        if indexed and not any("/" in i for i in indexed):
+            return 0  # an index from before deterministic ids: nothing to compare against
+        docstore = self.pipeline.docstore
+        assert docstore is not None
+        stale = [d for d in docstore.get_all_document_hashes().values() if f"{d}/0" not in indexed]
+        for doc_id in stale:
+            docstore.delete_document(doc_id, raise_error=False)
+        return len(stale)
 
     def ingest(self, documents: list[Document]) -> int:
         """Split + embed only unseen documents, add them to the index. Returns the new node count.
@@ -167,8 +190,16 @@ class Storage:
         "these documents are done") goes last: if we die before it, the documents are re-ingested,
         and deterministic chunk ids make that an overwrite, not a duplicate."""
         assert self.pipeline.docstore is not None and self.pipeline.cache is not None
-        tmp = self.storage_dir.with_name(self.storage_dir.name + ".tmp")
-        shutil.rmtree(tmp, ignore_errors=True)
+        with _PERSIST_LOCK:  # one save at a time per process; a unique temp dir per save
+            self.storage_dir.parent.mkdir(parents=True, exist_ok=True)
+            tmp = Path(tempfile.mkdtemp(prefix=self.storage_dir.name + ".", dir=self.storage_dir.parent))
+            try:
+                self._persist_via(tmp)
+            finally:
+                shutil.rmtree(tmp, ignore_errors=True)
+
+    def _persist_via(self, tmp: Path) -> None:
+        assert self.pipeline.docstore is not None and self.pipeline.cache is not None
         self.index.storage_context.persist(persist_dir=str(tmp))
         self.pipeline.cache.persist(str(tmp / "cache.json"))
         self.pipeline.docstore.persist(str(tmp / "pipeline_docstore.json"))
@@ -180,4 +211,3 @@ class Storage:
         os.replace(tmp / "cache.json", self.cache_path)
         self.pipeline_docstore_path.parent.mkdir(parents=True, exist_ok=True)
         os.replace(tmp / "pipeline_docstore.json", self.pipeline_docstore_path)
-        shutil.rmtree(tmp, ignore_errors=True)

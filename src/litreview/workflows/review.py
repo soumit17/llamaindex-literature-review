@@ -26,11 +26,7 @@ automatically; M5 makes it interactive.
 from __future__ import annotations
 
 import asyncio
-import hashlib
-import json
-import re
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Annotated
 
 from llama_index.core.llms import LLM, ChatMessage
@@ -42,8 +38,7 @@ from workflows.events import StepFailedEvent
 from workflows.resource import Resource
 
 from litreview import prompts
-from litreview.bib import Numbering, bibtex, reference_line, strip_unknown_markers
-from litreview.config import get_settings
+from litreview.bib import strip_unknown_markers
 from litreview.corpus import PaperMeta, Topic
 from litreview.cost import CostTracker
 from litreview.events import (
@@ -77,6 +72,7 @@ from litreview.models import (
     ScopeVerdict,
     SubQuestionPlan,
 )
+from litreview.render import DraftSection, atomic_write, out_dir, render_review
 from litreview.resources import (
     get_cost_tracker,
     get_llm,
@@ -95,23 +91,6 @@ from litreview.workflows.citation_check import CheckRequest, CitationCheckWorkfl
 MAX_OUTLINE_ATTEMPTS = 3
 MAX_REVISIONS = 2  # citation check -> revise loop: at most 2 revise rounds, so at most 3 checks
 QUOTE_MATCH_THRESHOLD = 85  # rapidfuzz partial_ratio, 0-100
-
-
-def slugify(question: str) -> str:
-    words = re.findall(r"[a-z0-9]+", question.lower())[:8]
-    digest = hashlib.sha1(question.encode()).hexdigest()[:6]
-    return "-".join(words + [digest])
-
-
-def out_dir(question: str) -> Path:
-    return get_settings().p2_out_dir / slugify(question)
-
-
-def _atomic_write(path: Path, text: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(text)
-    tmp.replace(path)
 
 
 class ReviewWorkflow(Workflow):
@@ -464,49 +443,18 @@ class ReviewWorkflow(Workflow):
         tracker: Annotated[CostTracker, Resource(get_cost_tracker)],
     ) -> ReviewReady:
         state = await ctx.store.get_state()
-        claims = {c.claim_id: c for r in state.findings.values() for c in r.claims}
-        numbering = Numbering(claims)
-        body = [f"## {d.heading}\n\n{numbering.renumber(d.markdown)}" for d in ev.sections]
-
-        refs = sorted(numbering.refs.values(), key=lambda r: r.number)
-        known_nodes = storage.index.docstore.docs
-        unknown_nodes = [n for r in refs for n in r.node_ids if n not in known_nodes]
-        if unknown_nodes:  # can't happen: node ids come from retrieval. Fail loudly if it ever does.
-            raise RuntimeError(f"citations point at chunks not in the index: {unknown_nodes[:3]}")
-        failed = [r.sub_question for r in sorted(state.findings.values(), key=lambda r: r.idx) if not r.ok]
-        gaps = [f"- {r.sub_question}: {r.gap}" for r in state.findings.values() if r.ok and r.gap]
-
-        n_papers = len({r.arxiv_id for r in refs})
-        blocks = [  # one Markdown block each; joined with blank lines
-            f"# {ev.title}",
-            f"> **Question:** {state.question}  \n> Generated {datetime.now(UTC):%Y-%m-%d} from "
-            f"{_plural(n_papers, 'paper')}, {_plural(len(refs), 'cited passage')}.",
-            *body,
-        ]
-        if failed or gaps:
-            notes = [f"- Not covered (research failed): {q}" for q in failed] + gaps
-            blocks += ["## Coverage notes", "\n".join(notes)]
-        blocks += ["## References", "\n".join(reference_line(r, papers[r.arxiv_id]) + "  " for r in refs)]
-
-        folder = out_dir(state.question)
-        md_path, bib_path = folder / "review.md", folder / "refs.bib"
-        _atomic_write(md_path, "\n\n".join(blocks) + "\n")
-        cited_papers = [papers[a] for a in dict.fromkeys(r.arxiv_id for r in refs)]
-        _atomic_write(bib_path, bibtex(cited_papers))
-        _atomic_write(folder / "citations.json", json.dumps(_citations_json(refs, papers), indent=2) + "\n")
-        _atomic_write(folder / "log.txt", "\n".join(state.log) + "\n")
-        issues = [i.model_dump() for i in ev.remaining_issues]
-        _atomic_write(folder / "check_issues.json", json.dumps(issues, indent=2) + "\n")
-
-        return ReviewReady(
-            markdown_path=str(md_path),
-            bib_path=str(bib_path),
-            n_citations=len(refs),
-            unsupported_claims=len(ev.remaining_issues),
-            citation_rounds=state.citation_rounds,
-            unknown_markers=numbering.unknown + sum(d.unknown_markers for d in ev.sections),
-            failed_subquestions=failed,
-            cost_usd=round(tracker.spent_usd - state.cost_at_start, 6),
+        return render_review(
+            out_dir(state.question),
+            state.question,
+            ev.title,
+            [DraftSection(d.heading, d.markdown, d.unknown_markers) for d in ev.sections],
+            list(state.findings.values()),
+            papers,
+            storage.index.docstore.docs,
+            state.log,
+            ev.remaining_issues,
+            state.citation_rounds,
+            tracker.spent_usd - state.cost_at_start,
         )
 
     # ---------- cross-cutting ----------
@@ -532,7 +480,7 @@ class ReviewWorkflow(Workflow):
             ]
             lines.append(f"- research failed: {r.error}" if r.error else "")
         path = out_dir(state.question or "failed-run") / "partial.md"
-        _atomic_write(path, "\n".join(lines) + "\n")
+        atomic_write(path, "\n".join(lines) + "\n")
         return ReviewReady(
             markdown_path=str(path),
             bib_path="",
@@ -563,29 +511,3 @@ def _section_findings(state: ReviewState, finding_ids: list[int]) -> list[Findin
         return [r for r in usable if r.idx in finding_ids]
     # Introduction / conclusion: a few claims from every finding, to frame without repeating.
     return [r.model_copy(update={"claims": r.claims[:3]}) for r in usable]
-
-
-def _plural(n: int, word: str) -> str:
-    return f"{n} {word}{'' if n == 1 else 's'}"
-
-
-def _citations_json(refs, papers: dict[str, PaperMeta]) -> list[dict]:
-    return [
-        {
-            "n": r.number,
-            "arxiv_id": r.arxiv_id,
-            "page": r.page,
-            "title": papers[r.arxiv_id].title,
-            "claims": [
-                {
-                    "claim_id": c.claim_id,
-                    "statement": c.statement,
-                    "node_id": c.citation.node_id,
-                    "quote": c.citation.quote,
-                    "quote_verified": c.citation.quote_verified,
-                }
-                for c in r.claims
-            ],
-        }
-        for r in refs
-    ]

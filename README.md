@@ -229,3 +229,28 @@ uv run python scripts/crash_ingest.py          # kill -9 an ingest at 12 summari
 | Checkpoint loop on `StepStateChanged` | [durability.py](src/litreview/durability.py), `litreview ingest` |
 | At-least-once resume made safe: deterministic ids, persist-then-done, atomic files | [pipeline.py](src/litreview/retrieval/pipeline.py), `index_paper` |
 | Crash test (real kill -9) | [scripts/crash_ingest.py](scripts/crash_ingest.py) |
+
+## M6: the same review as agents, and the comparison
+
+```bash
+uv run litreview agent-review                       # Planner -> Researcher -> Writer -> Reviewer, you approve the outline
+uv run litreview agent-review --yes                 # outline approved automatically
+uv run litreview agent-review --detach              # pause at the outline; then `litreview approve <run_id>`
+uv run litreview agent-review "follow-up question" --session mytopic   # reuse the conversation of an earlier run
+uv run python scripts/compare_workflows.py --questions 1 --repeats 1   # quick look (~$0.1)
+uv run python scripts/compare_workflows.py          # full protocol: 3 questions x 2 repeats (~$0.5-1)
+```
+
+Output goes to `out/<slug>/agent/` (next to Workflow 2's `out/<slug>/`). The comparison writes
+`docs/explicit-vs-agentic.md`; fill in the "Your notes" section.
+
+| Concept | Where |
+|---|---|
+| `AgentWorkflow` + four `FunctionAgent`s, `can_handoff_to` | `build_agent_review` in [agent_review.py](src/litreview/workflows/agent_review.py) |
+| Tools that take `ctx: Context` first; shared state in `ctx.store` | `ReviewTools` |
+| HITL pattern C: `ctx.wait_for_event(..., waiter_id=...)` inside a tool | `propose_outline` |
+| Agent memory (SQLite session), re-attached after restore | `agent_memory`, `attach_memory` |
+| Streaming `AgentInput` / `ToolCall` / `ToolCallResult` | `_AgentUI` in [cli.py](src/litreview/cli.py) |
+| Same renderer for both workflows | [render.py](src/litreview/render.py) |
+| Comparison protocol (§8.3) | [scripts/compare_workflows.py](scripts/compare_workflows.py) |
+| Agents, tools and handoffs as a diagram | [docs/agent_flow.md](docs/agent_flow.md) |
