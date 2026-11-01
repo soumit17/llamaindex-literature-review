@@ -36,10 +36,12 @@ Excerpts from research papers:
 
 {excerpts}
 
-Answer the sub-question using ONLY these excerpts, as separate claims. Each claim is one factual
-sentence supported by exactly one excerpt: give that excerpt's number and a short quote copied
-word for word from it. Do not use outside knowledge. If the excerpts don't answer part of the
-question, say what is missing in `gap`. At most 8 claims, about 180 words in total."""
+Answer the sub-question using ONLY these excerpts, as separate claims. When several excerpts are
+relevant, draw on as many different papers as they support rather than mining one excerpt. Each
+claim is one factual sentence supported by exactly one excerpt: give that excerpt's number and a
+short quote copied word for word from it. Do not use outside knowledge. If the excerpts don't
+answer part of the question, say what is missing in `gap`. At most 8 claims, about 180 words in
+total."""
 
 OUTLINE = """[OUTLINE]
 You are outlining a literature review for {audience}.

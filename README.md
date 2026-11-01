@@ -278,3 +278,28 @@ Over plain HTTP that is `POST /events/{handler_id}` with `{"event": {...}}`.
 | DBOS runtime for the server | `production_server("dbos")` |
 | Retry policies that survive pickling | `NamedPolicy` in [retry.py](src/litreview/retry.py) |
 | Restart behaviour, measured | [scripts/server_restart_demo.py](scripts/server_restart_demo.py), docs/decisions.md D12 |
+
+## M8: tracing, the debugger UI, and the evals
+
+```bash
+uv run python scripts/trace_summary.py                  # latest traced run as a tree (every run is traced)
+uvx --from arize-phoenix phoenix serve                  # optional UI; then OTEL_EXPORTER=otlp in .env
+uv run litreview cost --by-step                         # where the money goes
+uv run python -m evals.retrieval --no-router --apply    # re-measure retrieval incl. the diversity cap ($0)
+uv run python -m evals.citations                        # 3 fresh reviews + citation faithfulness (~$0.05)
+uv run python -m evals.quality judge                    # Sonnet rubric on those 3 reviews (~$0.05)
+uv run python -m evals.quality sheet                    # then fill evals/reports/quality_blind/scores.json
+uv run python -m evals.quality agree
+uv run python -m evals.compare --save                   # baseline; later: uv run python -m evals.compare
+```
+
+Walkthroughs to fill in with your screenshots: [docs/observability.md](docs/observability.md),
+[docs/debugger.md](docs/debugger.md).
+
+| Concept | Where |
+|---|---|
+| OTel export (file + OTLP), custom `CitationChecked` event | [telemetry.py](src/litreview/telemetry.py) |
+| Custom span with `@dispatcher.span` | [quotes.py](src/litreview/quotes.py) |
+| Span tree and step concurrency from the trace file | [traces.py](src/litreview/traces.py), [scripts/trace_summary.py](scripts/trace_summary.py) |
+| Diversity cap after reranking | `Diversify` in [engines.py](src/litreview/retrieval/engines.py) |
+| Citation, quality and regression evals | [evals/](evals/) |

@@ -58,11 +58,14 @@ class Row:
     mrr: float
     n: int
     seconds: float
+    diverse: bool = False  # at most 2 of the top-5 chunks per paper
+    papers_at_5: float = 0.0  # distinct papers among the top-5 chunks, averaged over questions
 
     @property
     def name(self) -> str:
         retriever = "router" if self.router else "vector"
-        return f"{self.splitter} | rerank {'on' if self.rerank else 'off'} | {retriever}"
+        cap = " | <=2/paper" if self.diverse else ""
+        return f"{self.splitter} | rerank {'on' if self.rerank else 'off'} | {retriever}{cap}"
 
 
 def splitter_name(c: SplitterConfig) -> str:
@@ -88,13 +91,15 @@ def papers_in_rank_order(nodes) -> list[str]:
     return seen
 
 
-def evaluate(engine, questions: list[LabeledQuestion]) -> tuple[float, float]:
-    hits, mrrs = [], []
+def evaluate(engine, questions: list[LabeledQuestion]) -> tuple[float, float, float]:
+    """(hit-rate@5, MRR, mean distinct papers in the top 5)."""
+    hits, mrrs, papers = [], [], []
     for q in questions:
         retrieved = papers_in_rank_order(engine.retrieve(QueryBundle(q.question)))
         hits.append(HitRate().compute(expected_ids=q.relevant_arxiv_ids, retrieved_ids=retrieved).score)
         mrrs.append(MRR().compute(expected_ids=q.relevant_arxiv_ids, retrieved_ids=retrieved).score)
-    return sum(hits) / len(hits), sum(mrrs) / len(mrrs)
+        papers.append(len(retrieved))
+    return sum(hits) / len(hits), sum(mrrs) / len(mrrs), sum(papers) / len(papers)
 
 
 def load_variant(path: Path, embed_model: BaseEmbedding):
@@ -125,16 +130,42 @@ async def run(router: bool, apply: bool) -> None:
     for use_router in [False, True] if router else [False]:  # router (paid) configs last
         for name, (vector_index, summary_index) in loaded.items():
             for rerank in (False, True):
-                config = QueryConfig(router=use_router, rerank=rerank)
-                retriever = make_retriever(vector_index, summary_index, config, llm, embed_model)
-                engine = make_query_engine(retriever, config, reranker, llm)
-                started = time.time()
-                hit, mrr = evaluate(engine, questions)
-                row = Row(name, rerank, use_router, hit, mrr, len(questions), time.time() - started)
-                rows.append(row)
-                console.print(f"  {row.name:<42} hit@5 {hit:.2f}  MRR {mrr:.2f}  ({row.seconds:.0f}s)")
+                for diverse in (False, True):
+                    config = QueryConfig(
+                        router=use_router, rerank=rerank, max_chunks_per_paper=2 if diverse else None
+                    )
+                    retriever = make_retriever(vector_index, summary_index, config, llm, embed_model)
+                    engine = make_query_engine(retriever, config, reranker, llm)
+                    started = time.time()
+                    hit, mrr, papers = evaluate(engine, questions)
+                    row = Row(
+                        name,
+                        rerank,
+                        use_router,
+                        hit,
+                        mrr,
+                        len(questions),
+                        time.time() - started,
+                        diverse,
+                        papers,
+                    )
+                    rows.append(row)
+                    console.print(
+                        f"  {row.name:<54} hit@5 {hit:.2f}  MRR {mrr:.2f}  papers@5 {papers:.1f}"
+                        f"  ({row.seconds:.0f}s)"
+                    )
 
-    best = max(rows, key=lambda r: (round(r.hit_rate, 3), round(r.mrr, 3), not r.router, not r.rerank))
+    # Highest hit@5, then MRR; ties go to more distinct papers, then the cheaper config.
+    best = max(
+        rows,
+        key=lambda r: (
+            round(r.hit_rate, 3),
+            round(r.mrr, 3),
+            round(r.papers_at_5, 1),
+            not r.router,
+            not r.rerank,
+        ),
+    )
     spent = get_cost_tracker().spent_usd - spent_before
     show(rows, best)
     write_report(rows, best, spent)
@@ -145,7 +176,7 @@ async def run(router: bool, apply: bool) -> None:
 
 def show(rows: list[Row], best: Row) -> None:
     table = Table(title="Retrieval eval (paper level, top-5 chunks)")
-    for col in ("splitter", "rerank", "retriever", "hit@5", "MRR"):
+    for col in ("splitter", "rerank", "retriever", "<=2/paper", "hit@5", "MRR", "papers@5"):
         table.add_column(col)
     for r in sorted(rows, key=lambda r: (-r.hit_rate, -r.mrr)):
         style = "bold green" if r is best else None
@@ -153,8 +184,10 @@ def show(rows: list[Row], best: Row) -> None:
             r.splitter,
             "on" if r.rerank else "off",
             "router" if r.router else "vector",
+            "yes" if r.diverse else "no",
             f"{r.hit_rate:.2f}",
             f"{r.mrr:.2f}",
+            f"{r.papers_at_5:.1f}",
             style=style,
         )
     console.print(table)
@@ -165,20 +198,22 @@ def write_report(rows: list[Row], best: Row, spent: float) -> None:
         "# Retrieval eval",
         "",
         f"{rows[0].n} labeled questions (data/qa/labeled.jsonl). Paper-level metrics over the top-5 "
-        "chunks: hit-rate@5 and MRR (LlamaIndex `HitRate` / `MRR`).",
+        "chunks: hit-rate@5 and MRR (LlamaIndex `HitRate` / `MRR`), and papers@5 = distinct papers among the "
+        "top-5 chunks (what a review can draw on).",
         "",
-        "| splitter | rerank | retriever | hit@5 | MRR | seconds |",
-        "|---|---|---|---|---|---|",
+        "| splitter | rerank | retriever | <=2/paper | hit@5 | MRR | papers@5 | seconds |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for r in sorted(rows, key=lambda r: (-r.hit_rate, -r.mrr)):
         mark = " **(chosen)**" if r is best else ""
         lines.append(
             f"| {r.splitter}{mark} | {'on' if r.rerank else 'off'} | {'router' if r.router else 'vector'} "
-            f"| {r.hit_rate:.2f} | {r.mrr:.2f} | {r.seconds:.0f} |"
+            f"| {'yes' if r.diverse else 'no'} | {r.hit_rate:.2f} | {r.mrr:.2f} | {r.papers_at_5:.1f} "
+            f"| {r.seconds:.0f} |"
         )
     lines += [
         "",
-        f"Chosen: **{best.name}** (highest hit@5, then MRR; ties prefer the cheaper: no router, no rerank).",
+        f"Chosen: **{best.name}** (highest hit@5, then MRR, then papers@5; then the cheaper config).",
         f"Acceptance (spec M3): hit@5 >= 0.8 -> **{'met' if best.hit_rate >= 0.8 else 'NOT met'}**.",
         f"Eval cost: ${spent:.4f}.",
         "",
@@ -196,7 +231,9 @@ def write_report(rows: list[Row], best: Row, spent: float) -> None:
 def apply_config(best: Row) -> None:
     path = CONFIG_DIR / "retrieval.json"
     config = json.loads(path.read_text())
-    config["query"].update({"router": best.router, "rerank": best.rerank})
+    config["query"].update(
+        {"router": best.router, "rerank": best.rerank, "max_chunks_per_paper": 2 if best.diverse else None}
+    )
     current = splitter_name(SplitterConfig(**config["splitter"]))
     if best.splitter != current:
         kind, _, size = best.splitter.partition("-")

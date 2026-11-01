@@ -9,6 +9,8 @@
     "top_k": 12,
     "rerank_top_n": 5,
     "router": false,
-    "rerank": true
-  }
+    "rerank": true,
+    "max_chunks_per_paper": 2
+  },
+  "_diversity_note": "max_chunks_per_paper: at most N of the final top-5 chunks from one paper (null = off). Added in M8; see evals/reports/retrieval.md."
 }

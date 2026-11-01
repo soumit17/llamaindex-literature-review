@@ -115,3 +115,18 @@ async def test_query_engine_resource_follows_config(ingested):
 def test_query_config_comes_from_retrieval_json():
     config = json.loads((CONFIG_DIR / "retrieval.json").read_text())
     assert QueryConfig(**config["query"]).rerank_top_n == 5
+
+
+def test_diversify_caps_chunks_per_paper_and_backfills():
+    from litreview.retrieval.engines import Diversify
+
+    def ranked(*papers):
+        return [
+            NodeWithScore(node=TextNode(text=f"{p}{i}", metadata={"arxiv_id": p}), score=1)
+            for i, p in enumerate(papers)
+        ]
+
+    pick = Diversify(top_n=5, max_per_paper=2).postprocess_nodes(ranked("a", "a", "a", "a", "b", "c", "a"))
+    assert [n.node.metadata["arxiv_id"] for n in pick] == ["a", "a", "b", "c", "a"]  # 3rd "a" backfilled
+    same = Diversify(top_n=3, max_per_paper=None).postprocess_nodes(ranked("a", "a", "a", "b"))
+    assert [n.node.metadata["arxiv_id"] for n in same] == ["a", "a", "a"]

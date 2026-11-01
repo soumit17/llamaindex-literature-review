@@ -349,3 +349,29 @@ Verified against the docs MCP (agent human_in_the_loop, state) and the installed
 - The demo's workflow lives in the package (`workflows/countdown.py`): DBOS pickles events, and pickle
   can't import a class from a file the server launcher loaded under an ad-hoc module name.
 - The demo picks a free port: another local project was already listening on the first one tried.
+
+## D13. M8 observability, diversity, evals
+
+- **Tracing**: `llama-index-observability-otel` turns the instrumentation dispatcher into OTel spans:
+  run -> step (with run id and input event) -> retrieval / rerank / LLM; child workflows nest under the
+  calling step. Exporters: a JSON-lines file always (`runs/traces/spans.jsonl`, simple processor so
+  nothing is lost on kill), plus OTLP/HTTP to Phoenix on request. New dependency (approved):
+  `opentelemetry-exporter-otlp-proto-http`; Phoenix itself runs via `uvx`, outside the project.
+- **Custom instrumentation**: `quotes.quote_in_chunk` (now the single quote check used by research, the
+  citation check and the agents) has `@dispatcher.span` and emits a `CitationChecked` event.
+- **Cost per step**: the ledger's `step` column is filled from the runtime's step context variable
+  (`StepWorkerStateContextVar`, internal to llama-index-workflows; failures leave it empty).
+  `litreview cost --by-step`.
+- **Research diversity** (approved): the reranker now only re-orders all 12 candidates; a `Diversify`
+  postprocessor always picks the final 5, at most `max_chunks_per_paper` (2) per paper, backfilling if
+  fewer papers are available; the research prompt asks for claims across papers. Eval on 40 questions
+  (scratch copy, $0): papers@5 1.7 -> 2.5, hit@5 0.90 -> 0.90, MRR 0.86 -> 0.86 (rerank on);
+  without rerank hit@5 0.82 -> 0.85. Remaining limit: with 12 candidates, some questions only have 1-2
+  papers to choose from (a larger `top_k` is the next knob).
+- **Citation eval** uses its own strict prompt (`[EVAL-CITE]`), not the pipeline checker's, plus
+  LlamaIndex `FaithfulnessEvaluator` on a 10-sentence sample, reporting agreement. Same model family as
+  the writer, so expect some leniency: that is the point of your manual check and the second opinion.
+- **Quality eval**: Sonnet rubric (coverage, structure, no_fabrication, hedging), one call per review;
+  `sheet` / `agree` for blind human scoring.
+- **Regression gate** (`evals/compare.py`): metrics on a 0-100 scale from the reports; fails if any drops
+  more than 3 points under `evals/baseline.json` (unknown-node % is stored negated).

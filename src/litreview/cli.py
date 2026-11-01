@@ -1,5 +1,5 @@
 """`litreview` command line. M0: hello, tiny, smoke, draw, cost. M2: ingest. M4: review.
-M5: pending, approve. M6: agent-review. M7: serve."""
+M5: pending, approve. M6: agent-review. M7: serve. M8: tracing, cost --by-step."""
 
 from __future__ import annotations
 
@@ -17,6 +17,13 @@ from litreview.config import PROJECT_ROOT, get_settings
 
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 console = Console()
+
+
+def _tracing() -> None:
+    """Spans to runs/traces/spans.jsonl (+ Phoenix with OTEL_EXPORTER=otlp); see telemetry.py."""
+    from litreview.telemetry import setup_telemetry
+
+    setup_telemetry()
 
 
 def _short(event_name: str) -> str:
@@ -156,6 +163,7 @@ def ingest(
     """Run the ingestion workflow: fetch -> parse -> index -> summarize. Summaries cost ~$0.001/paper.
 
     Checkpointed: if a run is killed, the next `litreview ingest` resumes where it stopped."""
+    _tracing()
     from llama_index.utils.workflow import draw_most_recent_execution_mermaid
     from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskID, TextColumn, TimeElapsedColumn
 
@@ -391,6 +399,7 @@ def review(
     quiet: bool = typer.Option(False, "--quiet", help="Print only the output paths (implies --yes)."),
 ) -> None:
     """Write a cited literature review: plan -> research -> outline (you approve) -> write -> check."""
+    _tracing()
     from litreview.config import CONFIG_DIR
     from litreview.corpus import Topic
     from litreview.events import ReviewRequest
@@ -448,6 +457,7 @@ def approve(
     debug_steps: bool = typer.Option(False, "--debug-steps"),
 ) -> None:
     """Continue a detached run in this process: restore its snapshot and send your decision."""
+    _tracing()
     import yaml
     from pydantic import ValidationError
 
@@ -603,6 +613,7 @@ def agent_review(
     debug_steps: bool = typer.Option(False, "--debug-steps", help="Show the AgentWorkflow's own steps."),
 ) -> None:
     """Workflow 3: the same review by four agents (Planner, Researcher, Writer, Reviewer) handing off."""
+    _tracing()
     from litreview.config import CONFIG_DIR
     from litreview.corpus import Topic
     from litreview.hitl import PendingStore, drive, new_run_id
@@ -635,6 +646,7 @@ def serve(
     port: int = typer.Option(None, help="Default: WORKFLOWS_PY_SERVER_PORT or 8080."),
 ) -> None:
     """Serve ingest, review and agent_review over HTTP, with the debugger UI at http://HOST:PORT/."""
+    _tracing()
     import os
 
     from litreview.server import production_server
@@ -651,12 +663,36 @@ def serve(
 
 
 @app.command()
-def cost() -> None:
+def cost(by_step: bool = typer.Option(False, "--by-step", help="Break spend down by workflow step.")) -> None:
     """Show P2 spend so far from runs/costs.jsonl."""
+    from collections import defaultdict
+
+    from rich.table import Table
+
     ledger = get_settings().p2_runs_dir / "costs.jsonl"
     rows = [json.loads(line) for line in ledger.read_text().splitlines()] if ledger.exists() else []
     total = sum(r["cost_usd"] for r in rows)
     console.print(f"{len(rows)} calls, ${total:.6f} of ${get_settings().p2_spend_cap_usd:.2f} cap")
+    if not by_step:
+        return
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for r in rows:  # rows before M8 have no step recorded
+        groups[r.get("step") or "(not recorded)"].append(r)
+    table = Table(title="Spend by workflow step")
+    for col in ("step", "calls", "input tokens", "output tokens", "cost", "share", "cut off"):
+        table.add_column(col, justify="left" if col == "step" else "right")
+    for step, rs in sorted(groups.items(), key=lambda kv: -sum(r["cost_usd"] for r in kv[1])):
+        spent = sum(r["cost_usd"] for r in rs)
+        table.add_row(
+            step,
+            str(len(rs)),
+            f"{sum(r['input_tokens'] for r in rs):,}",
+            f"{sum(r['output_tokens'] for r in rs):,}",
+            f"${spent:.4f}",
+            f"{100 * spent / total:.0f}%" if total else "-",
+            str(sum(r.get("stop_reason") == "max_tokens" for r in rs)),
+        )
+    console.print(table)
 
 
 if __name__ == "__main__":

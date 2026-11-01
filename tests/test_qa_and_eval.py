@@ -67,6 +67,7 @@ def test_hit_rate_and_mrr_at_paper_level():
         LabeledQuestion(id="3", question="q3", relevant_arxiv_ids=["z"], kind="specific"),
     ]
     engine = FakeEngine({"q1": ["a", "a", "b"], "q2": ["b", "b", "c"], "q3": ["a", "b"]})
-    hit, mrr = evaluate(engine, questions)
+    hit, mrr, papers = evaluate(engine, questions)
     assert hit == 2 / 3
+    assert papers == (2 + 2 + 2) / 3
     assert mrr == (1 + 1 / 2 + 0) / 3  # q2: "c" is the 2nd distinct paper even though it's the 3rd chunk
